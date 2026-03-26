@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ Thống Quản Lý Chỉ Tiêu Mở Tài Khoản - Yên Thọ</title>
+
+    <!-- Pre-load styles -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="style.css" rel="stylesheet">
+</head>
+<body>
+    <div id="global-spinner">
+        <div class="spinner-border text-success spinner-lg" role="status"></div>
+        <h5 class="mt-3 fw-bold text-secondary">Đang kết nối hệ thống...</h5>
+    </div>
+
+    <div id="app-container" class="container py-4 mb-5">
+        <!-- VIEW: LOGIN -->
+        <section id="view-login" class="view-section">
+            <div class="container d-flex justify-content-center align-items-center min-vh-80">
+                <div class="col-12 col-md-6 col-lg-4">
+                    <div class="card p-4 p-md-5 border-0 shadow-lg rounded-4 login-card-layout glass-card">
+                        <div class="text-center mb-4">
+                            <i class='bx bxs-bank text-primary' style="font-size: 3.5rem;"></i>
+                            <h3 class="fw-bold mt-2 text-dark">Quỹ TDND Yên Thọ</h3>
+                            <p class="text-secondary small">Hệ thống QL Chỉ tiêu Mở Tài khoản</p>
+                        </div>
+                        <form id="frm-login">
+                            <div class="mb-3">
+                                <label for="loginEmail" class="form-label fw-semibold text-secondary">Email cán bộ (<span class="text-danger">*</span>)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white border-end-0"><i class='bx bx-envelope text-muted'></i></span>
+                                    <input type="email" class="form-control border-start-0 ps-0" id="loginEmail" placeholder="abc.nguyen@yentho.com" required>
+                                </div>
+                            </div>
+                            <div class="mb-4">
+                                <label for="loginPassword" class="form-label fw-semibold text-secondary">Mật khẩu (<span class="text-danger">*</span>)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white border-end-0"><i class='bx bx-lock-alt text-muted'></i></span>
+                                    <input type="password" class="form-control border-start-0 ps-0" id="loginPassword" placeholder="••••••••" required>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100 py-2 fs-5 d-flex align-items-center justify-content-center gap-2">
+                                Đăng Nhập <i class='bx bx-log-in-circle'></i>
+                            </button>
+                        </form>
+                        <div class="text-center mt-4 border-top pt-3">
+                            <p class="text-muted small mb-1">Phiên bản: Netlify v2.0</p>
+                            <small class="text-muted d-flex align-items-center justify-content-center gap-1">
+                                <i class='bx bx-shield-quarter text-success'></i> Kết nối độc lập an toàn.
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW: DASHBOARD (ADMIN) -->
+        <section id="view-dashboard" class="view-section initially-hidden">
+            <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+                <div>
+                    <h4 class="fw-bold text-primary mb-0 d-flex align-items-center gap-2">
+                        <i class='bx bxs-dashboard text-warning'></i> Bảng Điều Khiển Quản Trị
+                    </h4>
+                    <p class="text-muted mb-0 small">Theo dõi tiến độ KPIs toàn hệ thống theo thời gian thực.</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1 shadow-sm px-3" onclick="openChangePasswordModal()">
+                        <i class='bx bx-lock-open-alt fs-5'></i> <span class="d-none d-sm-inline fw-semibold">Đổi Pass</span>
+                    </button>
+                    <button id="btnRefreshAdmin" class="btn btn-outline-primary btn-sm d-flex align-items-center gap-1 shadow-sm px-3" onclick="loadAdminData()">
+                        <i class='bx bx-refresh fs-5'></i> <span class="d-none d-sm-inline fw-semibold">Làm mới</span>
+                    </button>
+                    <button class="btn btn-danger btn-sm d-flex align-items-center gap-1 shadow-sm" onclick="logout()">
+                        <i class='bx bx-log-out fs-5'></i> <span class="d-none d-sm-inline">Thoát</span>
+                    </button>
+                </div>
+            </div>
+            <!-- KPIs -->
+            <div class="row g-3 mb-4">
+                <div class="col-12 col-sm-6 col-xl-3">
+                    <div class="glass-card p-3 border-start border-primary border-4 h-100 d-flex flex-column justify-content-center">
+                        <p class="text-muted mb-1 fw-semibold small text-uppercase">TỔNG TÀI KHOẢN</p>
+                        <h2 class="fw-bold text-primary mb-0" id="db-total">0</h2>
+                        <small class="text-danger mt-1"><i class='bx bx-error-circle'></i> <span id="db-pending">0</span> chưa hoàn thành</small>
+                    </div>
+                </div>
+                <!-- ... other KPI cards truncated for space ... -->
+                <div class="col-12 col-sm-6 col-xl-3">
+                    <div class="glass-card p-3 border-start border-success border-4 h-100 d-flex flex-column justify-content-center">
+                        <p class="text-muted mb-1 fw-semibold small text-uppercase">ĐÃ XÁC MINH</p>
+                        <h2 class="fw-bold text-success mb-0" id="db-approved">0</h2>
+                        <small class="text-muted mt-1">hồ sơ đầy đủ</small>
+                    </div>
+                </div>
+                <div class="col-12 col-sm-6 col-xl-3">
+                    <div class="glass-card p-3 border-start border-info border-4 h-100 d-flex flex-column justify-content-center">
+                        <p class="text-muted mb-1 fw-semibold small text-uppercase">TK CÁ NHÂN</p>
+                        <h2 class="fw-bold text-info mb-0" id="db-ca-nhan">0</h2>
+                    </div>
+                </div>
+                <div class="col-12 col-sm-6 col-xl-3">
+                    <div class="glass-card p-3 border-start border-warning border-4 h-100 d-flex flex-column justify-content-center">
+                        <p class="text-muted mb-1 fw-semibold small text-uppercase">TK HỘ KINH DOANH</p>
+                        <h2 class="fw-bold text-warning mb-0" id="db-hkd-count">0</h2>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-4 mb-4">
+                <div class="col-12">
+                    <div class="glass-card p-3 p-md-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="fw-bold mb-0 text-dark">Tiến độ Mở Tài Khoản Theo Tháng</h5>
+                            <select id="filterYearChart" class="form-select form-select-sm" style="width: auto;"></select>
+                        </div>
+                        <div class="chart-container-monthly" style="height: 240px; position: relative;">
+                            <canvas id="chartMonthly"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-12 col-xl-8">
+                    <div class="glass-card p-3 p-md-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="fw-bold mb-0">Lịch Sử Mở Mới</h5>
+                            <div class="d-flex gap-2">
+                                <select id="filterStaffAdmin" class="form-select form-select-sm"><option value="">Tất cả cán bộ</option></select>
+                            </div>
+                        </div>
+                        <div class="table-responsive">
+                            <table id="tblKH" class="table table-hover dt-responsive nowrap w-100 align-middle">
+                                <thead><tr><th>THỜI GIAN</th><th>Họ TÊN</th><th>SỐ CCCD</th><th>LOẠI HÌNH</th><th>CÁN BỘ</th><th>TRẠNG THÁI</th><th class="text-end">THAO TÁC</th></tr></thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-xl-4 d-flex flex-column gap-4">
+                    <div class="glass-card p-4">
+                        <h6 class="fw-bold mb-3 text-secondary text-uppercase d-flex justify-content-between align-items-center">
+                            <span>Top 5 Cán Bộ</span>
+                            <button class="btn btn-sm btn-outline-primary" onclick="showAllStaffModal()">Chi tiết</button>
+                        </h6>
+                        <div id="db-topstaff" class="d-flex flex-column gap-2"></div>
+                    </div>
+                    <div class="glass-card p-4">
+                        <h6 class="fw-bold mb-3 text-secondary text-uppercase">Phân Bổ Nguồn Khách</h6>
+                        <div class="chart-container-pie" style="height: 200px;"><canvas id="chartLoaiHinh"></canvas></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW: MO TAI KHOAN -->
+        <section id="view-mo-tai-khoan" class="view-section initially-hidden">
+            <!-- Content form ported from frmMoTaiKhoan.html -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4 class="fw-bold text-primary mb-0 d-flex align-items-center gap-2"><i class='bx bx-user-plus'></i> Khai Báo Hồ Sơ Mới</h4>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-outline-danger btn-sm" onclick="logout()"><i class='bx bx-log-out'></i> Đăng xuất</button>
+                </div>
+            </div>
+            <div class="glass-card p-3 p-md-4 mb-4">
+                <form id="frm-mo-tk">
+                    <h5 class="fw-bold border-bottom pb-2 mb-3 text-secondary"><span class="badge bg-primary rounded-circle">A</span> Thông tin định danh</h5>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Loại hình</label>
+                            <select class="form-select" id="loai_hinh" onchange="toggleFormFields()">
+                                <option value="Cá nhân">Cá nhân</option>
+                                <option value="Hộ kinh doanh">Hộ kinh doanh</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Họ và Tên Khách/HKD</label>
+                            <input type="text" class="form-control text-uppercase" id="ten_kh" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Số CCCD (12 số)</label>
+                            <input type="text" class="form-control" id="cccd" maxlength="12" required>
+                        </div>
+                        <div class="col-md-6 initially-hidden" id="div_dkkd">
+                            <label class="form-label fw-semibold">Số ĐKKD</label>
+                            <input type="text" class="form-control text-uppercase" id="dkkd">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Số điện thoại</label>
+                            <input type="tel" class="form-control" id="sdt" required>
+                        </div>
+                    </div>
+                    
+                    <h5 class="fw-bold border-bottom pb-2 mt-4 mb-3 text-secondary"><span class="badge bg-primary rounded-circle">B</span> Thông tin Tài khoản</h5>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Số CIF (16 số)</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light fw-bold text-secondary">3800200</span>
+                                <input type="text" class="form-control" id="so_tk" placeholder="Nhập 9 số cuối" maxlength="9" required>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-semibold">Ngày ĐK</label>
+                            <input type="text" class="form-control js-datepicker" id="ngay_mo" required>
+                        </div>
+                    </div>
+
+                    <h5 class="fw-bold border-bottom pb-2 mt-4 mb-3 text-secondary"><span class="badge bg-primary rounded-circle">C</span> Chứng từ Đính kèm</h5>
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">CCCD Mặt trước</label>
+                            <div class="input-group">
+                                <input class="form-control" type="file" id="img_truoc" accept="image/*" required>
+                                <input type="file" id="cam_truoc" accept="image/*" capture="environment" class="d-none">
+                                <label for="cam_truoc" class="btn btn-outline-primary"><i class='bx bx-camera'></i></label>
+                            </div>
+                            <div id="preview_img_truoc" class="mt-2 initially-hidden img-preview-box"><img src="" class="img-preview-inner"></div>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">CCCD Mặt sau</label>
+                            <div class="input-group">
+                                <input class="form-control" type="file" id="img_sau" accept="image/*" required>
+                                <input type="file" id="cam_sau" accept="image/*" capture="environment" class="d-none">
+                                <label for="cam_sau" class="btn btn-outline-primary"><i class='bx bx-camera'></i></label>
+                            </div>
+                            <div id="preview_img_sau" class="mt-2 initially-hidden img-preview-box"><img src="" class="img-preview-inner"></div>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">QR Tài khoản</label>
+                            <div class="input-group">
+                                <input class="form-control" type="file" id="img_qr" accept="image/*" required>
+                                <input type="file" id="cam_qr" accept="image/*" capture="environment" class="d-none">
+                                <label for="cam_qr" class="btn btn-outline-primary"><i class='bx bx-qr-scan'></i></label>
+                            </div>
+                            <div id="preview_img_qr" class="mt-2 initially-hidden img-preview-box"><img src="" class="img-preview-inner"></div>
+                        </div>
+                    </div>
+
+                    <div id="compress-progress-wrapper" class="mt-4 initially-hidden">
+                        <div class="progress" style="height: 10px;"><div class="progress-bar progress-bar-striped progress-bar-animated bg-success" id="compress-progress-bar" style="width: 0%"></div></div>
+                    </div>
+
+                    <div class="mt-4 pt-3 text-center border-top">
+                        <button type="submit" class="btn btn-primary btn-lg px-5 shadow-sm d-flex align-items-center mx-auto gap-2" id="btnSubmitAccount">
+                            <i class='bx bx-cloud-upload'></i> Gửi Hồ Sơ & Nén Ảnh
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <!-- VIEW: HỒ SƠ CỦA TÔI (STAFF) -->
+        <section id="view-my-customers" class="view-section initially-hidden">
+             <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4 class="fw-bold text-primary mb-0"><i class='bx bx-list-ul'></i> Hồ Sơ Của Tôi</h4>
+                <button class="btn btn-outline-primary btn-sm" onclick="initMyCustomersList()"><i class='bx bx-refresh'></i> Làm mới</button>
+            </div>
+            <div class="glass-card p-3 p-md-4">
+                <div class="table-responsive">
+                    <table id="tblMyCustomers" class="table table-hover dt-responsive nowrap w-100 align-middle">
+                        <thead><tr><th>THỜI GIAN</th><th>Họ TÊN</th><th>CCCD</th><th>LOẠI HÌNH</th><th>TRẠNG THÁI</th><th class="text-end">XEM</th></tr></thead>
+                        <tbody id="tbMyCustomersBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Modals -->
+    <div class="modal fade" id="modalChangePassword" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg rounded-4">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">Đổi Mật Khẩu</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="frmChangePassword">
+                        <div id="pwdAlertForce" class="alert alert-warning initially-hidden">Đổi mật khẩu để tiếp tục.</div>
+                        <div class="mb-3"><label class="form-label">Mật khẩu cũ</label><input type="password" class="form-control" id="pwdOld" required></div>
+                        <div class="mb-3"><label class="form-label">Mật khẩu mới</label><input type="password" class="form-control" id="pwdNew" required></div>
+                        <div class="mb-3"><label class="form-label">Nhập lại</label><input type="password" class="form-control" id="pwdNewConfirm" required></div>
+                        <button type="submit" class="btn btn-primary w-100">CẬP NHẬT</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalEditCustomer" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content border-0 shadow-lg rounded-4">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">Chi tiết Hồ sơ</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body bg-light">
+                    <form id="frmEditCustomer" class="card p-3 border-0">
+                        <input type="hidden" id="edit_id">
+                        <div class="row g-3">
+                            <div class="col-md-6"><label class="form-label">Tên KH</label><input type="text" class="form-control" id="edit_ten_kh" required></div>
+                            <div class="col-md-6"><label class="form-label">Số ĐT</label><input type="tel" class="form-control" id="edit_sdt" required></div>
+                            <div class="col-md-6"><label class="form-label">Ngày mở</label><input type="text" class="form-control js-datepicker" id="edit_ngay_mo" required></div>
+                        </div>
+                        <div class="row g-3 mt-3" id="edit_images_container"></div>
+                        <div class="mt-4 text-end">
+                            <button type="submit" class="btn btn-success px-4" id="btnSaveEdit">Lưu thay đổi</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Nav (Staff) -->
+    <nav class="navbar fixed-bottom bg-white border-top shadow-sm initially-hidden" id="staffBottomNav">
+      <div class="container-fluid d-flex justify-content-around p-1">
+        <a href="#" class="nav-link text-center px-4" onclick="showView('view-mo-tai-khoan')"><i class='bx bx-user-plus fs-2 d-block'></i><small>Mở TK</small></a>
+        <a href="#" class="nav-link text-center px-4" onclick="loadStaffMyCustomersView()"><i class='bx bx-list-ul fs-2 d-block'></i><small>Hồ sơ</small></a>
+      </div>
+    </nav>
+
+    <script>
+        var Module = {
+            onRuntimeInitialized: function() { if (typeof onOpenCvReady === 'function') onOpenCvReady(); }
+        };
+    </script>
+    <script src="https://docs.opencv.org/4.8.0/opencv.js" async></script>
+    
+    <script src="app.js"></script>
+</body>
+</html>

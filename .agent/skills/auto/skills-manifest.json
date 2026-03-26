@@ -1,0 +1,58 @@
+{
+  "html": {
+    "enabled": true,
+    "lastGenerated": "2026-03-26T18:05:43.278Z",
+    "observationCount": 85,
+    "skillCount": 0,
+    "domain": "html",
+    "triggerGlobs": [
+      "**/*.html"
+    ],
+    "description": "Html for HoKinhDoanh. 16 conventions, 29 fixes, 1 error→fix pairs."
+  },
+  "project": {
+    "enabled": true,
+    "lastGenerated": "2026-03-26T18:05:43.276Z",
+    "observationCount": 93,
+    "skillCount": 0,
+    "domain": "project",
+    "triggerGlobs": [
+      "**/*"
+    ],
+    "description": "Project for HoKinhDoanh. 25 gotchas, 34 conventions, 6 fixes."
+  },
+  "gotcha": {
+    "enabled": true,
+    "lastGenerated": "2026-03-26T18:05:43.282Z",
+    "observationCount": 0,
+    "skillCount": 1,
+    "domain": "gotcha",
+    "triggerGlobs": [
+      "**/*"
+    ],
+    "description": "Gotcha for HoKinhDoanh. ."
+  },
+  "problem-fix": {
+    "enabled": true,
+    "lastGenerated": "2026-03-26T18:05:43.280Z",
+    "observationCount": 0,
+    "skillCount": 1,
+    "domain": "problem-fix",
+    "triggerGlobs": [
+      "**/*"
+    ],
+    "description": "Problem Fix for HoKinhDoanh. 2 error→fix pairs."
+  },
+  "javascript": {
+    "enabled": true,
+    "lastGenerated": "2026-03-26T18:05:43.279Z",
+    "observationCount": 5,
+    "skillCount": 0,
+    "domain": "javascript",
+    "triggerGlobs": [
+      "**/*.js",
+      "**/*.jsx"
+    ],
+    "description": "Javascript for HoKinhDoanh. 1 conventions, 3 fixes."
+  }
+}

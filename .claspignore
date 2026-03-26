@@ -1,0 +1,14 @@
+# Ignore all files in the netlify-poc and netlify-app folders
+netlify-poc/**
+netlify-app/**
+
+# Ignore specific other files
+.git/**
+node_modules/**
+README.md
+MIGRATION_PLAN.md
+DANHGIA.md
+KINH_NGHIEM.md
+task.md
+implementation_plan.md
+walkthrough.md

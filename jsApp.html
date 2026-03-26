@@ -1,0 +1,578 @@
+<script>
+/**
+ * APP LOGIC FRONTEND (jsApp.html)
+ * Quản lý Navigation SPA và Gọi API Apps Script
+ * Chuẩn hóa ES5 để tương thích tối đa trên iOS/Android cũ
+ */
+
+var AppState = {
+    user: null,
+    VERSION: "1.4.2" // Cập nhật để xác nhận code mới
+};
+
+// Fallback OpenCV (Harden initialization order)
+window.onOpenCvReady = window.onOpenCvReady || function() {
+    console.log("[System] OpenCV script loaded.");
+};
+
+/**
+ * EXPERT CACHE SYSTEM
+ */
+var AppCache = {
+    data: {},
+    timestamp: {},
+    TTL: 180000, 
+    isFresh: function(key) {
+        if (!this.timestamp[key]) return false;
+        return (Date.now() - this.timestamp[key]) < this.TTL;
+    },
+    set: function(key, val) {
+        this.data[key] = val;
+        this.timestamp[key] = Date.now();
+    },
+    get: function(key) {
+        return this.isFresh(key) ? this.data[key] : null;
+    },
+    clear: function(key) {
+        delete this.data[key];
+        delete this.timestamp[key];
+    },
+    clearAll: function() {
+        this.data = {};
+        this.timestamp = {};
+    }
+};
+
+/**
+ * EXPERT UTILS
+ */
+function utils_formatVN(val, type) {
+    if (!type) type = 'date';
+    if (!val) return 'N/A';
+    var dateObj = new Date(val);
+    if (isNaN(dateObj)) return val;
+    
+    var day   = ('0' + dateObj.getDate()).slice(-2);
+    var month = ('0' + (dateObj.getMonth() + 1)).slice(-2);
+    var year  = dateObj.getFullYear();
+    
+    if (type === 'datetime') {
+        var h = ('0' + dateObj.getHours()).slice(-2);
+        var m = ('0' + dateObj.getMinutes()).slice(-2);
+        return h + ":" + m + " " + day + "/" + month + "/" + year;
+    }
+    return day + "/" + month + "/" + year;
+}
+
+/**
+ * EXPERT API WRAPPER
+ */
+function runAPI(apiName, args, successHandler, errorHandler, loadingMsg) {
+    if (!args) args = [];
+    if (!loadingMsg) loadingMsg = 'Đang xử lý...';
+    if (loadingMsg !== 'NONE') showLoading(loadingMsg);
+    
+    if (typeof google === 'undefined' || !google.script || !google.script.run[apiName]) {
+        if (loadingMsg !== 'NONE') hideLoading();
+        console.error("[Critical] API [" + apiName + "] không tồn tại.");
+        return;
+    }
+
+    google.script.run
+        .withSuccessHandler(function(res) {
+            if (loadingMsg !== 'NONE') hideLoading();
+            if (successHandler) successHandler(res);
+        })
+        .withFailureHandler(function(err) {
+            if (loadingMsg !== 'NONE') hideLoading();
+            console.error("API Error [" + apiName + "]:", err);
+            showAlert('Lỗi hệ thống', err.message || 'Không thể kết nối máy chủ', 'error');
+            if (errorHandler) errorHandler(err);
+        })[apiName].apply(null, args);
+}
+
+// --- UTILS --- //
+function showLoading(msg) {
+    if (!msg) msg = 'Đang xử lý...';
+    $('#global-spinner h5').text(msg);
+    $('#global-spinner').css('display', 'flex');
+}
+
+function hideLoading() {
+    $('#global-spinner').hide();
+}
+
+function showView(viewId) {
+    try {
+        console.log("[Navigation] Showing view:", viewId);
+        $('.view-item').hide();
+        var target = $('#' + viewId);
+        if (target.length === 0) {
+            console.error("[Navigation] View ID not found in DOM:", viewId);
+            return;
+        }
+        target.removeClass('initially-hidden').show();
+    } catch(e) {
+        console.error("showView Error:", e);
+    }
+}
+
+// Navigation Staff logic
+function loadStaffOpenAccountView() {
+    try {
+        showView('view-mo-tai-khoan');
+        $('#staffBottomNav a').removeClass('text-primary fw-bold').addClass('text-secondary');
+        $('#navOpenAccount').removeClass('text-secondary').addClass('text-primary fw-bold');
+    } catch(e) {}
+}
+
+function loadStaffMyCustomersView() {
+    try {
+        showView('view-my-customers');
+        $('#staffBottomNav a').removeClass('text-primary fw-bold').addClass('text-secondary');
+        $('#navMyCustomers').removeClass('text-secondary').addClass('text-primary fw-bold');
+        initMyCustomersList();
+    } catch(e) {}
+}
+
+function utils_handleImgError(img, fallbackId) {
+    try {
+        if (!img) return;
+        img.style.display = 'none';
+        var fb = img.previousElementSibling || document.getElementById(fallbackId);
+        if (fb) fb.classList.remove('d-none');
+    } catch(e) {}
+}
+
+function showAlert(title, text, icon) {
+    Swal.fire({
+        title: title,
+        text: text,
+        icon: icon,
+        confirmButtonColor: '#10b981'
+    });
+}
+
+// --- LOGIN LOGIC --- //
+$(document).ready(function() {
+    var savedSession = sessionStorage.getItem('HOKINHDOANH_SESSION');
+    if (savedSession) {
+        try {
+            AppState.user = JSON.parse(savedSession);
+            handleLoginSuccess(true);
+        } catch(e) {
+            showView('view-login');
+        }
+    } else {
+        showView('view-login');
+    }
+    
+    // Finalize initialization
+    hideLoading();
+
+    $('#frm-login').on('submit', function(e) {
+        e.preventDefault();
+        var email = $('#loginEmail').val().trim();
+        var pwd = $('#loginPassword').val();
+        
+        if(!email || !pwd) {
+            showAlert('Lỗi!', 'Vui lòng nhập Email và Mật khẩu', 'warning');
+            return;
+        }
+
+        var hashedPwd = CryptoJS.SHA256(pwd).toString();
+        runAPI('api_auth_login', [email, hashedPwd], function(res) {
+            if(res.status === 'success') {
+                AppState.user = res.user;
+                if (res.requirePasswordChange) {
+                    openChangePasswordModal(true);
+                } else {
+                    try {
+                        sessionStorage.setItem('HOKINHDOANH_SESSION', JSON.stringify(res.user));
+                    } catch(e) {}
+                    handleLoginSuccess(false);
+                }
+            } else {
+                showAlert('Đăng nhập thất bại', res.message, 'error');
+            }
+        }, function(err) {
+            hideLoading();
+        }, 'Đang xác thực bảo mật...');
+    });
+
+    $('#frmChangePassword').on('submit', function(e) {
+        e.preventDefault();
+        if(!AppState.user) return;
+        
+        var oldP = $('#pwdOld').val();
+        var newP = $('#pwdNew').val();
+        var confirmP = $('#pwdNewConfirm').val();
+        
+        if (newP !== confirmP) {
+            showAlert('Lỗi', 'Mật khẩu mới không khớp!', 'warning');
+            return;
+        }
+        
+        var oldHash = CryptoJS.SHA256(oldP).toString();
+        var newHash = CryptoJS.SHA256(newP).toString();
+        
+        var btn = $('#btnSubmitChangePwd');
+        var oldHtml = btn.html();
+        btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Updating...');
+        
+        google.script.run
+            .withSuccessHandler(function(res) {
+                btn.prop('disabled', false).html(oldHtml);
+                if (res.status === 'success') {
+                    var m = bootstrap.Modal.getInstance(document.getElementById('modalChangePassword'));
+                    if(m) m.hide();
+                    handleLoginSuccess(false);
+                } else {
+                    showAlert('Lỗi Mật Khẩu', res.message, 'error');
+                }
+            })
+            .api_auth_changePassword(AppState.user.email, oldHash, newHash);
+    });
+});
+
+function openChangePasswordModal(isForce) {
+    if (isForce) {
+        $('#pwdAlertForce').removeClass('initially-hidden');
+        $('#btnCloseChangePwdModal').hide(); 
+    } else {
+        $('#pwdAlertForce').addClass('initially-hidden');
+        $('#btnCloseChangePwdModal').show();
+    }
+    var modal = new bootstrap.Modal(document.getElementById('modalChangePassword'));
+    modal.show();
+}
+
+function handleLoginSuccess(isSilent) {
+    if (!AppState.user) return;
+    try {
+        if (!isSilent) {
+            Swal.fire({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, icon: 'success', title: 'Xin chào ' + AppState.user.fullName + '!' });
+        }
+        
+        if(AppState.user.role === 'Admin') {
+            $('#staffBottomNav').hide(); // Admin không cần menu của Nhân viên
+            try { initDashboard(); } catch(e) { console.warn("initDashboard init fail:", e); }
+            showView('view-dashboard');
+        } else {
+            $('#staffBottomNav').show();
+            // Start initializing user data in background
+            try { initMoTaiKhoanForm(); } catch(e) { console.warn("initMoTaiKhoanForm init fail:", e); }
+            try { initMyCustomersList(); } catch(e) { console.warn("initMyCustomersList init fail:", e); }
+            showView('view-mo-tai-khoan');
+        }
+    } catch (error) {
+        console.error("handleLoginSuccess logic error:", error);
+    }
+}
+
+function loadStaffOpenAccountView() {
+    showView('view-mo-tai-khoan');
+}
+
+function refreshUserData() {
+    initMyCustomersList();
+}
+
+function logout() {
+    AppState.user = null;
+    sessionStorage.removeItem('HOKINHDOANH_SESSION');
+    AppCache.clearAll();
+    $('#staffBottomNav').hide();
+    showView('view-login');
+}
+
+// --- STAFF CUSTOMER LOGIC --- //
+var myCustomerData = [];
+var dtMyCustomers = null;
+var userTrendChart = null;
+
+function initMyCustomersList() {
+    try {
+        if(!AppState.user) return;
+        initMyRanking();
+        
+        var cached = AppCache.get('myCustomers');
+        if (cached) {
+            myCustomerData = cached.data;
+            renderMyCustomersTable(myCustomerData);
+            if (cached.timelineDate) renderUserTrendChart(cached.timelineDate);
+            return;
+        }
+
+        $('#tbMyCustomersBody').html('<tr><td colspan="6" class="text-center py-4"><span class="spinner-border text-primary"></span><br>Đang đồng bộ...</td></tr>');
+        runAPI('api_getMyCustomers', [AppState.user.email], function(res) {
+            if(res.status === 'success') {
+                AppCache.set('myCustomers', res);
+                myCustomerData = res.data || [];
+                renderMyCustomersTable(myCustomerData);
+                renderUserTrendChart(res.timelineDate || {});
+            } else {
+                $('#tbMyCustomersBody').html('<tr><td colspan="6" class="text-center text-danger py-4">Lỗi: ' + res.message + '</td></tr>');
+            }
+        }, null, 'NONE');
+    } catch(err) {
+        console.error('initMyCustomersList Error:', err);
+    }
+}
+
+function renderMyCustomersTable(data) {
+    try {
+        var html = '';
+        if (!data || data.length === 0) {
+            html = '<tr><td colspan="6" class="text-center text-muted py-4">Chưa tạo hồ sơ nào.</td></tr>';
+        } else {
+            var dataRev = data.slice().reverse();
+            for (var i = 0; i < dataRev.length; i++) {
+                var d = dataRev[i];
+                var colorTr = d['Trạng thái'] === 'Đã xác minh' ? 'text-success' : 'text-warning';
+                var dTime = utils_formatVN(d['Thời điểm nhập']);
+                var rowId = d['ID'] || d['Mã GD'] || '';
+                var cccd = (d['Số CCCD'] || '').toString().replace(/^'/, '');
+                var dkkd = (d['Số ĐKKD'] || d['Số GP ĐKKD'] || '').toString().replace(/^'/, '');
+                var sdt = (d['Số điện thoại'] || '').toString().replace(/^'/, '');
+                
+                html += '<tr data-cust-id="' + rowId + '" class="cursor-pointer">' +
+                        '<td><small class="text-muted">' + dTime + '</small></td>' +
+                        '<td class="fw-bold text-dark">' + d['Tên khách hàng'] + ' <br><small class="text-secondary fw-normal">' + sdt + '</small></td>' +
+                        '<td><small>' + cccd + '</small></td>' +
+                        '<td><small>' + dkkd + '</small></td>' +
+                        '<td><span class="badge bg-light text-dark border">' + d['Loại hình dịch vụ'] + '</span></td>' +
+                        '<td><span class="' + colorTr + ' fw-bold"><i class="bx bxs-circle"></i> ' + d["Trạng thái"] + '</span></td>' +
+                        '<td><button class="btn btn-sm btn-outline-primary shadow-sm"><i class="bx bx-search-alt"></i> Chi tiết</button></td>' +
+                        '</tr>';
+            }
+        }
+        
+        if ($.fn.DataTable.isDataTable('#tblMyCustomers')) {
+            $('#tblMyCustomers').DataTable().destroy();
+        }
+        $('#tbMyCustomersBody').html(html);
+        
+        if (data && data.length > 0) {
+            dtMyCustomers = $('#tblMyCustomers').DataTable({
+                responsive: true,
+                dom: "<'row mb-2'<'col-sm-12 col-md-4 d-flex align-items-center justify-content-start'l><'col-sm-12 col-md-4 d-flex align-items-center justify-content-center'B><'col-sm-12 col-md-4 d-flex align-items-center justify-content-end'f>>" +
+                     "<'row'<'col-sm-12'tr>>" +
+                     "<'row mt-2'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+                buttons: [
+                    { extend: 'excelHtml5', text: '<i class="bx bxs-file-export"></i> Xuất Excel', className: 'btn btn-sm btn-success shadow-sm', exportOptions: { columns: [0, 1, 2, 3, 4, 5] }, title: 'Ho_So_Cua_Toi' }
+                ],
+                columnDefs: [{ targets: [3], visible: false }],
+                language: { url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json' },
+                order: []
+            });
+        }
+        
+        $('#tblMyCustomers').off('click').on('click', 'tbody tr', function() {
+            var id = $(this).attr('data-cust-id');
+            if (id) openEditCustomerModal(id);
+        });
+    } catch(err) {
+        console.error('renderMyCustomersTable error:', err);
+    }
+}
+
+function renderUserTrendChart(timeline) {
+    try {
+        var ctxEl = document.getElementById('chartTrendUserDay');
+        if(!ctxEl) return;
+        var ctx = ctxEl.getContext('2d');
+        if(userTrendChart) { userTrendChart.destroy(); }
+        
+        var labels = Object.keys(timeline);
+        var counts = labels.map(function(k) { return timeline[k]; });
+
+        userTrendChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Hồ sơ',
+                    data: counts,
+                    borderColor: '#10b981',
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+            }
+        });
+    } catch(e) { console.error("renderUserTrendChart fail:", e); }
+}
+
+function openEditCustomerModal(id) {
+    try {
+        if (!id) return;
+        var row = null;
+        var sourceData = (AppState.user && AppState.user.role === 'Admin') ? (window._adminAllData || []) : myCustomerData;
+        for (var i = 0; i < sourceData.length; i++) {
+            if (String(sourceData[i]['ID'] || sourceData[i]['Mã GD'] || '').trim() === String(id).trim()) {
+                row = sourceData[i];
+                break;
+            }
+        }
+        if (!row) return;
+
+        $('#edit_id').val(id);
+        $('#edit_ten_kh').val(row['Tên khách hàng'] || '');
+        $('#edit_sdt').val((row['Số điện thoại'] || '').toString().replace(/^'/, ''));
+        
+        var dDate = row['Ngày mở TK'] || row['Thời điểm nhập'] || '';
+        if (dDate) {
+            var rawD = new Date(dDate);
+            if(!isNaN(rawD)) {
+                var mm = String(rawD.getMonth() + 1).padStart(2, "0");
+                var dd = String(rawD.getDate()).padStart(2, "0");
+                var yyyy = rawD.getFullYear();
+                dDate = dd + '/' + mm + '/' + yyyy;
+            }
+        }
+        $('#edit_ngay_mo').val(dDate);
+        
+        var stk = (row['Số TK'] || '').toString().replace(/^'/, '');
+        if (stk.length > 7 && stk.startsWith('3800200')) {
+            stk = stk.substring(7);
+        }
+        $('#edit_so_tk').val(stk);
+        $('#edit_ten_dang_nhap').val((row['Tên đăng nhập'] || '').toString().replace(/^'/, ''));
+
+        if (AppState.user && AppState.user.role === 'Admin') {
+            $('#btnSaveEdit').hide();
+            $('#frmEditCustomer input').prop('readonly', true);
+            var fp = document.getElementById('edit_ngay_mo')._flatpickr;
+            if(fp) {
+                var fpWrapper = fp.input.nextSibling;
+                if(fpWrapper) fpWrapper.disabled = true;
+                fp.input.disabled = true;
+            }
+        } else {
+            $('#btnSaveEdit').show();
+            $('#frmEditCustomer input').prop('readonly', false);
+            $('#edit_id').prop('readonly', true); // Keep ID readonly
+            var fp2 = document.getElementById('edit_ngay_mo')._flatpickr;
+            if(fp2) {
+                var fpWrapper2 = fp2.input.nextSibling;
+                if(fpWrapper2) fpWrapper2.disabled = false;
+                fp2.input.disabled = false;
+            }
+        }
+
+
+        // View images
+        var cccdVal = (row['Số CCCD'] || '').toString().replace(/^'/, '');
+        var loaiHinh = row['Loại hình dịch vụ'] || 'Cá nhân';
+
+        var infoHtml = '<div class="col-12 mb-2"><div class="p-2 bg-white rounded border d-flex flex-wrap gap-2 shadow-sm">' +
+                       '<span class="badge bg-primary">' + loaiHinh + '</span>' +
+                       '<span>CCCD: <b>' + cccdVal + '</b></span></div></div>';
+
+        function getImgHtml(url, label) {
+            if (!url || url.trim() === '') return '';
+            var safeUrl = url;
+            if (safeUrl.indexOf('drive.google.com/file/d/') > -1) {
+                var fileId = safeUrl.split('/d/')[1].split('/')[0];
+                safeUrl = 'https://drive.google.com/thumbnail?id=' + fileId + '&sz=w800';
+            } else if (safeUrl.indexOf('drive.google.com/thumbnail') > -1) {
+                // Đã là thumbnail URL, dùng trực tiếp
+                safeUrl = url;
+            }
+            return '<div class="col-4">' +
+                   '<a href="' + url + '" target="_blank" title="Xem nhả phóng ' + label + '">' +
+                   '<div class="img-detail-box">' +
+                   '<img src="' + safeUrl + '" class="img-detail-inner" alt="' + label + '" onerror="this.parentElement.innerHTML=\'<span class=\\\'text-muted small\\\'>Không tải được\'">' +
+                   '</div>' +
+                   '<small class="d-block text-center mt-1 text-secondary">' + label + '</small>' +
+                   '</a></div>';
+        }
+
+        var imgs = '';
+        imgs += getImgHtml(row['URL CCCD Trước'], 'Mặt trước');
+        imgs += getImgHtml(row['URL CCCD Sau'], 'Mặt sau');
+        if (loaiHinh !== 'Cá nhân') imgs += getImgHtml(row['URL GP DKKD'] || row['URL DKKD'], 'GP ĐĐKD');
+        imgs += getImgHtml(row['URL QR'] || row['URL Mã QR'], 'QR TK');
+        imgs += getImgHtml(row['URL Ảnh Thực Hiện'] || row['URL Thực Hiện'], 'Ảnh GD');
+
+        var imgsBlock = imgs ? '<div class="col-12"><p class="text-muted small fw-semibold mb-1"><i class="bx bx-image"></i> Hình ảnh đính kèm</p><div class="row g-2">' + imgs + '</div></div>' : '<div class="col-12 text-center text-muted"><i class="bx bx-image-alt fs-3"></i><p class="small">Chưa có ảnh đính kèm</p></div>';
+        $('#edit_images_container').html(infoHtml + imgsBlock);
+        $('#modalEditCustomer').modal('show');
+    } catch(err) {
+        console.error('openEditCustomerModal Error:', err);
+    }
+}
+
+function initMyRanking() {
+    if (!AppState.user) return;
+    var cached = AppCache.get('myRanking');
+    if (cached) {
+        updateRankingUI(cached);
+        return;
+    }
+    runAPI('api_getMyRanking', [AppState.user.email], function(res) {
+        if (res.status === 'success') {
+            AppCache.set('myRanking', res);
+            updateRankingUI(res);
+        }
+    }, null, 'NONE');
+}
+
+function updateRankingUI(res) {
+    if (!res) return;
+    $('#rank-my').text('#' + res.rank);
+    $('#rank-total-staffs').text('trên ' + res.totalStaffs + ' cán bộ');
+    $('#rank-ca-nhan').text(res.myCaNhan || 0);
+    $('#rank-hkd').text(res.myHkd || 0);
+    $('#rank-top1-name').text(res.top1Name || '...');
+    $('#rank-top1-total').text((res.top1Total || 0) + ' hồ sơ');
+    if(res.rank === 1) {
+        $('#rank-above-msg').html('<span class="text-success fw-bold">Bạn đang dẫn đầu!</span>');
+    } else {
+        $('#rank-above-msg').html('Cách người trên <span class="text-danger fw-bold">' + (res.aboveDiff || 0) + '</span> hồ sơ');
+    }
+}
+
+$(document).ready(function() {
+    $('#frmEditCustomer').off('submit').on('submit', function(e) {
+        e.preventDefault();
+        var data = {
+            id: $('#edit_id').val(),
+            ten_kh: $('#edit_ten_kh').val().trim(),
+            sdt: $('#edit_sdt').val().trim(),
+            ngay_mo: $('#edit_ngay_mo').val().trim(),
+            so_tk: $('#edit_so_tk').val().trim(),
+            ten_dang_nhap: $('#edit_ten_dang_nhap').val().trim()
+        };
+        if (data.so_tk && data.so_tk.length <= 9) {
+            data.so_tk = '3800200' + data.so_tk;
+        }
+
+        var btn = $('#btnSaveEdit');
+        var oldHtml = btn.html();
+        btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span>');
+
+        runAPI('api_updateMyCustomer', [data], function(res) {
+            btn.prop('disabled', false).html(oldHtml);
+            if (res.status === 'success') {
+                Swal.fire({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, icon: 'success', title: 'Cập nhật hồ sơ thành công!' });
+                $('#modalEditCustomer').modal('hide');
+                AppCache.clear('myCustomers');
+                initMyCustomersList();
+            } else {
+                Swal.fire({ icon: 'error', title: 'Lỗi', text: res.message });
+            }
+        }, function(err) {
+            btn.prop('disabled', false).html(oldHtml);
+            Swal.fire({ icon: 'error', title: 'Lỗi hệ thống', text: 'Không thể cập nhật hồ sơ.' });
+        }, 'NONE');
+    });
+});
+</script>

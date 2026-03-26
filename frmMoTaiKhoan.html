@@ -1,0 +1,685 @@
+<!-- START: Mở Tài Khoản Form -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="fw-bold text-primary mb-0 d-flex align-items-center gap-2">
+        <i class='bx bx-user-plus'></i> Khai Báo Hồ Sơ Mới
+    </h4>
+    <div class="d-flex gap-2">
+        <button class="btn btn-outline-secondary btn-sm d-none d-sm-flex align-items-center gap-1 shadow-sm" onclick="openChangePasswordModal()">
+            <i class='bx bx-lock-open-alt'></i> <span class="d-none d-sm-inline">Đổi Pass</span>
+        </button>
+        <button class="btn btn-outline-danger btn-sm d-flex align-items-center gap-1 shadow-sm" onclick="logout()">
+            <i class='bx bx-log-out'></i> <span class="d-none d-sm-inline">Đăng xuất</span>
+        </button>
+    </div>
+</div>
+
+<div class="glass-card p-3 p-md-4 mb-4">
+    <form id="frm-mo-tk">
+        <!-- Phần A: Thông tin Khách hàng -->
+        <h5 class="fw-bold border-bottom pb-2 mb-3 text-secondary d-flex align-items-center gap-2">
+            <span class="badge bg-primary rounded-circle">A</span> Thông tin định danh
+        </h5>
+        <div class="row g-3">
+            <div class="col-12 col-md-6">
+                <label class="form-label fw-semibold">Loại hình Khách hàng <span class="text-danger">*</span></label>
+                <select class="form-select" id="loai_hinh" aria-label="Loại hình khách hàng" title="Chọn loại hình khách hàng" required onchange="toggleFormFields()">
+                    <option value="Cá nhân">Cá nhân</option>
+                    <option value="Hộ kinh doanh">Hộ kinh doanh</option>
+                </select>
+            </div>
+            <div class="col-12 col-md-6">
+                <label class="form-label fw-semibold">Họ và Tên Chủ Tên/HKD <span class="text-danger">*</span></label>
+                <input type="text" class="form-control text-uppercase" id="ten_kh" placeholder="NGUYEN VAN A" required>
+            </div>
+            <div class="col-12 col-md-6">
+                <label class="form-label fw-semibold">Số CCCD/CMND <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="cccd" pattern="[0-9]{12}" maxlength="12" title="Căn cước công dân bắt buộc đúng 12 chữ số" placeholder="Đúng 12 số CCCD" required onblur="moTaiKhoan_checkDuplicateRealtime(this)">
+                <div class="invalid-feedback">Căn cước công dân bắt buộc đúng 12 chữ số.</div>
+            </div>
+            <div class="col-12 col-md-6 initially-hidden" id="div_dkkd">
+                <label class="form-label fw-semibold">Số Giấy phép ĐKKD <span class="text-danger">*</span></label>
+                <input type="text" class="form-control text-uppercase" id="dkkd" placeholder="VD: 01A8xxxxx" onblur="moTaiKhoan_checkDuplicateRealtime(this)">
+            </div>
+            <div class="col-12 col-md-6">
+                <label class="form-label fw-semibold">Số điện thoại liên hệ <span class="text-danger">*</span></label>
+                <input type="tel" class="form-control" id="sdt" pattern="0[0-9]{9}" maxlength="10" title="Số điện thoại phải bắt đầu bằng 0 và đủ 10 chữ số" placeholder="09xxxx..." required onblur="moTaiKhoan_checkDuplicateRealtime(this)">
+                <div class="invalid-feedback">SĐT bắt buộc bắt đầu bằng 0 và đủ 10 chữ số.</div>
+            </div>
+        </div>
+
+        <!-- Phần B: Thông tin Tài khoản -->
+        <h5 class="fw-bold border-bottom pb-2 mt-4 mb-3 text-secondary d-flex align-items-center gap-2">
+            <span class="badge bg-primary rounded-circle">B</span> Thông tin Tài khoản Mở
+        </h5>
+        <div class="row g-3">
+            <div class="col-12 col-md-6">
+                <label class="form-label fw-semibold">Số Tài khoản CIF (16 số) <span class="text-danger">*</span></label>
+                <div class="input-group has-validation">
+                    <span class="input-group-text bg-light fw-bold text-secondary border-end-0">3800200</span>
+                    <input type="text" class="form-control border-start-0 ps-0" id="so_tk" placeholder="Nhập 9 số cuối" pattern="[0-9]{9}" maxlength="9" title="Nhập đúng 9 chữ số tài khoản" required>
+                    <div class="invalid-feedback">Cần nhập đúng 9 chữ số cuối.</div>
+                </div>
+            </div>
+            <div class="col-12 col-md-3">
+                <label class="form-label fw-semibold">Ngày ĐK trên Core <span class="text-danger">*</span></label>
+                <input type="text" class="form-control js-datepicker" id="ngay_mo" placeholder="Chọn ngày" required>
+            </div>
+            <div class="col-12 col-md-3">
+                <label class="form-label fw-semibold">Mật khẩu khởi tạo</label>
+                <input type="password" class="form-control" id="mat_khau" placeholder="Nếu có">
+            </div>
+            <div class="col-12 col-md-6 initially-hidden" id="div_ten_dang_nhap">
+                <label class="form-label fw-semibold">Tên đăng nhập <span class="text-muted small fw-normal">(Tuỳ chọn cho HKD)</span></label>
+                <input type="text" class="form-control" id="ten_dang_nhap" placeholder="Tên đăng nhập">
+            </div>
+        </div>
+
+        <!-- Phần C: Hồ sơ Cứng -->
+        <h5 class="fw-bold border-bottom pb-2 mt-4 mb-3 text-secondary d-flex align-items-center gap-2">
+            <span class="badge bg-primary rounded-circle">C</span> Chứng từ Đính kèm (Bản chụp)
+        </h5>
+        <div class="row g-3">
+            <div class="col-12 col-md-4">
+                <label class="form-label fw-semibold">CCCD Mặt trước <span class="text-danger">*</span></label>
+                <div class="input-group">
+                    <input class="form-control" type="file" id="img_truoc" accept="image/*" required title="Chọn ảnh CCCD mặt trước" aria-label="Ảnh CCCD mặt trước">
+                    <input type="file" id="cam_truoc" accept="image/*" capture="environment" class="d-none">
+                    <label for="cam_truoc" class="btn btn-outline-primary" title="Chụp Camera" role="button" tabindex="0"><i class='bx bx-camera'></i></label>
+                </div>
+                <div id="preview_img_truoc" class="mt-2 initially-hidden img-preview-box">
+                    <img src="" alt="CCCD mặt trước" class="img-preview-inner">
+                </div>
+            </div>
+            <div class="col-12 col-md-4">
+                <label class="form-label fw-semibold">CCCD Mặt sau <span class="text-danger">*</span></label>
+                <div class="input-group">
+                    <input class="form-control" type="file" id="img_sau" accept="image/*" required title="Chọn ảnh CCCD mặt sau" aria-label="Ảnh CCCD mặt sau">
+                    <input type="file" id="cam_sau" accept="image/*" capture="environment" class="d-none">
+                    <label for="cam_sau" class="btn btn-outline-primary" title="Chụp Camera" role="button" tabindex="0"><i class='bx bx-camera'></i></label>
+                </div>
+                <div id="preview_img_sau" class="mt-2 initially-hidden img-preview-box">
+                    <img src="" alt="CCCD mặt sau" class="img-preview-inner">
+                </div>
+            </div>
+            <div class="col-12 col-md-4 initially-hidden" id="div_img_dkkd">
+                <label class="form-label fw-semibold">GP ĐKKD (Chụp màu) <span class="text-danger">*</span></label>
+                <div class="input-group">
+                    <input class="form-control" type="file" id="img_dkkd" accept="image/*" title="Chọn ảnh Giấy phép ĐKKD" aria-label="Ảnh Giấy phép ĐKKD">
+                    <input type="file" id="cam_dkkd" accept="image/*" capture="environment" class="d-none">
+                    <label for="cam_dkkd" class="btn btn-outline-primary" title="Chụp Camera" role="button" tabindex="0"><i class='bx bx-camera'></i></label>
+                </div>
+                <div id="preview_img_dkkd" class="mt-2 initially-hidden img-preview-box">
+                    <img src="" alt="GP ĐKKD" class="img-preview-inner">
+                </div>
+            </div>
+            <div class="col-12 col-md-4">
+                <label class="form-label fw-semibold">QR Tài khoản (Quét/Chụp) <span class="text-danger">*</span></label>
+                <div class="input-group">
+                    <input class="form-control" type="file" id="img_qr" accept="image/*" required title="Chọn ảnh mã QR tài khoản" aria-label="Ảnh mã QR tài khoản">
+                    <input type="file" id="cam_qr" accept="image/*" capture="environment" class="d-none">
+                    <label for="cam_qr" class="btn btn-outline-primary" title="Chụp Camera QR" role="button" tabindex="0"><i class='bx bx-qr-scan'></i></label>
+                </div>
+                <div id="preview_img_qr" class="mt-2 initially-hidden img-preview-box">
+                    <img src="" alt="Mã QR" class="img-preview-inner">
+                </div>
+            </div>
+            <div class="col-12 col-md-4">
+                <label class="form-label fw-semibold">Hình ảnh Thực hiện <span class="text-muted small fw-normal">(Tuỳ chọn)</span></label>
+                <div class="input-group">
+                    <input class="form-control" type="file" id="img_thuchien" accept="image/*" title="Chọn ảnh ghi lại buổi mở tài khoản" aria-label="Ảnh thực hiện giao dịch">
+                    <input type="file" id="cam_thuchien" accept="image/*" capture="environment" class="d-none">
+                    <label for="cam_thuchien" class="btn btn-outline-success" title="Chụp ảnh giao dịch" role="button" tabindex="0"><i class='bx bx-landscape'></i></label>
+                </div>
+                <div id="preview_img_thuchien" class="mt-2 initially-hidden img-preview-box">
+                    <img src="" alt="Ảnh thực hiện" class="img-preview-inner">
+                </div>
+                <small class="text-muted d-block mt-1"><i class='bx bx-info-circle'></i> Chụp lại quá trình mở TK trực tiếp tại quầy.</small>
+            </div>
+        </div>
+
+        <!-- Thanh tiến trình nén ảnh -->
+        <div id="compress-progress-wrapper" class="mt-4 initially-hidden">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+                <small class="fw-semibold text-secondary" id="compress-progress-label">Đang chuẩn bị...</small>
+                <small class="text-primary fw-bold" id="compress-progress-pct">0%</small>
+            </div>
+            <div class="progress compress-progress-track">
+                <div class="progress-bar progress-bar-striped progress-bar-animated bg-success progress-bar-zero" id="compress-progress-bar" role="progressbar" title="Tiến trình nén ảnh" aria-label="Tiến trình nén ảnh" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+
+            </div>
+        </div>
+
+        <div class="mt-4 pt-3 text-center border-top">
+            <button type="submit" class="btn btn-primary btn-lg px-5 shadow-sm d-flex align-items-center mx-auto gap-2" id="btnSubmitAccount">
+                <i class='bx bx-cloud-upload'></i> Gửi Hồ Sơ &amp; Nén Tự Động
+            </button>
+            <small class="d-block mt-2 text-muted">* Mọi ảnh tải lên sẽ tự động đi qua thuật toán Crop &amp; Compress tối ưu dung lượng (&lt; 500KB).</small>
+        </div>
+    </form>
+</div>
+
+<!-- Modal Cắt Ảnh (Cropper) -->
+<div class="modal fade" id="cropModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content glass-card">
+      <div class="modal-header border-0">
+        <h5 class="modal-title fw-bold text-primary"><i class='bx bx-crop'></i> Cân chỉnh & Làm phẳng ảnh</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body p-0 bg-dark text-center overflow-hidden position-relative modal-body-viewport-center">
+          <div id="quad-wrapper" class="position-relative d-inline-block">
+              <canvas id="quad-canvas" class="canvas-responsive"></canvas>
+              <svg id="quad-svg" class="position-absolute top-0 start-0 w-100 h-100 pointer-events-none">
+                  <polygon id="quad-poly" points="" fill="rgba(16, 185, 129, 0.3)" stroke="#10b981" stroke-width="2" />
+                  <circle id="p0" class="quad-handle handle-interaction" r="14" fill="#10b981" stroke="white" stroke-width="2" />
+                  <circle id="p1" class="quad-handle handle-interaction" r="14" fill="#10b981" stroke="white" stroke-width="2" />
+                  <circle id="p2" class="quad-handle handle-interaction" r="14" fill="#10b981" stroke="white" stroke-width="2" />
+                  <circle id="p3" class="quad-handle handle-interaction" r="14" fill="#10b981" stroke="white" stroke-width="2" />
+              </svg>
+          </div>
+      </div>
+      <div class="modal-footer border-0 d-flex justify-content-between bg-light">
+        <button type="button" class="btn btn-outline-secondary" onclick="skipCropping()">
+            <i class='bx bx-skip-next'></i> Dùng ảnh gốc
+        </button>
+        <button type="button" class="btn btn-primary px-4 shadow-sm fw-bold" onclick="finishCropping()">
+            <i class='bx bx-check-double'></i> HOÀN TẤT & LÀM PHẲNG
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+    // --- ES5 CONFIGURED FOR MAXIMUM COMPATIBILITY ---
+    var isCvReady = false;
+    var videoStream = null;
+    var currentInputTargetId = null;
+    var facingMode = "environment";
+    var quadPoints = [ {x:0.1, y:0.1}, {x:0.9, y:0.1}, {x:0.9, y:0.9}, {x:0.1, y:0.9} ];
+    var activePointIndex = -1;
+    var imageMatStore = {}; // Use object as map to avoid Map class
+
+    function onOpenCvReady() {
+        isCvReady = true;
+        console.log("OpenCV.js is ready.");
+    }
+
+    function initMoTaiKhoanForm() {
+        try {
+            var fpMoEl = document.querySelector('.js-datepicker');
+            if (fpMoEl && !fpMoEl._flatpickr) {
+                flatpickr(fpMoEl, {
+                    dateFormat: "Y-m-d",
+                    altInput: true,
+                    altFormat: "d/m/Y",
+                    defaultDate: "today"
+                });
+            }
+        } catch(e) {}
+
+        $('#frm-mo-tk').off('submit').on('submit', submitMoTaiKhoanForm);
+        
+        var uploadIds = ['img_truoc', 'img_sau', 'img_dkkd', 'img_qr', 'img_thuchien'];
+        for (var i = 0; i < uploadIds.length; i++) {
+            (function(id) {
+                $('#' + id).off('change').on('change', function(e) {
+                    if(this.files && this.files[0]) {
+                        var file = this.files[0];
+                        showLoading('Đang phân tích ảnh...');
+                        processImageWithAI(file).then(function(processedCanvas) {
+                            startCroppingFlow(processedCanvas, id);
+                        }).catch(function(err) {
+                            startCroppingFlow(file, id);
+                        }).finally(function() {
+                            hideLoading();
+                        });
+                    }
+                });
+            })(uploadIds[i]);
+        }
+
+        // Camera inputs nhét ảnh chụp vào đúng slot của file input gốc
+        var camMap = {
+            'cam_truoc': 'img_truoc',
+            'cam_sau': 'img_sau',
+            'cam_dkkd': 'img_dkkd',
+            'cam_qr': 'img_qr',
+            'cam_thuchien': 'img_thuchien'
+        };
+        Object.keys(camMap).forEach(function(camId) {
+            (function(cId, targetId) {
+                $('#' + cId).off('change').on('change', function() {
+                    if (this.files && this.files[0]) {
+                        var file = this.files[0];
+                        // Copy file sang input gốć để các validation bình thường vẩn chạy
+                        var dt = new DataTransfer();
+                        dt.items.add(file);
+                        document.getElementById(targetId).files = dt.files;
+                        showLoading('Đang phân tích ảnh...');
+                        processImageWithAI(file).then(function(processedCanvas) {
+                            startCroppingFlow(processedCanvas, targetId);
+                        }).catch(function() {
+                            startCroppingFlow(file, targetId);
+                        }).finally(function() {
+                            hideLoading();
+                        });
+                    }
+                });
+            })(camId, camMap[camId]);
+        });
+    }
+
+    var moTaiKhoan_checkDuplicateRealtime = function(input) {
+        var val = input.value.trim();
+        if(!val) return;
+        google.script.run
+            .withSuccessHandler(function(res) {
+                if(res && res.isDup) {
+                    input.setCustomValidity('Giá trị này đã tồn tại!');
+                    $(input).addClass('is-invalid');
+                } else {
+                    input.setCustomValidity('');
+                    $(input).removeClass('is-invalid');
+                }
+            })
+            .api_validateDuplicate(input.id, val);
+    };
+
+    function toggleFormFields() {
+        var loai = $('#loai_hinh').val();
+        if(loai === 'Hộ kinh doanh') {
+            $('#div_dkkd').show(300);
+            $('#div_img_dkkd').show(300);
+            $('#div_ten_dang_nhap').show(300);
+            $('#dkkd').prop('required', true);
+            $('#img_dkkd').prop('required', true);
+        } else {
+            $('#div_dkkd').hide(300);
+            $('#div_img_dkkd').hide(300);
+            $('#div_ten_dang_nhap').hide(300);
+            $('#dkkd').prop('required', false).val('');
+            $('#img_dkkd').prop('required', false).val('');
+            $('#ten_dang_nhap').val('');
+        }
+    }
+
+    function sortPoints(pts) {
+        if (!pts || pts.length !== 4) return pts;
+        var sorted = new Array(4);
+        var sum = pts.map(function(p) { return p.x + p.y; });
+        var diff = pts.map(function(p) { return p.x - p.y; });
+        
+        sorted[0] = pts[sum.indexOf(Math.min.apply(null, sum))];
+        sorted[2] = pts[sum.indexOf(Math.max.apply(null, sum))];
+        sorted[1] = pts[diff.indexOf(Math.max.apply(null, diff))];
+        sorted[3] = pts[diff.indexOf(Math.min.apply(null, diff))];
+        return sorted;
+    }
+
+    function processImageWithAI(source) {
+        return new Promise(function(resolve, reject) {
+            if (!isCvReady || !window.cv) return resolve(source);
+            var img = new Image();
+            img.onload = function() {
+                var src = null, dst = null, contours = null, hierarchy = null, maxContour = null;
+                try {
+                    src = cv.imread(img);
+                    dst = new cv.Mat();
+                    cv.cvtColor(src, dst, cv.COLOR_RGBA2GRAY);
+                    cv.GaussianBlur(dst, dst, new cv.Size(5, 5), 0);
+                    cv.Canny(dst, dst, 75, 200, 3, false);
+                    contours = new cv.MatVector();
+                    hierarchy = new cv.Mat();
+                    cv.findContours(dst, contours, hierarchy, cv.RETR_LIST, cv.CHAIN_APPROX_SIMPLE);
+                    var maxArea = 0;
+                    for (var i = 0; i < contours.size(); ++i) {
+                        var cnt = contours.get(i);
+                        var area = cv.contourArea(cnt);
+                        if (area > maxArea) {
+                            var peri = cv.arcLength(cnt, true);
+                            var approx = new cv.Mat();
+                            cv.approxPolyDP(cnt, approx, 0.02 * peri, true);
+                            if (approx.rows === 4) {
+                                maxArea = area;
+                                if (maxContour) maxContour.delete();
+                                maxContour = approx;
+                            } else {
+                                approx.delete();
+                            }
+                        }
+                    }
+                    if (maxContour && maxArea > (src.rows * src.cols * 0.1)) {
+                        var pArr = [];
+                        for (var j = 0; j < 4; j++) {
+                            pArr.push({ x: maxContour.data32S[j * 2] / src.cols, y: maxContour.data32S[j * 2 + 1] / src.rows });
+                        }
+                        quadPoints = sortPoints(pArr);
+                    }
+                    resolve(source);
+                } catch(e) { resolve(source); }
+                finally {
+                    if(src) src.delete(); if(dst) dst.delete();
+                    if(contours) contours.delete(); if(hierarchy) hierarchy.delete();
+                    if(maxContour) maxContour.delete();
+                }
+            };
+            img.onerror = function() { resolve(source); };
+            if (source instanceof File || source instanceof Blob) {
+                var reader = new FileReader();
+                reader.onload = function(e) { img.src = e.target.result; };
+                reader.readAsDataURL(source);
+            } else if (source instanceof HTMLCanvasElement) {
+                img.src = source.toDataURL();
+            } else { resolve(source); }
+        });
+    }
+
+    // Kích hoạt Native Camera thay vì HTML5 getUserMedia do Google Apps Script chặn iframe permissions
+    function openCamera(targetId) {
+        var $input = $('#' + targetId);
+        // Force the OS native camera dialog directly
+        $input.attr('capture', 'environment');
+        $input.trigger('click');
+        
+        // Remove the attribute immediately after to allow gallery pick later if tapped conventionally
+        setTimeout(function() {
+            $input.removeAttr('capture');
+        }, 1000);
+    }
+
+    function startCroppingFlow(source, targetId) {
+        currentInputTargetId = targetId;
+        var img = new Image();
+        img.onload = function() {
+            var canvas = document.getElementById('quad-canvas');
+            var ctx = canvas.getContext('2d');
+            var scale = Math.min((window.innerWidth * 0.9) / img.width, (window.innerHeight * 0.7) / img.height);
+            canvas.width = img.width * scale;
+            canvas.height = img.height * scale;
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            if(imageMatStore[targetId]) { try { imageMatStore[targetId].delete(); } catch(e){} }
+            imageMatStore[targetId] = cv.imread(img);
+            quadPoints = [ {x:0.1, y:0.1}, {x:0.9, y:0.1}, {x:0.9, y:0.9}, {x:0.1, y:0.9} ];
+            updateQuadUI();
+            initQuadInteraction();
+            (new bootstrap.Modal(document.getElementById('cropModal'))).show();
+        };
+        if (source instanceof HTMLCanvasElement) {
+            img.src = source.toDataURL('image/jpeg');
+        } else {
+            var reader = new FileReader();
+            reader.onload = function(e) { img.src = e.target.result; };
+            reader.readAsDataURL(source);
+        }
+    }
+
+    function updateQuadUI() {
+        var svg = document.getElementById('quad-svg');
+        var poly = document.getElementById('quad-poly');
+        var w = svg.clientWidth, h = svg.clientHeight;
+        var pointStr = "";
+        for (var i = 0; i < quadPoints.length; i++) {
+            var p = quadPoints[i];
+            var px = p.x * w, py = p.y * h;
+            var circle = document.getElementById('p' + i);
+            circle.setAttribute('cx', px);
+            circle.setAttribute('cy', py);
+            pointStr += px + "," + py + " ";
+        }
+        poly.setAttribute('points', pointStr.trim());
+    }
+
+    function initQuadInteraction() {
+        var svg = document.getElementById('quad-svg');
+        var handleMove = function(e) {
+            if (activePointIndex === -1) return;
+            var rect = svg.getBoundingClientRect();
+            var touch = e.touches ? e.touches[0] : e;
+            var x = Math.max(0, Math.min(1, (touch.clientX - rect.left) / rect.width));
+            var y = Math.max(0, Math.min(1, (touch.clientY - rect.top) / rect.height));
+            quadPoints[activePointIndex] = { x: x, y: y };
+            updateQuadUI();
+        };
+        var handleEnd = function() {
+            activePointIndex = -1;
+            window.removeEventListener('mousemove', handleMove);
+            window.removeEventListener('touchmove', handleMove);
+        };
+        for (var i = 0; i < 4; i++) {
+            (function(idx) {
+                var circle = document.getElementById('p' + idx);
+                var start = function(e) {
+                    activePointIndex = idx;
+                    window.addEventListener('mousemove', handleMove);
+                    window.addEventListener('mouseup', handleEnd);
+                    window.addEventListener('touchmove', handleMove, {passive:false});
+                    window.addEventListener('touchend', handleEnd);
+                };
+                circle.onmousedown = start;
+                circle.ontouchstart = start;
+            })(i);
+        }
+    }
+
+    function finishCropping() {
+        var mat = imageMatStore[currentInputTargetId];
+        if (!mat) return;
+        var srcPoints = [];
+        for (var i = 0; i < quadPoints.length; i++) {
+            srcPoints.push(quadPoints[i].x * mat.cols);
+            srcPoints.push(quadPoints[i].y * mat.rows);
+        }
+        var w = Math.max(Math.hypot(srcPoints[4]-srcPoints[6], srcPoints[5]-srcPoints[7]), Math.hypot(srcPoints[2]-srcPoints[0], srcPoints[3]-srcPoints[1]));
+        var h = Math.max(Math.hypot(srcPoints[2]-srcPoints[4], srcPoints[3]-srcPoints[5]), Math.hypot(srcPoints[0]-srcPoints[6], srcPoints[1]-srcPoints[7]));
+        var srcCoords = cv.matFromArray(4, 1, cv.CV_32FC2, srcPoints);
+        var dstCoords = cv.matFromArray(4, 1, cv.CV_32FC2, [0, 0, w, 0, w, h, 0, h]);
+        var M = cv.getPerspectiveTransform(srcCoords, dstCoords);
+        var warpedMat = new cv.Mat();
+        cv.warpPerspective(mat, warpedMat, M, new cv.Size(w, h), cv.INTER_LINEAR, cv.BORDER_CONSTANT, new cv.Scalar());
+        var outCanvas = document.createElement('canvas');
+        cv.imshow(outCanvas, warpedMat);
+        outCanvas.toBlob(function(blob) {
+            var file = new File([blob], currentInputTargetId + ".jpg", { type: "image/jpeg" });
+            assignFileToInput(currentInputTargetId, file);
+            var pv = $('#preview_' + currentInputTargetId);
+            pv.find('img').attr('src', outCanvas.toDataURL('image/jpeg'));
+            pv.removeClass('initially-hidden').fadeIn();
+            $('#cropModal').modal('hide');
+        }, 'image/jpeg', 0.8);
+        srcCoords.delete(); dstCoords.delete(); M.delete(); warpedMat.delete();
+    }
+
+    function skipCropping() {
+        var mat = imageMatStore[currentInputTargetId];
+        if (!mat) { $('#cropModal').modal('hide'); return; }
+        var canvas = document.createElement('canvas');
+        cv.imshow(canvas, mat);
+        canvas.toBlob(function(blob) {
+            var file = new File([blob], currentInputTargetId + "_raw.jpg", { type: "image/jpeg" });
+            assignFileToInput(currentInputTargetId, file);
+            var pv = $('#preview_' + currentInputTargetId);
+            pv.find('img').attr('src', canvas.toDataURL('image/jpeg'));
+            pv.removeClass('initially-hidden').fadeIn();
+            $('#cropModal').modal('hide');
+        }, 'image/jpeg', 0.85);
+    }
+
+    function assignFileToInput(inputId, file) {
+        var input = document.getElementById(inputId);
+        if (!input) return;
+        try {
+            var dt = new DataTransfer();
+            dt.items.add(file);
+            input.files = dt.files;
+        } catch (e) { input._customFile = file; }
+    }
+
+    function submitMoTaiKhoanForm(e) {
+        e.preventDefault();
+        var form = document.getElementById('frm-mo-tk');
+        if (!form.checkValidity()) { form.classList.add('was-validated'); return; }
+        var btn = $('#btnSubmitAccount');
+        var btnOriginalHtml = btn.html();
+        btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Đang xử lý...');
+        
+        // Hiện thanh tiến trình
+        var progressWrapper = $('#compress-progress-wrapper');
+        var progressBar = $('#compress-progress-bar');
+        var progressLabel = $('#compress-progress-label');
+        var progressPct = $('#compress-progress-pct');
+        progressWrapper.removeClass('initially-hidden').show();
+        
+        function updateProgress(done, total, name) {
+            var pct = total > 0 ? Math.round((done / total) * 100) : 0;
+            progressBar.css('width', pct + '%').attr('aria-valuenow', pct);
+            progressPct.text(pct + '%');
+            progressLabel.text(name ? 'Đang nén: ' + name + ' (' + done + '/' + total + ')...' : 'Hoàn tất nén ảnh!');
+        }
+
+        // Hàm nén ảnh an toàn với timeout 10 giây
+        function compressWithTimeout(file, label, callback) {
+            if (!file) { callback(null); return; }
+            var done = false;
+            var timer = setTimeout(function() {
+                if (!done) {
+                    done = true;
+                    console.warn('[Compress] Timeout khi nén ảnh: ' + label + '. Gửi ảnh gốc.');
+                    var plainReader = new FileReader();
+                    plainReader.onload = function(ev) { callback(ev.target.result); };
+                    plainReader.onerror = function() { callback(null); };
+                    plainReader.readAsDataURL(file);
+                }
+            }, 10000);
+            
+            try {
+                var reader = new FileReader();
+                reader.onload = function(ev) {
+                    if (done) return;
+                    var img = new Image();
+                    img.onload = function() {
+                        if (done) return;
+                        try {
+                            var MAX_W = 1200, MAX_H = 1200;
+                            var w = img.width, h = img.height;
+                            if (w > MAX_W) { h = Math.round(h * MAX_W / w); w = MAX_W; }
+                            if (h > MAX_H) { w = Math.round(w * MAX_H / h); h = MAX_H; }
+                            var cvs = document.createElement('canvas');
+                            cvs.width = w; cvs.height = h;
+                            cvs.getContext('2d').drawImage(img, 0, 0, w, h);
+                            var dataUrl = cvs.toDataURL('image/jpeg', 0.6);
+                            if (!done) { done = true; clearTimeout(timer); callback(dataUrl); }
+                        } catch(err) {
+                            if (!done) { done = true; clearTimeout(timer); callback(ev.target.result); }
+                        }
+                    };
+                    img.onerror = function() {
+                        if (!done) { done = true; clearTimeout(timer); callback(ev.target.result); }
+                    };
+                    img.src = ev.target.result;
+                };
+                reader.onerror = function() {
+                    if (!done) { done = true; clearTimeout(timer); callback(null); }
+                };
+                reader.readAsDataURL(file);
+            } catch(ex) {
+                if (!done) { done = true; clearTimeout(timer); callback(null); }
+            }
+        }
+        
+        var fileSlots = [
+            { id: 'img_truoc', label: 'CCCD Mặt trước' },
+            { id: 'img_sau',   label: 'CCCD Mặt sau' },
+            { id: 'img_dkkd', label: 'Giấy phép ĐKKD' },
+            { id: 'img_qr',   label: 'Mã QR Tài khoản' },
+            { id: 'img_thuchien', label: 'Ảnh Thực Hiện' }
+        ];
+        var payloads = {};
+        var doneCount = 0;
+        var totalImages = 0;
+        
+        // Đếm số ảnh có file
+        fileSlots.forEach(function(slot) {
+            var inp = document.getElementById(slot.id);
+            if (inp && (inp.files[0] || inp._customFile)) totalImages++;
+        });
+        if (totalImages === 0) totalImages = 1;
+        updateProgress(0, totalImages, fileSlots[0].label);
+        
+        // Xử lý tuần tự từng ảnh một
+        function processNextSlot(index) {
+            if (index >= fileSlots.length) {
+                // Tất cả ảnh đã nén xong - gửi server
+                updateProgress(totalImages, totalImages, null);
+                btn.html('<span class="spinner-border spinner-border-sm"></span> Đang gửi lên Server...');
+                var data = {
+                    email: AppState.user.email,
+                    loai_hinh: $('#loai_hinh').val(),
+                    ten_kh: $('#ten_kh').val().trim(),
+                    cccd: $('#cccd').val().trim(),
+                    dkkd: $('#dkkd').val().trim(),
+                    sdt: $('#sdt').val().trim(),
+                    so_tk: '3800200' + $('#so_tk').val().trim(),
+                    ten_dang_nhap: $('#ten_dang_nhap').val().trim(),
+                    ngay_mo: $('#ngay_mo').val(),
+                    mat_khau: $('#mat_khau').val(),
+                    img_truoc: payloads['img_truoc'] || null,
+                    img_sau: payloads['img_sau'] || null,
+                    img_dkkd: payloads['img_dkkd'] || null,
+                    img_qr: payloads['img_qr'] || null,
+                    img_thuchien: payloads['img_thuchien'] || null
+                };
+                google.script.run
+                    .withSuccessHandler(function(res) {
+                        btn.prop('disabled', false).html(btnOriginalHtml);
+                        progressWrapper.hide();
+                        progressBar.css('width', '0%');
+                        if (res.status === 'success') {
+                            Swal.fire({ icon: 'success', title: 'Gửi thành công!', text: res.rankingMsg || 'Hồ sơ đã được lưu.', confirmButtonColor: '#10b981' });
+                            form.reset();
+                            form.classList.remove('was-validated');
+                            // ẩn đúng các div điều kiện, KHÔNG ẩn menu #staffBottomNav
+                            $('#div_dkkd, #div_img_dkkd, #div_ten_dang_nhap').hide();
+                            // Xóa sạch preview ảnh
+                            ['truoc','sau','dkkd','qr','thuchien'].forEach(function(k) {
+                                $('#preview_img_' + k).find('img').attr('src','');
+                                $('#preview_img_' + k).hide();
+                                var ci = document.getElementById('cam_' + k);
+                                if (ci) ci.value = '';
+                            });
+                            AppCache.clear('myCustomers');
+                            initMyCustomersList();
+                        } else {
+                            showAlert('Lỗi', res.message, 'error');
+                        }
+                    })
+                    .withFailureHandler(function(err) {
+                        btn.prop('disabled', false).html(btnOriginalHtml);
+                        progressWrapper.hide();
+                        showAlert('Lỗi Hệ thống', 'Không thể kết nối Server. Vui lòng thử lại.', 'error');
+                    })
+                    .api_submitAccountForm(data);
+                return;
+            }
+            
+            var slot = fileSlots[index];
+            var inp = document.getElementById(slot.id);
+            var f = inp ? (inp.files[0] || inp._customFile) : null;
+            if (!f) {
+                // Không có ảnh, bỏ qua sang slot tiếp theo
+                processNextSlot(index + 1);
+                return;
+            }
+            updateProgress(doneCount, totalImages, slot.label);
+            compressWithTimeout(f, slot.label, function(b64) {
+                payloads[slot.id] = b64;
+                doneCount++;
+                updateProgress(doneCount, totalImages, slot.label);
+                processNextSlot(index + 1);
+            });
+        }
+        
+        // Bắt đầu xử lý
+        processNextSlot(0);
+    }
+</script>
