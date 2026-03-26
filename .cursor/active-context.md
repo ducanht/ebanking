@@ -1,389 +1,503 @@
 > **BrainSync Context Pumper** 🧠
-> Dynamically loaded for active file: `vercel.json` (Domain: **Config/Infrastructure**)
+> Dynamically loaded for active file: `netlify-app\index.html` (Domain: **Generic Logic**)
 
-### 📐 Config/Infrastructure Conventions & Fixes
-- **[what-changed] Updated schema Ignore — evolves the database schema to support new requirements**: - # Ignore all files in the netlify-poc folder
-+ # Ignore all files in the netlify-poc and netlify-app folders
-- # Ignore specific other files
-+ netlify-app/**
-- .git/**
-+ 
-- node_modules/**
-+ # Ignore specific other files
-- README.md
-+ .git/**
-- MIGRATION_PLAN.md
-+ node_modules/**
-- DANHGIA.md
-+ README.md
-- KINH_NGHIEM.md
-+ MIGRATION_PLAN.md
-- task.md
-+ DANHGIA.md
-- implementation_plan.md
-+ KINH_NGHIEM.md
-- walkthrough.md
-+ task.md
+### 📐 Generic Logic Conventions & Fixes
+- **[convention] Strengthened types Scripts — adds runtime type validation before use**: -     <script>
++     <!-- Scripts -->
+-         var Module = {
++     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+-             onRuntimeInitialized: function() { if (typeof onOpenCvReady === 'function') onOpenCvReady(); }
++     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+-         };
++     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.8/dist/sweetalert2.all.min.js"></script>
+-     </script>
++     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+-     <script src="https://docs.opencv.org/4.8.0/opencv.js" async></script>
++     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+-     
++     <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+-     <script src="app.js"></script>
++     <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js"></script>
+- </body>
++     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
+- </html>
++     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
 - 
-+ implementation_plan.md
-+ walkthrough.md
++     <script>
++         var Module = {
++             onRuntimeInitialized: function() { if (typeof onOpenCvReady === 'function') onOpenCvReady(); }
++         };
++     </script>
++     <script src="https://docs.opencv.org/4.8.0/opencv.js" async></script>
++     
++     <script src="app.js"></script>
++ </body>
++ </html>
 + 
-- **[convention] Fixed null crash in HtmlService — confirmed 3x**: -   try {
-+   return HtmlService.createTemplateFromFile('index')
--     var template = HtmlService.createTemplateFromFile('index').evaluate();
-+     .evaluate()
--     return template
-+     .setTitle('Hệ thống Quản lý Chỉ tiêu Mở tài khoản - Yên Thọ')
--       .setTitle('Hệ thống Quản lý Mở Tài khoản - Yên Thọ')
-+     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL)
--       .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL)
-+     .addMetaTag('viewport', 'width=device-width, initial-scale=1.0');
--       .addMetaTag('viewport', 'width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes');
-+ }
--   } catch (e) {
+
+📌 IDE AST Context: Modified symbols likely include [html]
+- **[convention] Strengthened types Module — adds runtime type validation before use**: -     <!-- Scripts -->
++     <script>
+-     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
++         var Module = {
+-     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
++             onRuntimeInitialized: function() { if (typeof onOpenCvReady === 'function') onOpenCvReady(); }
+-     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.8/dist/sweetalert2.all.min.js"></script>
++         };
+-     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
++     </script>
+-     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
++     <script src="https://docs.opencv.org/4.8.0/opencv.js" async></script>
+-     <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
++     
+-     <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js"></script>
++     <script src="app.js"></script>
+-     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
++ </body>
+-     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
++ </html>
+-     <script src="https://docs.opencv.org/4.8.0/opencv.js" async></script>
 + 
--     Logger.log("doGet Error: " + e.message);
-+ function include(filename) {
--     return HtmlService.createHtmlOutput("⚠️ LỖI HỆ THỐNG: " + e.message);
-+   return HtmlService.createHtmlOutputFromFile(filename).getContent();
--   }
-+ }
-- }
-+ 
+-     
+-     <script src="app.js"></script>
+- </body>
+- </html>
 - 
-+ /** 
-- function doPost(e) {
-+  * API ROUTER cho Netlify (Bản PoC)
--   var result = { status: "error", message: "Unknown error" };
-+  * Hỗ trợ các yêu cầu Fetch từ bên ngoài
--   try {
-+  */
--     // 1. Phân giải payload từ Netlify (luôn gửi dạng JSON string)
-+ function doPost(e) {
--     var postData = JSON.parse(e.postData.contents);
-+   var result = { status: "error", message: "Unknown error" };
--     var action = postData.action;
-+   try {
--     var data = postData.data || {};
-+     var postData = JSON.parse(e.postData.contents);
-- 
-+     var action = postData.action;
--     // 2. Định tuyến API (API Routing)
-+     var data = postData.data || {};
--     if (action === "api_getMyCustomers") {
-+ 
--       result = api_getMyCustomers(data);
-+     if (action === "api_getMyCustomers") {
--     } 
-+       result = api_getMyCustomers(data);
--     else if (action === "api_getAdminDashboardData") {
-+     } 
--        result = api_getAdminDashboardData(); // Hàm này không cần tham số
-+     else if (action === "api_getAdminDashboardData") {
--     }
-+        result = api_getAdminDashboardData(
-… [diff truncated]
-- **[what-changed] Replaced auth CHUY — externalizes configuration for environment flexibility**: - Lỗi Nghiêm Trọng (Critical Bugs)
-+ # ĐÁNH GIÁ CHUYÊN SÂU & TỔNG KẾT HỆ THỐNG
-- 1. Memory Leak — OpenCV Mat không được giải phóng đúng cách
-+ ## Quản Lý Quỹ Tín Dụng Nhân Dân Yên Thọ - Hộ Kinh Doanh
-- Trong processImageWithAI, nếu maxContour là null nhưng code vẫn gọi maxContour.delete() → crash. Ngược lại, nếu flow rẽ nhánh sớm (throw), các Mat trung gian sẽ không được dọn.
-+ 
-- javascript// ❌ HIỆN TẠI: Không có finally block, leak khi throw
-+ **Chuyên gia hệ thống:** Antigravity AI  
-- } catch(e) {
-+ **Cập nhật lần cuối:** 27/03/2026  
--     console.error("OpenCV processing error:", e);
-+ **Trạng thái dự án:** Sản xuất (Production-Ready)
--     resolve(source); // Các Mat src, dst, contours... vẫn còn trong memory
-+ 
-- }
-+ ---
-- // ✅ ĐỀ XUẤT: Dùng try/finally để đảm bảo cleanup
-+ ### 1. KIẾN TRÚC TỔNG QUAN (ARCHITECTURE)
-- async function processImageWithAI(source) {
-+ Hệ thống vận hành bằng kiến trúc **Serverless Single Page Application (SPA)** hoàn toàn trên hạ tầng Google:
--     return new Promise((resolve, reject) => {
-+ - **Ngôn ngữ cốt lõi:** Google Apps Script (ES6+ Backend), HTML/CSS/JS thuần (ES5/ES6 Frontend).
--         if (!isCvReady || !window.cv) return resolve(source);
-+ - **Cơ sở dữ liệu:** Google Sheets (Hoạt động như một NoSQL Document Store).
+
+📌 IDE AST Context: Modified symbols likely include [html]
+- **[convention] Fixed null crash in HACK — hardens HTTP security headers — confirmed 3x**: -         // Lưu ý: GAS Web App khi gọi từ domain khác thường gặp vấn đề CORS.
++         // HACK: Dùng 'text/plain' để trình duyệt KHÔNG gửi OPTIONS request (CORS Preflight)
+-         // Sử dụng 'text/plain' là trick để trình duyệt không gửi OPTIONS request.
++         // GAS doPost vẫn nhận chuỗi JSON này qua e.postData.contents
+-             header: { 'Content-Type': 'text/plain;charset=utf-8' },
++             mode: 'cors',
+-         const result = await response.json();
++         // Lưu ý: GAS thường redirect (302). Fetch với 'follow' sẽ tự xử lý.
 -         
-+ - **Lưu trữ tệp:** Google Drive API.
--         const img = new Image();
-+ - **Micro-libraries:** Sự kết hợp hoàn hảo của Bootstrap 5 (Giao diện lưới), DataTables (Xử lý bảng khối lượng lớn), Chart.js (Dashboard), OpenCV.js (Xử lý ảnh bằng AI client-side), Flatpickr (Lịch), SweetAlert2 (Thông báo).
--         img.onload = function() {
-+ 
--             let src = null, dst = null, contours = null, 
-+ ---
--                 hierarchy = null, maxContour = null;
-+ 
--             try {
-+ ### 2. ĐÁNH GIÁ KỸ THUẬT (TECHNICAL AUDIT)
--                 src = cv.imread(img);
-+ 
--                 dst = new cv.Mat();
-+ #### A. Kiến trúc Bảo Mật (Security Architecture)
--                 // ... xử lý ...
-+ - **Hash
-… [diff truncated]
-
-📌 IDE AST Context: Modified symbols likely include [# ĐÁNH GIÁ CHUYÊN SÂU & TỔNG KẾT HỆ THỐNG]
-- **[convention] 🟢 Edited frmDashboard.html (8 changes, 11min) — confirmed 3x**: Active editing session on frmDashboard.html.
-8 content changes over 11 minutes.
-- **[convention] Fixed null crash in JSON — wraps unsafe operation in error boundary — confirmed 6x**: -                 AppCache.set('adminData', res.stats);
-+                 try { res.stats = JSON.parse(res.statsStr); } catch(e) { console.error("Parse stats err", e); }
--                 adminRawData = res.stats.allStaffs || [];
-+                 AppCache.set('adminData', res.stats);
--                 renderDashboard(res.stats);
-+                 adminRawData = res.stats.allStaffs || [];
--             }
-+                 renderDashboard(res.stats);
--         }, null, 'Đang tải dữ liệu...');
-+             }
--     }
-+         }, null, 'Đang tải dữ liệu...');
++         const result = await response.json();
+-         if (loadingMsg !== 'NONE') hideLoading();
++         
 - 
-+     }
--     function loadAdminDataSilent() {
++         if (loadingMsg !== 'NONE') hideLoading();
+-         if (result.status === 'success') {
 + 
--         var btn = $('#btnRefreshAdmin');
-+     function loadAdminDataSilent() {
--         var old = btn.html();
-+         var btn = $('#btnRefreshAdmin');
--         btn.prop('disabled', true).html('<i class="bx bx-loader-circle bx-spin"></i> Loading...');
-+         var old = btn.html();
--         runAPI('api_getAdminDashboardData', [], function(res) {
-+         btn.prop('disabled', true).html('<i class="bx bx-loader-circle bx-spin"></i> Loading...');
--             btn.prop('disabled', false).html(old);
-+         runAPI('api_getAdminDashboardData', [], function(res) {
--             if(res.status === 'success') {
-+             btn.prop('disabled', false).html(old);
--                 AppCache.set('adminData', res.stats);
-+             if(res.status === 'success') {
--                 adminRawData = res.stats.allStaffs || [];
-+                 try { res.stats = JSON.parse(res.statsStr); } catch(e) { console.error("Parse stats err", e); }
--                 renderDashboard(res.stats);
-+                 AppCache.set('adminData', res.stats);
--             }
-+                 adminRawData = res.stats.allStaffs || [];
--         }, function() { btn.prop('disabled', false).html(old); }, null);
-+                 renderDashboard(res.stats);
--     }
-+             }
-- 
-+         }, function() { btn.prop('disabled', false).html(old); }, null);
--     function renderDashboard(s)
-… [diff truncated]
-
-📌 IDE AST Context: Modified symbols likely include [div.d-flex.justify-content-between.align-items-center.mb-4.flex-wrap.gap-2, div.row.g-3.mb-4, div.row.g-4.mb-4, div.row.g-4, script]
-- **[what-changed] Replaced auth START**: - <!-- START: Admin Dashboard -->
-+ 
-- <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
--     <div>
--         <h4 class="fw-bold text-primary mb-0 d-flex align-items-center gap-2">
--             <i class='bx bxs-dashboard text-accent'></i> Bảng Điều Khiển Quản Trị
--         </h4>
--         <p class="text-muted mb-0 small">Theo dõi tiến độ KPIs toàn hệ thống theo thời gian thực.</p>
--     </div>
--     <div class="d-flex gap-2">
--         <button class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1 shadow-sm px-3" onclick="openChangePasswordModal()">
--             <i class='bx bx-lock-open-alt fs-5'></i> <span class="d-none d-sm-inline fw-semibold">Đổi Pass</span>
--         </button>
--         <button id="btnRefreshAdmin" class="btn btn-outline-primary btn-sm d-flex align-items-center gap-1 shadow-sm px-3" onclick="loadAdminDataSilent()">
--             <i class='bx bx-refresh fs-5'></i> <span class="d-none d-sm-inline fw-semibold">Làm mới Data</span>
--         </button>
--         <button class="btn btn-danger btn-sm d-flex align-items-center gap-1 shadow-sm" onclick="logout()">
--             <i class='bx bx-log-out fs-5'></i> <span class="d-none d-sm-inline">Thoát</span>
--         </button>
--     </div>
-- </div>
-- 
-- <!-- Thống kê KPIs -->
-- <div class="row g-3 mb-4">
--     <div class="col-12 col-sm-6 col-xl-3">
--         <div class="glass-card p-3 border-start border-primary border-4 h-100 d-flex flex-column justify-content-center">
--             <p class="text-muted mb-1 fw-semibold small text-uppercase">TỔNG TÀI KHOẢN</p>
--             <h2 class="fw-bold text-primary mb-0" id="db-total">0</h2>
--             <small class="text-danger mt-1"><i class='bx bx-error-circle'></i> <span id="db-pending">0</span> chưa hoàn thành</small>
--         </div>
--     </div>
--     <div class="col-12 col-sm-6 col-xl-3">
--         <div class="glass-card p-3 border-start border-success border-4 h-100 d-flex flex-column justify-conte
-… [diff truncated]
-- **[what-changed] Replaced auth START**: - <!-- START: Admin Dashboard -->
-+ 
-- <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
--     <div>
--         <h4 class="fw-bold text-primary mb-0 d-flex align-items-center gap-2">
--             <i class='bx bxs-dashboard text-accent'></i> Bảng Điều Khiển Quản Trị
--         </h4>
--         <p class="text-muted mb-0 small">Theo dõi tiến độ KPIs toàn hệ thống theo thời gian thực.</p>
--     </div>
--     <div class="d-flex gap-2">
--         <button class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1 shadow-sm px-3" onclick="openChangePasswordModal()">
--             <i class='bx bx-lock-open-alt fs-5'></i> <span class="d-none d-sm-inline fw-semibold">Đổi Pass</span>
--         </button>
--         <button id="btnRefreshAdmin" class="btn btn-outline-primary btn-sm d-flex align-items-center gap-1 shadow-sm px-3" onclick="loadAdminDataSilent()">
--             <i class='bx bx-refresh fs-5'></i> <span class="d-none d-sm-inline fw-semibold">Làm mới Data</span>
--         </button>
--         <button class="btn btn-danger btn-sm d-flex align-items-center gap-1 shadow-sm" onclick="logout()">
--             <i class='bx bx-log-out fs-5'></i> <span class="d-none d-sm-inline">Thoát</span>
--         </button>
--     </div>
-- </div>
-- 
-- <!-- Thống kê KPIs -->
-- <div class="row g-3 mb-4">
--     <div class="col-12 col-sm-6 col-xl-3">
--         <div class="glass-card p-3 border-start border-primary border-4 h-100 d-flex flex-column justify-content-center">
--             <p class="text-muted mb-1 fw-semibold small text-uppercase">TỔNG TÀI KHOẢN</p>
--             <h2 class="fw-bold text-primary mb-0" id="db-total">0</h2>
--             <small class="text-danger mt-1"><i class='bx bx-error-circle'></i> <span id="db-pending">0</span> chưa hoàn thành</small>
--         </div>
--     </div>
--     <div class="col-12 col-sm-6 col-xl-3">
--         <div class="glass-card p-3 border-start border-success border-4 h-100 d-flex flex-column justify-conte
-… [diff truncated]
-- **[convention] what-changed in frmDashboard.html — confirmed 3x**: File updated (external): frmDashboard.html
-
-Content summary (485 lines):
-<!-- START: Admin Dashboard -->
-<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-    <div>
-        <h4 class="fw-bold text-primary mb-0 d-flex align-items-center gap-2">
-            <i class='bx bxs-dashboard text-accent'></i> Bảng Điều Khiển Quản Trị
-        </h4>
-        <p class="text-muted mb-0 small">Theo dõi tiến độ KPIs toàn hệ thống theo thời gian thực.</p>
-    </div>
-    <div class="d-flex gap-2">
-        <button class="btn btn-outline-secondary btn-s
-- **[decision] decision in frmDashboard.html**: -                 var dkkd = (d['Số ĐKKD'] || d['Số GP ĐKKD'] || '').toString().replace(/^'/, '');
-+                 var dkkd = (d['Số DKKD'] || d['Số ĐKKD'] || d['Số GP ĐKKD'] || '').toString().replace(/^'/, '');
--             if ($('#filterStaffAdmin option').length <= 1) {
-+             // Xây dựng dropdown lọc Người dùng từ dữ liệu thực tế (luôn reset thường xuyên)
--                 var staffSet = [];
-+             $('#filterStaffAdmin').find('option:not(:first)').remove();
--                 (s.allData || []).forEach(function(d){
-+             var staffSet = [];
--                     var email = d['Cán bộ thực hiện'];
-+             (s.allData || []).forEach(function(d){
--                     if(email && staffSet.indexOf(email) === -1) staffSet.push(email);
-+                 var email = d['Cán bộ thực hiện'];
--                 });
-+                 if(email && staffSet.indexOf(email) === -1) staffSet.push(email);
--                 staffSet.forEach(function(email){
-+             });
--                     $('#filterStaffAdmin').append('<option value="' + email + '">' + (staffMap[email] || email) + '</option>');
-+             staffSet.forEach(function(email){
--                 });
-+                 $('#filterStaffAdmin').append('<option value="' + email + '">' + (staffMap[email] || email) + '</option>');
--             }
-+             });
-
-📌 IDE AST Context: Modified symbols likely include [div.d-flex.justify-content-between.align-items-center.mb-4.flex-wrap.gap-2, div.row.g-3.mb-4, div.row.g-4.mb-4, div.row.g-4, script]
-- **[what-changed] 🟢 Edited frmMoTaiKhoan.html (5 changes, 11min)**: Active editing session on frmMoTaiKhoan.html.
-5 content changes over 11 minutes.
-- **[what-changed] Updated schema AppCache**: -                             $('.initially-hidden').addClass('initially-hidden').hide();
-+                             // ẩn đúng các div điều kiện, KHÔNG ẩn menu #staffBottomNav
--                             AppCache.clear('myCustomers');
-+                             $('#div_dkkd, #div_img_dkkd, #div_ten_dang_nhap').hide();
--                             initMyCustomersList();
-+                             // Xóa sạch preview ảnh
--                         } else {
-+                             ['truoc','sau','dkkd','qr','thuchien'].forEach(function(k) {
--                             showAlert('Lỗi', res.message, 'error');
-+                                 $('#preview_img_' + k).find('img').attr('src','');
--                         }
-+                                 $('#preview_img_' + k).hide();
--                     })
-+                                 var ci = document.getElementById('cam_' + k);
--                     .withFailureHandler(function(err) {
-+                                 if (ci) ci.value = '';
--                         btn.prop('disabled', false).html(btnOriginalHtml);
-+                             });
--                         progressWrapper.hide();
-+                             AppCache.clear('myCustomers');
--                         showAlert('Lỗi Hệ thống', 'Không thể kết nối Server. Vui lòng thử lại.', 'error');
-+                             initMyCustomersList();
--                     })
-+                         } else {
--                     .api_submitAccountForm(data);
-+                             showAlert('Lỗi', res.message, 'error');
--                 return;
-+                         }
--             }
-+                     })
--             
-+                     .withFailureHandler(function(err) {
--             var slot = fileSlots[index];
-+                         btn.prop('disabled', false).html(btnOriginalHtml);
--             var inp = document.getElementById(slot.id);
-+                         progressWrapper.hide();
--       
-… [diff truncated]
-
-📌 IDE AST Context: Modified symbols likely include [div.d-flex.justify-content-between.align-items-center.mb-4, div.glass-card.p-3.p-md-4.mb-4, div#cropModal.modal.fade, script]
-- **[convention] Fixed null crash in Array — wraps unsafe operation in error boundary — confirmed 5x**: - 
-+     }
--     var moTaiKhoan_checkDuplicateRealtime = function(input) {
-+ 
--         var val = input.value.trim();
-+     var moTaiKhoan_checkDuplicateRealtime = function(input) {
--         if(!val) return;
-+         var val = input.value.trim();
--         google.script.run
-+         if(!val) return;
--             .withSuccessHandler(function(res) {
-+         google.script.run
--                 if(res && res.isDup) {
-+             .withSuccessHandler(function(res) {
--                     input.setCustomValidity('Giá trị này đã tồn tại!');
-+                 if(res && res.isDup) {
--                     $(input).addClass('is-invalid');
-+                     input.setCustomValidity('Giá trị này đã tồn tại!');
--                 } else {
-+                     $(input).addClass('is-invalid');
--                     input.setCustomValidity('');
-+                 } else {
--                     $(input).removeClass('is-invalid');
-+                     input.setCustomValidity('');
--                 }
-+                     $(input).removeClass('is-invalid');
--             })
-+                 }
--             .api_validateDuplicate(input.id, val);
-+             })
--     };
-+             .api_validateDuplicate(input.id, val);
-- 
-+     };
--     function toggleFormFields() {
-+ 
--         var loai = $('#loai_hinh').val();
-+     function toggleFormFields() {
--         if(loai === 'Hộ kinh doanh') {
-+         var loai = $('#loai_hinh').val();
--             $('#div_dkkd').show(300);
-+         if(loai === 'Hộ kinh doanh') {
--             $('#div_img_dkkd').show(300);
-+             $('#div_dkkd').show(300);
--             $('#div_ten_dang_nhap').show(300);
-+             $('#div_img_dkkd').show(300);
--             $('#dkkd').prop('required', true);
-+             $('#div_ten_dang_nhap').show(300);
--             $('#img_dkkd').prop('required', true);
-+             $('#dkkd').prop('required', true);
+-             if (successCallback) successCallback(result);
++         if (result.status === 'success') {
 -         } else {
-+             $('#img_dkkd').prop('required', true);
--             $('#div
++             if (successCallback) successCallback(result);
+-             showAlert('Lỗi', result.message || 'Xử lý thất bại', 'error');
++         } else {
+-             if (errorCallback) errorCallback(result);
++             showAlert('Lỗi', result.message || 'Xử lý thất bại', 'error');
+-         }
++             if (errorCallback) errorCallback(result);
+-     } catch (err) {
++         }
+-         if (loadingMsg !== 'NONE') hideLoading();
++     } catch (err) {
+-         console.error("API Call Failed:", err);
++         if (loadingMsg !== 'NONE') hideLoading();
+-         // Do GAS redirection, sometimes fetch fails even if it works. 
++         console.error("API Call Failed:", err);
+-         // We will improve the Backend to handle this better in Phase 3 if needed.
++         
+-         showAlert('Lỗi Kết Nối', 'Không thể kết nối với Máy chủ Google. Vui lòng kiểm tra internet.', 'error');
++         // Handle possible silent success (where GAS executes but response is opaque due to CORS/Redirect)
+-         if (errorCallback) errorCallback(err);
++         if (action === 'api_submit
 … [diff truncated]
 
-📌 IDE AST Context: Modified symbols likely include [div.d-flex.justify-content-between.align-items-center.mb-4, div.glass-card.p-3.p-md-4.mb-4, div#cropModal.modal.fade, script]
-- **[what-changed] 🟢 Edited Setup.gs (8 changes, 2min)**: Active editing session on Setup.gs.
-8 content changes over 2 minutes.
-- **[what-changed] what-changed in api_account.gs**: -       trangThai,
-+       urlThucHien,  // Ảnh thực hiện mở tài khoản
--       urlThucHien   // Ảnh thực hiện mở tài khoản
-+       trangThai
-- **[what-changed] 🟢 Edited api_account.gs (11 changes, 2min)**: Active editing session on api_account.gs.
-11 content changes over 2 minutes.
+📌 IDE AST Context: Modified symbols likely include [CONFIG, AppState, AppCache, fetchAPI, runAPI]
+- **[problem-fix] problem-fix in index.html**: -     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
++     <script src="https://code.jquery.com/jquery-3.7.1.min.js" onerror="alert('Không thể tải jQuery từ CDN. Vui lòng kiểm tra internet!')"></script>
+-     <script src="app.js"></script>
++     <script src="app.js?v=2"></script>
+
+📌 IDE AST Context: Modified symbols likely include [html]
+- **[convention] Strengthened types Scripts**: -                         </div>
++                             <div class="col-md-6">
+-                         <h6 class="fw-bold text-secondary mt-4 mb-3 border-bottom pb-2">Chứng từ đính kèm</h6>
++                                 <label class="form-label">Tên đăng nhập <small class="text-muted">(nếu có)</small></label>
+-                         <div class="row g-3" id="edit_images_container"></div>
++                                 <input type="text" class="form-control" id="edit_ten_dang_nhap">
+-                         <div class="mt-4 text-end">
++                             </div>
+-                             <button type="button" class="btn btn-secondary px-4 me-2" data-bs-dismiss="modal">Đóng</button>
++                         </div>
+-                             <button type="submit" class="btn btn-success px-4" id="btnSaveEdit">Lưu thay đổi</button>
++                         <h6 class="fw-bold text-secondary mt-4 mb-3 border-bottom pb-2">Chứng từ đính kèm</h6>
+-                         </div>
++                         <div class="row g-3" id="edit_images_container"></div>
+-                     </form>
++                         <div class="mt-4 text-end">
+-                 </div>
++                             <button type="button" class="btn btn-secondary px-4 me-2" data-bs-dismiss="modal">Đóng</button>
+-             </div>
++                             <button type="submit" class="btn btn-success px-4" id="btnSaveEdit">Lưu thay đổi</button>
+-         </div>
++                         </div>
+-     </div>
++                     </form>
+- 
++                 </div>
+-     <nav class="navbar fixed-bottom bg-white border-top shadow-sm initially-hidden" id="staffBottomNav">
++             </div>
+-       <div class="container-fluid d-flex justify-content-around p-1">
++         </div>
+-         <a href="#" class="nav-link text-center px-4 text-primary fw-bold" id="navOpenAccount" onclick="loadStaffOpenAccountView()">
++     </div>
+-           <i class='bx bx-user-plus
+… [diff truncated]
+
+📌 IDE AST Context: Modified symbols likely include [html]
+- **[what-changed] Replaced auth Loading**: -     </style>
++         .select-auto-width { width: auto !important; }
+- </head>
++         .chart-container-monthly { position: relative; height: 240px; }
+- <body>
++     </style>
+-     <div id="global-spinner">
++ </head>
+-         <div class="spinner-border text-success spinner-lg" role="status"></div>
++ <body>
+-         <h5 class="mt-3 fw-bold text-secondary">Đang khởi tạo hệ thống...</h5>
++     <div id="global-spinner">
+-     </div>
++         <div class="spinner-border text-success spinner-lg" role="status"></div>
+- 
++         <h5 class="mt-3 fw-bold text-secondary">Đang khởi tạo hệ thống...</h5>
+-     <div id="app-container" class="container py-4 mb-5">
++     </div>
+-         <script>console.log("Loading frmLogin...");</script>
++ 
+-         <div id="view-login" class="view-item"><?!= include('frmLogin'); ?></div>
++     <div id="app-container" class="container py-4 mb-5">
+-         <div id="view-mo-tai-khoan" class="view-item view-item-hidden"><?!= include('frmMoTaiKhoan'); ?></div>
++         <script>console.log("Loading frmLogin...");</script>
+-         <script>console.log("Loading frmMyCustomers...");</script>
++         <div id="view-login" class="view-item"><?!= include('frmLogin'); ?></div>
+-         <div id="view-my-customers" class="view-item view-item-hidden"><?!= include('frmMyCustomers'); ?></div>
++         <div id="view-mo-tai-khoan" class="view-item view-item-hidden"><?!= include('frmMoTaiKhoan'); ?></div>
+-         <script>console.log("Loading frmDashboard...");</script>
++         <script>console.log("Loading frmMyCustomers...");</script>
+-         <div id="view-dashboard" class="view-item view-item-hidden"><?!= include('frmDashboard'); ?></div>
++         <div id="view-my-customers" class="view-item view-item-hidden"><?!= include('frmMyCustomers'); ?></div>
+-         <script>console.log("All templates included.");</script>
++         <script>console.log("Loading frmDashboard...");</script>
+-     </div>
++         <div id="view-dashboard" class="view-ite
+… [diff truncated]
+
+📌 IDE AST Context: Modified symbols likely include [html]
+- **[what-changed] Replaced auth Loading**: -     </style>
++         .view-item-hidden { display: none; }
+- </head>
++         .progress-bar-zero { width: 0%; }
+- <body>
++     </style>
+-     <div id="global-spinner">
++ </head>
+-         <div class="spinner-border text-success spinner-lg" role="status"></div>
++ <body>
+-         <h5 class="mt-3 fw-bold text-secondary">Đang khởi tạo hệ thống...</h5>
++     <div id="global-spinner">
+-     </div>
++         <div class="spinner-border text-success spinner-lg" role="status"></div>
+- 
++         <h5 class="mt-3 fw-bold text-secondary">Đang khởi tạo hệ thống...</h5>
+-     <div id="app-container" class="container py-4 mb-5">
++     </div>
+-         <script>console.log("Loading frmLogin...");</script>
++ 
+-         <div id="view-login" class="view-item"><?!= include('frmLogin'); ?></div>
++     <div id="app-container" class="container py-4 mb-5">
+-         <div id="view-mo-tai-khoan" class="view-item" style="display: none;"><?!= include('frmMoTaiKhoan'); ?></div>
++         <script>console.log("Loading frmLogin...");</script>
+-         <script>console.log("Loading frmMyCustomers...");</script>
++         <div id="view-login" class="view-item"><?!= include('frmLogin'); ?></div>
+-         <div id="view-my-customers" class="view-item" style="display: none;"><?!= include('frmMyCustomers'); ?></div>
++         <div id="view-mo-tai-khoan" class="view-item view-item-hidden"><?!= include('frmMoTaiKhoan'); ?></div>
+-         <script>console.log("Loading frmDashboard...");</script>
++         <script>console.log("Loading frmMyCustomers...");</script>
+-         <div id="view-dashboard" class="view-item" style="display: none;"><?!= include('frmDashboard'); ?></div>
++         <div id="view-my-customers" class="view-item view-item-hidden"><?!= include('frmMyCustomers'); ?></div>
+-         <script>console.log("All templates included.");</script>
++         <script>console.log("Loading frmDashboard...");</script>
+-     </div>
++         <div id="view-dashboard" class="view-item view-item-hidden"><?
+… [diff truncated]
+
+📌 IDE AST Context: Modified symbols likely include [html]
+- **[convention] Replaced auth Loading — confirmed 3x**: -     </style>
++         .compress-progress-track { height: 10px; border-radius: 5px; }
+- </head>
++     </style>
+- <body>
++ </head>
+-     <div id="global-spinner">
++ <body>
+-         <div class="spinner-border text-success spinner-lg" role="status"></div>
++     <div id="global-spinner">
+-         <h5 class="mt-3 fw-bold text-secondary">Đang khởi tạo hệ thống...</h5>
++         <div class="spinner-border text-success spinner-lg" role="status"></div>
+-     </div>
++         <h5 class="mt-3 fw-bold text-secondary">Đang khởi tạo hệ thống...</h5>
+- 
++     </div>
+-     <div id="app-container" class="container py-4 mb-5">
++ 
+-         <script>console.log("Loading frmLogin...");</script>
++     <div id="app-container" class="container py-4 mb-5">
+-         <div id="view-login" class="view-item"><?!= include('frmLogin'); ?></div>
++         <script>console.log("Loading frmLogin...");</script>
+-         <div id="view-mo-tai-khoan" class="view-item" style="display: none;"><?!= include('frmMoTaiKhoan'); ?></div>
++         <div id="view-login" class="view-item"><?!= include('frmLogin'); ?></div>
+-         <script>console.log("Loading frmMyCustomers...");</script>
++         <div id="view-mo-tai-khoan" class="view-item" style="display: none;"><?!= include('frmMoTaiKhoan'); ?></div>
+-         <div id="view-my-customers" class="view-item" style="display: none;"><?!= include('frmMyCustomers'); ?></div>
++         <script>console.log("Loading frmMyCustomers...");</script>
+-         <script>console.log("Loading frmDashboard...");</script>
++         <div id="view-my-customers" class="view-item" style="display: none;"><?!= include('frmMyCustomers'); ?></div>
+-         <div id="view-dashboard" class="view-item" style="display: none;"><?!= include('frmDashboard'); ?></div>
++         <script>console.log("Loading frmDashboard...");</script>
+-         <script>console.log("All templates included.");</script>
++         <div id="view-dashboard" class="view-item" style="display: none;"><?!= include('f
+… [diff truncated]
+
+📌 IDE AST Context: Modified symbols likely include [html]
+- **[what-changed] Replaced auth Khung**: -         div#preact-border-shadow-host {
++         div#preact-border-shadow-host { display: none; }
+-           display: none;
++         /* Khung xem trước ảnh cố định - ảnh nằm gọn trong khung */
+-         }
++         .img-preview-box {
+-     </style>
++             width: 100%;
+- </head>
++             height: 120px;
+- <body>
++             border: 2px dashed #10b981;
+-     <div id="global-spinner">
++             border-radius: 0.5rem;
+-         <div class="spinner-border text-success spinner-lg" role="status"></div>
++             overflow: hidden;
+-         <h5 class="mt-3 fw-bold text-secondary">Đang khởi tạo hệ thống...</h5>
++             background: #f8fafc;
+-     </div>
++             display: flex;
+- 
++             align-items: center;
+-     <div id="app-container" class="container py-4 mb-5">
++             justify-content: center;
+-         <script>console.log("Loading frmLogin...");</script>
++         }
+-         <div id="view-login" class="view-item"><?!= include('frmLogin'); ?></div>
++         .img-preview-inner {
+-         <div id="view-mo-tai-khoan" class="view-item" style="display: none;"><?!= include('frmMoTaiKhoan'); ?></div>
++             width: 100%;
+-         <script>console.log("Loading frmMyCustomers...");</script>
++             height: 100%;
+-         <div id="view-my-customers" class="view-item" style="display: none;"><?!= include('frmMyCustomers'); ?></div>
++             object-fit: contain;
+-         <script>console.log("Loading frmDashboard...");</script>
++             display: block;
+-         <div id="view-dashboard" class="view-item" style="display: none;"><?!= include('frmDashboard'); ?></div>
++         }
+-         <script>console.log("All templates included.");</script>
++         /* Khung ảnh trong modal chi tiết */
+-     </div>
++         .img-detail-box {
+- 
++             width: 100%;
+-     <!-- Modals (Bản đầy đủ) -->
++             height: 130px;
+-     <div class="modal fade" id="modalChangePassword" tabindex="-1" aria-hidden="true" da
+… [diff truncated]
+
+📌 IDE AST Context: Modified symbols likely include [html]
+- **[convention] what-changed in index.html — confirmed 3x**: -                                     <span class="input-group-text">380200</span>
++                                     <span class="input-group-text">3800200</span>
+
+📌 IDE AST Context: Modified symbols likely include [html]
+- **[what-changed] Replaced auth Inter**: -     <!-- Thư viện JS CDN 
++     <!-- Thư viện JS CDN -->
+-     -->
++ 
+- 
++     <style>
+-     <style>
++         :root { --emerald: #10b981; --emerald-dark: #059669; --slate: #64748b; --amber: #f59e0b; }
+-         :root {
++         body { background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); min-height: 100vh; font-family: 'Inter', sans-serif; color: #1e293b; margin: 0; padding: 0; }
+-             --emerald: #10b981;
++         .glass-card { background: rgba(255, 255, 255, 0.8); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 1rem; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); transition: transform 0.2s; }
+-             --emerald-dark: #059669;
++         #global-spinner { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.9); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+-             --slate: #64748b;
++         .initially-hidden { display: none !important; }
+-             --amber: #f59e0b;
++         .handle-interaction { pointer-events: auto; cursor: move; }
+-         }
++         .chart-container-pie { height: 250px; position: relative; }
+- 
++         .mw-150px { max-width: 150px; }
+-         body {
++         div#preact-border-shadow-host {
+-             background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
++           display: none;
+-             min-height: 100vh;
++         }
+-             font-family: 'Inter', sans-serif;
++     </style>
+-             color: #1e293b;
++ </head>
+-             margin: 0;
++ <body>
+-             padding: 0;
++     <div id="global-spinner">
+-         }
++         <div class="spinner-border text-success spinner-lg" role="status"></div>
+- 
++         <h5 class="mt-3 fw-bold text-secondary">Đang khởi tạo hệ thống...</h5>
+-         .glass-card {
++     </div>
+-             background: rgba(255, 255, 255, 0.8);
++ 
+-             -webkit-backdrop-filter: b
+… [diff truncated]
+
+📌 IDE AST Context: Modified symbols likely include [html]
+- **[what-changed] 🟢 Edited index.html (102 changes, 3min)**: Active editing session on index.html.
+102 content changes over 3 minutes.
+- **[what-changed] Replaced auth GLOBAL**: - <html>
++ <html lang="vi">
+- <head>
++ 
+-     <meta charset="UTF-8">
++ <head>
+-     <title>BASELINE TEST</title>
++     <meta charset="UTF-8">
+- </head>
++     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+- <body>
++     <title>Hệ Thống Quản Lý Chỉ Tiêu Mở Tài Khoản - Yên Thọ</title>
+-     <h1>HELLO WORLD - ISOLATION TEST</h1>
++ 
+-         console.log("BASELINE TEST: Script is running.");
++         /**
+-         window.onerror = function(msg, url, line, col, error) {
++          * GLOBAL ERROR HANDLER - V1.4.3
+-             console.log("BASELINE ERROR:", msg, "at", line, ":", col);
++          * Bẫy mọi lỗi JS ngay khi load trang, bao gồm cả lỗi Syntax/Parse
+-             return false;
++          */
+-         };
++         window.onerror = function (msg, url, lineNo, columnNo, error) {
+-     </script>
++             var errorMsg = "⚠️ HỆ THỐNG GẶP LỖI\n\n" +
+- </body>
++                 "Nội dung: " + msg + "\n" +
+- </html>
++                 "Tệp: " + (url ? url.split('/').pop() : 'inline') + "\n" +
++                 "Dòng: " + lineNo + " : " + columnNo;
++ 
++             if (error && error.stack) {
++                 errorMsg += "\n\nStack Trace: " + error.stack;
++             }
++ 
++             console.error("[CRITICAL SYSTEM ERROR]", error || msg);
++             alert(errorMsg);
++ 
++             // Tắt spinner nếu đang xoay
++             var spinner = document.getElementById('global-spinner');
++             if (spinner) spinner.style.display = 'none';
++ 
++             return false;
++         };
++         // Fallback OpenCV early
++         window.onOpenCvReady = function () { console.log("OpenCV script loaded (Success)."); };
++     </script>
++ 
++     <!-- Thư viện CSS CDN -->
++     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
++     <link href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
++     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist
+… [diff truncated]
+
+📌 IDE AST Context: Modified symbols likely include [html]
+- **[what-changed] Replaced auth BASELINE**: - <html lang="vi">
++ <html>
+-     <meta name="viewport" content="width=device-width, initial-scale=1.0">
++     <title>BASELINE TEST</title>
+-     <title>Hệ Thống Quản Lý Chỉ Tiêu Mở Tài Khoản - Yên Thọ</title>
++ </head>
+- 
++ <body>
+-     <script>
++     <h1>HELLO WORLD - ISOLATION TEST</h1>
+-         /**
++     <script>
+-          * GLOBAL ERROR HANDLER - V1.4.3
++         console.log("BASELINE TEST: Script is running.");
+-          * Bẫy mọi lỗi JS ngay khi load trang, bao gồm cả lỗi Syntax/Parse
++         window.onerror = function(msg, url, line, col, error) {
+-          */
++             console.log("BASELINE ERROR:", msg, "at", line, ":", col);
+-         window.onerror = function(msg, url, lineNo, columnNo, error) {
++             return false;
+-             var errorMsg = "⚠️ HỆ THỐNG GẶP LỖI\n\n" +
++         };
+-                           "Nội dung: " + msg + "\n" +
++     </script>
+-                           "Tệp: " + (url ? url.split('/').pop() : 'inline') + "\n" +
++ </body>
+-                           "Dòng: " + lineNo + " : " + columnNo;
++ </html>
+-             
+-             if (error && error.stack) {
+-                 errorMsg += "\n\nStack Trace: " + error.stack;
+-             }
+-             
+-             console.error("[CRITICAL SYSTEM ERROR]", error || msg);
+-             alert(errorMsg);
+-             
+-             // Tắt spinner nếu đang xoay
+-             var spinner = document.getElementById('global-spinner');
+-             if (spinner) spinner.style.display = 'none';
+-             
+-             return false;
+-         };
+-         // Fallback OpenCV early
+-         window.onOpenCvReady = function() { console.log("OpenCV script loaded (Success)."); };
+-     </script>
+- 
+-     <!-- Thư viện CSS CDN -->
+-     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+-     <link href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+-     <link href="https://cdn.jsdelivr.
+… [diff truncated]
+
+📌 IDE AST Context: Modified symbols likely include [html]
+- **[what-changed] Replaced auth MrSaints**: -     <!-- Thư viện JS CDN -->
++     <!-- Thư viện JS CDN 
+-     <script src="https://cdn.jsdelivr.net/gh/MrSaints/pdfmake-vietnamese-vfs/vfs_fonts.js"></script>
++     <script src="https://cdn.jsdelivr.gh/MrSaints/pdfmake-vietnamese-vfs/vfs_fonts.js"></script>
+- 
++     -->
+-     <style>
++ 
+-         :root { --emerald: #10b981; --emerald-dark: #059669; --slate: #64748b; --amber: #f59e0b; }
++     <style>
+-         body { background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); min-height: 100vh; font-family: 'Inter', sans-serif; color: #1e293b; margin: 0; padding: 0; }
++         :root { --emerald: #10b981; --emerald-dark: #059669; --slate: #64748b; --amber: #f59e0b; }
+-         .glass-card { background: rgba(255, 255, 255, 0.8); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 1rem; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); transition: transform 0.2s; }
++         body { background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); min-height: 100vh; font-family: 'Inter', sans-serif; color: #1e293b; margin: 0; padding: 0; }
+-         #global-spinner { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.9); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
++         .glass-card { background: rgba(255, 255, 255, 0.8); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 1rem; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); transition: transform 0.2s; }
+-         .initially-hidden { display: none !important; }
++         #global-spinner { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.9); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+-         .handle-interaction { pointer-events: auto; cursor: move; }
++         .initially-
+… [diff truncated]
+
+📌 IDE AST Context: Modified symbols likely include [html]

@@ -1,6 +1,6 @@
 ---
 name: gotcha
-description: "Gotcha for HoKinhDoanh. ."
+description: "Gotcha for ebanking. ."
 domain: gotcha
 triggers:
   - glob: "**/*"
@@ -10,7 +10,7 @@ enabled: true
 
 # Gotcha
 
-Auto-compiled from **1 real patterns** in **HoKinhDoanh**. This skill is auto-routed to agents when working on gotcha files.
+Auto-compiled from **1 real patterns** in **ebanking**. This skill is auto-routed to agents when working on gotcha files.
 
 ## 📐 Conventions & Best Practices
 

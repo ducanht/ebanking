@@ -1,6 +1,6 @@
 ---
 name: project
-description: "Project for HoKinhDoanh. 25 gotchas, 34 conventions, 6 fixes."
+description: "Project for ebanking. 25 gotchas, 34 conventions, 6 fixes."
 domain: project
 triggers:
   - glob: "**/*"
@@ -10,7 +10,7 @@ enabled: true
 
 # Project
 
-Auto-compiled from **93 real patterns** in **HoKinhDoanh**. This skill is auto-routed to agents when working on project files.
+Auto-compiled from **93 real patterns** in **ebanking**. This skill is auto-routed to agents when working on project files.
 
 ## ⚠️ Anti-Patterns & Gotchas
 
@@ -211,6 +211,6 @@ CLAUDE.md
 - 📐 **Keep functions under 50 lines and single-responsibility** — Keep functions under 50 lines and single-responsibility
 - 📐 **Remove unused imports, variables, and dead code** — Remove unused imports, variables, and dead code
 - 📐 **Always pull before push to avoid conflicts** — Always pull before push to avoid conflicts
-- 📐 **Use meaningful commit messages in imperative mood: "Add feature" not "Added feature"**
+- 📐 **Use meaningful commit messages in imperative mood: "Add feature" not "Added feature"** — Use
 
 ... [Truncated — see individual observations for full content]

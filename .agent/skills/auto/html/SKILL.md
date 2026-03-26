@@ -1,6 +1,6 @@
 ---
 name: html
-description: "Html for HoKinhDoanh. 16 conventions, 29 fixes, 1 error→fix pairs."
+description: "Html for ebanking. 16 conventions, 29 fixes, 1 error→fix pairs."
 domain: html
 triggers:
   - glob: "**/*.html"
@@ -10,7 +10,7 @@ enabled: true
 
 # Html
 
-Auto-compiled from **85 real patterns** in **HoKinhDoanh**. This skill is auto-routed to agents when working on html files.
+Auto-compiled from **85 real patterns** in **ebanking**. This skill is auto-routed to agents when working on html files.
 
 ## 🔧 Problem Playbooks
 
@@ -313,6 +313,6 @@ Auto-compiled from **85 real patterns** in **HoKinhDoanh**. This skill is auto-r
 
 ### Fixed null crash in Excel — wraps unsafe operation in error boundary
 -                 language: { url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json" },
-+                 dom: "<'row mb-2'<'co
++                 dom: "<'row mb-2'<'col-sm-1
 
 ... [Truncated — see individual observations for full content]

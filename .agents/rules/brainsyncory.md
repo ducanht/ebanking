@@ -1,7 +1,7 @@
 
 
 # Project Memory — HoKinhDoanh
-> 183 notes | Score threshold: >40
+> 185 notes | Score threshold: >40
 
 ## Safety — Never Run Destructive Commands
 
@@ -18,21 +18,28 @@
 
 **Stack:** Unknown stack
 
-## Important Warnings
+## 📝 NOTE: 1 uncommitted file(s) in working tree.\n\n## Important Warnings
 
 - **⚠️ GOTCHA: Replaced auth Walkthrough — prevents XSS injection attacks** — - # Walkthrough:### Summary of Definitive Fix: Full ES5 Sanitization
 +
 
+## Active: `netlify-app`
+
+- **Strengthened types Scripts — adds runtime type validation before use**
+- **Strengthened types Module — adds runtime type validation before use**
+- **Fixed null crash in HACK — hardens HTTP security headers — confirmed 3x**
+- **Fixed null crash in FEATURE — cleans up event listeners to prevent memory leaks**
+
 ## Project Standards
 
+- Strengthened types Scripts — adds runtime type validation before use
 - Strengthened types Module — adds runtime type validation before use
 - Fixed null crash in HACK — hardens HTTP security headers — confirmed 3x
-- Added session cookies authentication — evolves the database schema to support... — confirmed 3x
-- Fixed null crash in HtmlService — confirmed 3x
 - 🟢 Edited frmDashboard.html (8 changes, 11min) — confirmed 3x
 - Fixed null crash in JSON — wraps unsafe operation in error boundary — confirmed 6x
 - what-changed in frmDashboard.html — confirmed 3x
 - Fixed null crash in Array — wraps unsafe operation in error boundary — confirmed 5x
+- Strengthened types Scripts
 
 ## Known Fixes
 

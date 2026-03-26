@@ -1,6 +1,6 @@
 ---
 name: problem-fix
-description: "Problem Fix for HoKinhDoanh. 2 error→fix pairs."
+description: "Problem Fix for ebanking. 2 error→fix pairs."
 domain: problem-fix
 composesFrom:
   - fix
@@ -12,7 +12,7 @@ enabled: true
 
 # Problem Fix
 
-Auto-compiled from **1 real patterns** in **HoKinhDoanh**. This skill is auto-routed to agents when working on problem-fix files.
+Auto-compiled from **1 real patterns** in **ebanking**. This skill is auto-routed to agents when working on problem-fix files.
 
 ## 🔧 Problem Playbooks
 

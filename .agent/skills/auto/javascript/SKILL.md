@@ -1,6 +1,6 @@
 ---
 name: javascript
-description: "Javascript for HoKinhDoanh. 1 conventions, 3 fixes."
+description: "Javascript for ebanking. 1 conventions, 3 fixes."
 domain: javascript
 triggers:
   - glob: "**/*.js"
@@ -11,7 +11,7 @@ enabled: true
 
 # Javascript
 
-Auto-compiled from **5 real patterns** in **HoKinhDoanh**. This skill is auto-routed to agents when working on javascript files.
+Auto-compiled from **5 real patterns** in **ebanking**. This skill is auto-routed to agents when working on javascript files.
 
 ## 🔧 Problem Playbooks
 
