@@ -2,53 +2,117 @@
 > Dynamically loaded for active file: `netlify-app\app.js` (Domain: **Generic Logic**)
 
 ### 📐 Generic Logic Conventions & Fixes
-- **[problem-fix] Fixed null crash in CAMERA — offloads heavy computation off the main thread**: -  * REGISTRATION LOGIC
-+  * CAMERA MODULE (getUserMedia Flow)
--  */
-+  * - Dung cho Netlify (HTTPS), ho tro ca mobile va desktop.
-- function initMoTaiKhoanForm() {
-+  * - Fallback an toan sang file picker neu browser khong ho tro hoac user tu choi quyen.
--     flatpickr(".js-datepicker", { dateFormat: "Y-m-d", altInput: true, altFormat: "d/m/Y", defaultDate: "today" });
-+  */
--     
-+ let _cameraStream = null;         // MediaStream hien tai
--     $('#frm-mo-tk').off('submit').on('submit', handleRegistration);
-+ let _cameraFacing = 'environment'; // 'environment' = camera sau (mac dinh cho chup chung tu)
--     $('#loai_hinh').on('change', toggleFormFields);
-+ let _cameraTargetId = null;        // ID input file se nhan anh sau khi chup
+- **[problem-fix] Fixed null crash in Find — wraps unsafe operation in error boundary**: -     } else {
++         
+-         $('#staffDash-rank').text('Chưa xếp hạng');
++         // Find person immediately above
+-     }
++         if (rank > 1) {
 - 
-+ let _galleryInput = null;          // input[type=file] an dung de fallback gallery
--     // Map camera inputs -> corresponding file inputs
-+ 
--     const camMap = {
-+ /**
--         'cam_truoc': 'img_truoc',
-+  * Mo modal camera hoac fallback sang gallery neu getUserMedia khong kha dung
--         'cam_sau':   'img_sau',
-+  */
--         'cam_dkkd':  'img_dkkd',
-+ async function openCamera(targetId) {
--         'cam_qr':    'img_qr',
-+     _cameraTargetId = targetId;
--         'cam_thuchien': 'img_thuchien'
-+     _cameraFacing = 'environment'; // always start with back camera
--     };
-+ 
++             const aboveMe = staffs[rank - 2];
+-     if (staffs.length > 0) {
++             const diff = (aboveMe.total || 0) - (me.total || 0);
+-         let top1 = staffs[0];
++             $('#staffDash-aboveRankInfo').html(`<i class='bx bx-trending-up'></i> Người xếp trên: <b>${aboveMe.total}</b> hồ sơ (cần thêm ${diff})`);
+-         $('#staffDash-top1Name').text(top1.name || top1.email);
++         } else {
+-         $('#staffDash-top1Count').text(`${top1.total} hồ sơ`);
++             $('#staffDash-aboveRankInfo').html(`<i class='bx bxs-check-circle text-success'></i> Đang dẫn đầu hệ thống!`);
+-     }
++         }
+- }
++     } else {
 - 
-+     // Kiem tra browser ho tro getUserMedia va dang chay tren HTTPS / localhost
--     const triggerProcessing = async (file, targetId) => {
-+     const isSecure = location.protocol === 'https:' || location.hostname === 'localhost';
--         if (!file) return;
-+     if (!isSecure || !navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
--         showLoading('Phan tich anh...');
-+         // Fallback: mo file picker truc tiep
--         try {
-+         _openFilePicker(targetId);
--             const processed = await processImageWithAI(file);
-+         return;
--             startCroppingFlow(processed, targetId);
++         $('#staffDash-rank').text('Chưa xếp hạng');
+- let staffChartInstance = null;
++         $('#staffDash-aboveRankInfo').text('Cần tối thiểu 1 hồ sơ để xếp hạng.');
+- function renderStaffLineChart(timeline) {
 +     }
--         } c
+-     const ctx = document.getElementById('chartStaffMonthly');
++ 
+-     if (!ctx) return;
++     if (staffs.length > 0) {
+-     
++         let top1 = staffs[0];
+-     // Last 30 days calculation
++         $('#staffDash-top1Name').text(top1.name || top1.email);
+-     let labels = [];
++         $('#staffDash-top1Count').text(`${top1.total} hồ sơ`);
+-     let counts = [];
++     }
+-     let d = new Date();
++ }
+-     for (let i = 29; i >= 0; i--) {
++ 
+-         let tmp = new Date(d);
++ 
+-         tmp.setDate(tmp.getDate() - i);
++ let staffChartInstance = null;
+-         let sDate = `${String(tmp.getDate()).padStart(2,"0")}/${String(tmp.getMonth()+1).padStart(2,"0")}`;
++ function renderStaffLineChart(timeline) {
+-         labels.push(sDate);
++     const ctx = document.getElementById('chartStaffMonthly');
+-         counts.push(timeline[sDate] || 0);
++     if (!ctx) return;
+-     }
++     
+- 
++     // Last 30 days calculation
+-     if (staffChartInstance) staffChar
+… [diff truncated]
+
+📌 IDE AST Context: Modified symbols likely include [GAS_API_URL, AppState, AppCache, runAPI, showLoading]
+- **[convention] Fixed null crash in Last — wraps unsafe operation in error boundary — confirmed 3x**: -     // Sap xep giam dan theo tong ho so, giong voi thu tu xep hang that su
++     let staffs = adminData.allStaffs;
+-     const staffs = [...adminData.allStaffs].sort((a, b) => (b.total || 0) - (a.total || 0));
++     let rank = staffs.findIndex(s => s.email === email) + 1;
+-     const rank = staffs.findIndex(s => s.email === email) + 1;
++     let me = staffs.find(s => s.email === email);
+-     const me = staffs.find(s => s.email === email);
++     
+-     
++     if (rank > 0) {
+-     if (rank > 0) {
++         $('#staffDash-rank').text(`#${rank} / ${staffs.length}`);
+-         $('#staffDash-rank').text(`#${rank} / ${staffs.length}`);
++     } else {
+-     } else {
++         $('#staffDash-rank').text('Chưa xếp hạng');
+-         $('#staffDash-rank').text('Chưa xếp hạng');
++     }
+-     }
++ 
+- 
++     if (staffs.length > 0) {
+-     // Hien thi Top 1
++         let top1 = staffs[0];
+-     if (staffs.length > 0) {
++         $('#staffDash-top1Name').text(top1.name || top1.email);
+-         let top1 = staffs[0];
++         $('#staffDash-top1Count').text(`${top1.total} hồ sơ`);
+-         $('#staffDash-top1Name').text(top1.name || top1.email);
++     }
+-         $('#staffDash-top1Count').text(`${top1.total} hồ sơ`);
++ }
+-     }
++ 
+- 
++ let staffChartInstance = null;
+-     // Hien thi nguoi xep hang ngay tren minh (khong lo ten, chi so luong)
++ function renderStaffLineChart(timeline) {
+-     const aboveCard = $('#staffDash-above');
++     const ctx = document.getElementById('chartStaffMonthly');
+-     if (rank > 1) {
++     if (!ctx) return;
+-         const above = staffs[rank - 2]; // rank-1 la chi so, -1 nua la vi tri tren
++     
+-         aboveCard.closest('.dash-card-above').removeClass('d-none');
++     // Last 30 days calculation
+-         aboveCard.html(
++     let labels = [];
+-             `<div class="text-muted mb-1" style="font-size:11px;">Ngay tr\u00ean b\u1ea1n (h\u1ea1ng #${rank - 1}):</div>` +
++     let counts = [];
+-             `<span class="fw-bold text-warning fs-5">
 … [diff truncated]
 
 📌 IDE AST Context: Modified symbols likely include [GAS_API_URL, AppState, AppCache, runAPI, showLoading]
@@ -225,6 +289,114 @@
 … [diff truncated]
 
 📌 IDE AST Context: Modified symbols likely include [GAS_API_URL, AppState, AppCache, runAPI, showLoading]
+- **[convention] Strengthened types Kinh — adds runtime type validation before use**: -                     </div>
++                         <p class="mb-0 small text-secondary mt-1" id="staffDash-aboveRankInfo"></p>
+-                 </div>
++                     </div>
+-                 <div class="col-6 col-md-3">
++ 
+-                     <div class="glass-card p-3 text-center border-start border-4 border-primary h-100 shadow-sm align-content-center">
++                 </div>
+-                         <h6 class="text-muted mb-1 small text-uppercase">Cá nhân</h6>
++                 <div class="col-6 col-md-3">
+-                         <h3 class="fw-bold text-primary mb-0" id="staffDash-canhan">--</h3>
++                     <div class="glass-card p-3 text-center border-start border-4 border-primary h-100 shadow-sm align-content-center">
+-                     </div>
++                         <h6 class="text-muted mb-1 small text-uppercase">Cá nhân</h6>
+-                 </div>
++                         <h3 class="fw-bold text-primary mb-0" id="staffDash-canhan">--</h3>
+-                 <div class="col-6 col-md-3">
++                     </div>
+-                     <div class="glass-card p-3 text-center border-start border-4 border-warning h-100 shadow-sm align-content-center">
++                 </div>
+-                         <h6 class="text-muted mb-1 small text-uppercase">Kinh doanh</h6>
++                 <div class="col-6 col-md-3">
+-                         <h3 class="fw-bold text-warning mb-0" id="staffDash-hkd">--</h3>
++                     <div class="glass-card p-3 text-center border-start border-4 border-warning h-100 shadow-sm align-content-center">
+-                     </div>
++                         <h6 class="text-muted mb-1 small text-uppercase">Kinh doanh</h6>
+-                 </div>
++                         <h3 class="fw-bold text-warning mb-0" id="staffDash-hkd">--</h3>
+-                 <div class="col-6 col-md-3">
++                     </div>
+-                     <div class="glass-card p-2 text-center bg-white border border-d
+… [diff truncated]
+
+📌 IDE AST Context: Modified symbols likely include [html]
+- **[convention] Strengthened types GIAN — adds runtime type validation before use**: -             <!-- Nguoi xep hang ngay tren -->
++             <div class="glass-card p-3 mb-4">
+-             <div class="row g-3 mb-4 dash-card-above d-none">
++                 <h6 class="fw-bold mb-3 text-secondary text-uppercase"><i class='bx bx-trending-up'></i> Tiến độ cá nhân (30 ngày)</h6>
+-                 <div class="col-12">
++                 <div class="chart-container-monthly"><canvas id="chartStaffMonthly"></canvas></div>
+-                     <div class="glass-card p-3 border-start border-4 border-warning shadow-sm">
++             </div>
+-                         <h6 class="text-muted mb-2 small text-uppercase"><i class='bx bx-up-arrow-alt text-warning'></i> Người ngay trên bạn</h6>
++             
+-                         <div id="staffDash-above" class="text-center py-1">
++             <div class="glass-card p-3 p-md-4">
+-                             <span class="spinner-border spinner-border-sm text-warning"></span>
++                 <div class="table-responsive">
+-                         </div>
++                     <table id="tblMyCustomers" class="table table-hover dt-responsive nowrap w-100 align-middle">
+-                     </div>
++                         <thead><tr><th>THỜI GIAN</th><th>Họ TÊN</th><th>CCCD</th><th>SỐ ĐKKD</th><th>LOẠI HÌNH</th><th>SỐ ĐIỆN THOẠI</th><th>TÊN CÁN BỘ</th><th>NGÀY MỞ TK</th><th>SỐ TÀI KHOẢN</th><th>TRẠNG THÁI</th><th class="text-end">XEM</th></tr></thead>
+-                 </div>
++                         <tbody id="tbMyCustomersBody"></tbody>
+-             </div>
++                     </table>
+- 
++                 </div>
+-             <div class="glass-card p-3 mb-4">
++             </div>
+-                 <h6 class="fw-bold mb-3 text-secondary text-uppercase"><i class='bx bx-trending-up'></i> Tiến độ cá nhân (30 ngày)</h6>
++         </section>
+-                 <div class="chart-container-monthly"><canvas id="chartStaffMonthly"></canvas></div>
++     </div>
+-             </div>
++ 
+-             
++     <!-- Mod
+… [diff truncated]
+
+📌 IDE AST Context: Modified symbols likely include [html]
+- **[convention] Strengthened types Nguoi — adds runtime type validation before use**: -             <div class="glass-card p-3 mb-4">
++             <!-- Nguoi xep hang ngay tren -->
+-                 <h6 class="fw-bold mb-3 text-secondary text-uppercase"><i class='bx bx-trending-up'></i> Tiến độ cá nhân (30 ngày)</h6>
++             <div class="row g-3 mb-4 dash-card-above d-none">
+-                 <div class="chart-container-monthly"><canvas id="chartStaffMonthly"></canvas></div>
++                 <div class="col-12">
+-             </div>
++                     <div class="glass-card p-3 border-start border-4 border-warning shadow-sm">
+-             
++                         <h6 class="text-muted mb-2 small text-uppercase"><i class='bx bx-up-arrow-alt text-warning'></i> Người ngay trên bạn</h6>
+-             <div class="glass-card p-3 p-md-4">
++                         <div id="staffDash-above" class="text-center py-1">
+-                 <div class="table-responsive">
++                             <span class="spinner-border spinner-border-sm text-warning"></span>
+-                     <table id="tblMyCustomers" class="table table-hover dt-responsive nowrap w-100 align-middle">
++                         </div>
+-                         <thead><tr><th>THỜI GIAN</th><th>Họ TÊN</th><th>CCCD</th><th>SỐ ĐKKD</th><th>LOẠI HÌNH</th><th>SỐ ĐIỆN THOẠI</th><th>TÊN CÁN BỘ</th><th>NGÀY MỞ TK</th><th>SỐ TÀI KHOẢN</th><th>TRẠNG THÁI</th><th class="text-end">XEM</th></tr></thead>
++                     </div>
+-                         <tbody id="tbMyCustomersBody"></tbody>
++                 </div>
+-                     </table>
++             </div>
+-                 </div>
++ 
+-             </div>
++             <div class="glass-card p-3 mb-4">
+-         </section>
++                 <h6 class="fw-bold mb-3 text-secondary text-uppercase"><i class='bx bx-trending-up'></i> Tiến độ cá nhân (30 ngày)</h6>
+-     </div>
++                 <div class="chart-container-monthly"><canvas id="chartStaffMonthly"></canvas></div>
+- 
++             </div>
+-     <!-- Modals -->
++      
+… [diff truncated]
+
+📌 IDE AST Context: Modified symbols likely include [html]
 - **[convention] Strengthened types Modal — adds runtime type validation before use**: -     <!-- Các Modal khác từ bản gốc -->
 +     <!-- Modal Camera Live --  >
 -     <div class="modal fade" id="modalChangePassword" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
@@ -322,166 +494,3 @@
 📌 IDE AST Context: Modified symbols likely include [html]
 - **[what-changed] 🟢 Edited netlify-app/index.html (6 changes, 3min)**: Active editing session on netlify-app/index.html.
 6 content changes over 3 minutes.
-- **[convention] Strengthened types Kinh — adds runtime type validation before use**: -             <div class="glass-card p-3 p-md-4">
-+             <div class="row g-3 mb-4" id="staff-dashboard-cards">
--                 <div class="table-responsive">
-+                 <div class="col-6 col-md-3">
--                     <table id="tblMyCustomers" class="table table-hover dt-responsive nowrap w-100 align-middle">
-+                     <div class="glass-card p-3 text-center border-start border-4 border-success h-100 shadow-sm align-content-center">
--                         <thead><tr><th>THỜI GIAN</th><th>Họ TÊN</th><th>CCCD</th><th>SỐ ĐKKD</th><th>LOẠI HÌNH</th><th>SỐ ĐIỆN THOẠI</th><th>TÊN CÁN BỘ</th><th class="text-end">XEM</th></tr></thead>
-+                         <h6 class="text-muted mb-1 small text-uppercase">Hạng của tôi</h6>
--                         <tbody id="tbMyCustomersBody"></tbody>
-+                         <h3 class="fw-bold text-success mb-0" id="staffDash-rank"><i class='bx bx-loader-alt bx-spin'></i></h3>
--                     </table>
-+                     </div>
--             </div>
-+                 <div class="col-6 col-md-3">
--         </section>
-+                     <div class="glass-card p-3 text-center border-start border-4 border-primary h-100 shadow-sm align-content-center">
--     </div>
-+                         <h6 class="text-muted mb-1 small text-uppercase">Cá nhân</h6>
-- 
-+                         <h3 class="fw-bold text-primary mb-0" id="staffDash-canhan">--</h3>
--     <!-- Modals -->
-+                     </div>
--     <!-- Modal Cắt Ảnh (Cropper) -->
-+                 </div>
--     <div class="modal fade" id="cropModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
-+                 <div class="col-6 col-md-3">
--         <div class="modal-dialog modal-lg modal-dialog-centered">
-+                     <div class="glass-card p-3 text-center border-start border-4 border-warning h-100 shadow-sm align-content-center">
--             <div class="modal-content glass-card d-flex flex-column" style="max-height
-… [diff truncated]
-
-📌 IDE AST Context: Modified symbols likely include [html]
-- **[what-changed] Replaced auth CCCD — adds runtime type validation before use**: -                             <input type="text" class="form-control" id="cccd" maxlength="12" required>
-+                             <input type="text" class="form-control" id="cccd" pattern="[0-9]{12}" maxlength="12" title="Căn cước công dân bắt buộc đúng 12 chữ số" required onblur="checkDuplicate(this)">
--                         </div>
-+                             <div class="invalid-feedback">Căn cước công dân bắt buộc đúng 12 chữ số.</div>
--                         <div class="col-md-6 initially-hidden" id="div_dkkd">
-+                         </div>
--                             <label class="form-label fw-semibold">Số ĐKKD</label>
-+                         <div class="col-md-6 initially-hidden" id="div_dkkd">
--                             <input type="text" class="form-control text-uppercase" id="dkkd">
-+                             <label class="form-label fw-semibold">Số ĐKKD</label>
--                         </div>
-+                             <input type="text" class="form-control text-uppercase" id="dkkd" onblur="checkDuplicate(this)">
--                         <div class="col-md-6">
-+                         </div>
--                             <label class="form-label fw-semibold">Số điện thoại</label>
-+                         <div class="col-md-6">
--                             <input type="tel" class="form-control" id="sdt" required>
-+                             <label class="form-label fw-semibold">Số điện thoại</label>
--                         </div>
-+                             <input type="tel" class="form-control" id="sdt" pattern="0[0-9]{9}" maxlength="10" title="Số điện thoại phải bắt đầu bằng 0 và đủ 10 chữ số" required onblur="checkDuplicate(this)">
--                     </div>
-+                             <div class="invalid-feedback">SĐT bắt buộc bắt đầu bằng 0 và đủ 10 chữ số.</div>
--                     
-+                         </div>
--                     <h5 class="fw-bold border-bottom pb-2 mt-4 mb-3 text-secondary"><span c
-… [diff truncated]
-
-📌 IDE AST Context: Modified symbols likely include [html]
-- **[what-changed] what-changed in index.html**: -                         <thead><tr><th>THỜI GIAN</th><th>Họ TÊN</th><th>CCCD</th><th>SỐ ĐKKD</th><th>LOẠI HÌNH</th><th>TRẠNG THÁI</th><th>TÊN CÁN BỘ</th><th class="text-end">XEM</th></tr></thead>
-+                         <thead><tr><th>THỜI GIAN</th><th>Họ TÊN</th><th>CCCD</th><th>SỐ ĐKKD</th><th>LOẠI HÌNH</th><th>SỐ ĐIỆN THOẠI</th><th>TÊN CÁN BỘ</th><th class="text-end">XEM</th></tr></thead>
-
-📌 IDE AST Context: Modified symbols likely include [html]
-- **[decision] decision in style.css**: - }
-+     padding-bottom: 80px;
-- 
-+ }
-- @keyframes fadeIn {
-+ 
--     from { opacity: 0; transform: translateY(10px); }
-+ @keyframes fadeIn {
--     to { opacity: 1; transform: translateY(0); }
-+     from { opacity: 0; transform: translateY(10px); }
-- }
-+     to { opacity: 1; transform: translateY(0); }
-- 
-+ }
-- /* Image Preview Styles */
-+ 
-- .img-preview-box {
-+ /* Image Preview Styles */
--     width: 100%;
-+ .img-preview-box {
--     height: 140px;
-+     width: 100%;
--     border: 2px dashed var(--emerald);
-+     height: 140px;
--     border-radius: 0.75rem;
-+     border: 2px dashed var(--emerald);
--     overflow: hidden;
-+     border-radius: 0.75rem;
--     background: #f8fafc;
-+     overflow: hidden;
--     display: flex;
-+     background: #f8fafc;
--     align-items: center;
-+     display: flex;
--     justify-content: center;
-+     align-items: center;
--     margin-top: 10px;
-+     justify-content: center;
-- }
-+     margin-top: 10px;
-- 
-+ }
-- .img-preview-inner {
-+ 
--     width: 100%;
-+ .img-preview-inner {
--     height: 100%;
-+     width: 100%;
--     object-fit: contain;
-+     height: 100%;
-- }
-+     object-fit: contain;
-- 
-+ }
-- .img-detail-box {
-+ 
--     width: 100%;
-+ .img-detail-box {
--     height: 130px;
-+     width: 100%;
--     border-radius: 0.5rem;
-+     height: 130px;
--     overflow: hidden;
-+     border-radius: 0.5rem;
--     background: #f1f5f9;
-+     overflow: hidden;
--     display: flex;
-+     background: #f1f5f9;
--     align-items: center;
-+     display: flex;
--     justify-content: center;
-+     align-items: center;
--     border: 1px solid #e2e8f0;
-+     justify-content: center;
-- }
-+     border: 1px solid #e2e8f0;
-- 
-+ }
-- .img-detail-inner {
-+ 
--     width: 100%;
-+ .img-detail-inner {
--     height: 100%;
-+     width: 100%;
--     object-fit: contain;
-+     height: 100%;
--     transition: transform 0.2s;
-+     object-fit: contain;
-- }
-+     transition: transform 0.2s;
-- 
-+ }
-- .img-detail-inner:hover {
-+ 
--     transform: scale(1.05);
-+ .img-detail-in
-… [diff truncated]
-
-📌 IDE AST Context: Modified symbols likely include [:root, body, .glass-card, .glass-card:hover, #global-spinner]

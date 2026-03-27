@@ -842,8 +842,18 @@ function updateStaffRankings(adminData, email) {
     
     if (rank > 0) {
         $('#staffDash-rank').text(`#${rank} / ${staffs.length}`);
+        
+        // Find person immediately above
+        if (rank > 1) {
+            const aboveMe = staffs[rank - 2];
+            const diff = (aboveMe.total || 0) - (me.total || 0);
+            $('#staffDash-aboveRankInfo').html(`<i class='bx bx-trending-up'></i> Người xếp trên: <b>${aboveMe.total}</b> hồ sơ (cần thêm ${diff})`);
+        } else {
+            $('#staffDash-aboveRankInfo').html(`<i class='bx bxs-check-circle text-success'></i> Đang dẫn đầu hệ thống!`);
+        }
     } else {
         $('#staffDash-rank').text('Chưa xếp hạng');
+        $('#staffDash-aboveRankInfo').text('Cần tối thiểu 1 hồ sơ để xếp hạng.');
     }
 
     if (staffs.length > 0) {
@@ -852,6 +862,7 @@ function updateStaffRankings(adminData, email) {
         $('#staffDash-top1Count').text(`${top1.total} hồ sơ`);
     }
 }
+
 
 let staffChartInstance = null;
 function renderStaffLineChart(timeline) {
@@ -970,8 +981,10 @@ async function initDashboard() {
 
             renderAdminStats(s);
             renderAdminCharts(s);
+            renderMonthlyChart(s.allData || []); // Fix: Call monthly chart rendering
             renderAdminTable(s.allData || [], s.allStaffs || []);
             renderAdminTopStaff(s.allStaffs || []);
+
 
             // Initialize Flatpickr for date filters
             if (typeof flatpickr !== 'undefined') {
@@ -1119,8 +1132,11 @@ function renderAdminTable(allData, allStaffs) {
     });
 
     $('#filterStaffAdmin').off('change').on('change', function() {
-        dtAdmin.column(9).search($(this).val()).draw();
+        const val = $(this).val();
+        // Index 10 is the hidden column containing the email address
+        dtAdmin.column(10).search(val ? val : '').draw();
     });
+
 
     $('#filterFromDate, #filterToDate').on('change', function() {
         dtAdmin.draw();
