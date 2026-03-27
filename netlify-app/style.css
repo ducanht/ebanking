@@ -193,3 +193,19 @@ canvas.canvas-responsive { max-width: 100%; height: auto; }
     box-shadow: 0 6px 15px rgba(16, 185, 129, 0.3);
 }
 
+/* --- AUDIT & HARDENING UTILITIES --- */
+#login-box { max-width: 400px; border-top: 4px solid var(--emerald); }
+.app-logo-large { height: 64px; object-fit: contain; }
+.w-auto { width: auto !important; }
+.w-100px { width: 100px !important; }
+.chart-container-monthly-dashboard { height: 240px; position: relative; }
+.max-h-90vh { max-height: 90vh !important; }
+.min-h-300px { min-height: 300px !important; }
+.canvas-quad { max-width: 100%; height: auto; max-height: 60vh; object-fit: contain; }
+.svg-overlay { pointer-events: none; z-index: 5; }
+.pointer-events-auto { pointer-events: auto !important; }
+.modal-footer-z { position: relative; z-index: 10; }
+.text-truncate-max { max-width: 100%; }
+.table-full-width { width: 100% !important; }
+
+

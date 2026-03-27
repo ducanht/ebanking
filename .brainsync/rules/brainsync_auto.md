@@ -1,7 +1,7 @@
 
 
 # Project Memory — ebanking
-> 107 notes | Score threshold: >40
+> 112 notes | Score threshold: >40
 
 ## Safety — Never Run Destructive Commands
 
@@ -18,24 +18,24 @@
 
 **Stack:** Unknown stack
 
-## 📝 NOTE: 1 uncommitted file(s) in working tree.\n\n## Active: `netlify-app`
+## 📝 NOTE: 1 uncommitted file(s) in working tree.\n\n## Active: `.`
 
-- **Fixed null crash in Last — wraps unsafe operation in error boundary — confirmed 3x**
-- **Fixed null crash in OPENCV — offloads heavy computation off the main thread — confirmed 3x**
-- **Added session cookies authentication — confirmed 3x**
-- **what-changed in app.js — confirmed 3x**
-- **Fixed null crash in AppState — confirmed 4x**
+- **what-changed in index.html — confirmed 3x**
+- **convention in index.html**
+- **Replaced auth CCCD — adds runtime type validation before use — confirmed 3x**
+- **Strengthened types Kinh — adds runtime type validation before use**
+- **Strengthened types GIAN — adds runtime type validation before use**
 
 ## Project Standards
 
-- Fixed null crash in Last — wraps unsafe operation in error boundary — confirmed 3x
-- Fixed null crash in OPENCV — offloads heavy computation off the main thread — confirmed 3x
-- Added session cookies authentication — confirmed 3x
-- what-changed in app.js — confirmed 3x
-- Fixed null crash in AppState — confirmed 4x
+- what-changed in index.html — confirmed 3x
 - convention in index.html
+- Replaced auth CCCD — adds runtime type validation before use — confirmed 3x
 - Strengthened types Kinh — adds runtime type validation before use
 - Strengthened types GIAN — adds runtime type validation before use
+- Strengthened types Nguoi — adds runtime type validation before use
+- Strengthened types Modal — adds runtime type validation before use
+- Strengthened types Kinh — adds runtime type validation before use
 
 ## Known Fixes
 
