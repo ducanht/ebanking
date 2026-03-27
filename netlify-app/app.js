@@ -713,17 +713,23 @@ async function handleRegistration(e) {
     e.preventDefault();
     const btn = $('#btnSubmitAccount');
     const oldBtn = btn.html();
-    btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Đang nén ảnh...');
-
+    
+    // UI Elements
     const progressWrapper = $('#compress-progress-wrapper');
     const progressBar = $('#compress-progress-bar');
+    const progressLabel = $('#compress-progress-label');
+    const progressPct = $('#compress-progress-pct');
+
+    btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Đang xử lý...');
     progressWrapper.show();
+    progressBar.css('width', '0%');
+    progressPct.text('0%');
 
     const fileSlots = [
         { id: 'img_truoc', label: 'CCCD Trước' },
-        { id: 'img_sau', label: 'CCCD Sau' },
-        { id: 'img_dkkd', label: 'Giấy phép' },
-        { id: 'img_qr', label: 'Mã QR' },
+        { id: 'img_sau',   label: 'CCCD Sau' },
+        { id: 'img_dkkd',  label: 'Giấy phép' },
+        { id: 'img_qr',    label: 'Mã QR' },
         { id: 'img_thuchien', label: 'Ảnh thực hiện' }
     ];
 
@@ -741,43 +747,73 @@ async function handleRegistration(e) {
         mat_khau: $('#mat_khau').val() || ""
     };
 
-    let done = 0;
-    const total = fileSlots.filter(s => document.getElementById(s.id).files[0]).length || 1;
+    const filesToProcess = fileSlots.filter(s => document.getElementById(s.id).files[0]);
+    const totalSteps = filesToProcess.length + 1; // +1 for final API upload step
+    let currentStep = 0;
 
-    for (const slot of fileSlots) {
+    const updateUIProgress = (msg, pct) => {
+        progressLabel.text(msg);
+        progressBar.css('width', `${pct}%`);
+        progressPct.text(`${pct}%`);
+    };
+
+    // Helper: Nén ảnh với timeout 10s
+    const compressWithTimeout = (file, slotLabel, ms = 10000) => {
+        const options = { maxSizeMB: 0.4, maxWidthOrHeight: 1200, useWebWorker: true };
+        return Promise.race([
+            imageCompression(file, options),
+            new Promise((_, reject) => setTimeout(() => reject(new Error("TIMEOUT")), ms))
+        ]);
+    };
+
+    for (const slot of filesToProcess) {
+        currentStep++;
         const file = document.getElementById(slot.id).files[0];
-        if (file) {
-            try {
-                const options = { maxSizeMB: 0.4, maxWidthOrHeight: 1200, useWebWorker: true };
-                const compressed = await imageCompression(file, options);
-                data[slot.id] = await imageCompression.getDataUrlFromFile(compressed);
-                done++;
-                const pct = Math.round((done / total) * 100);
-                progressBar.css('width', `${pct}%`).text(`${pct}%`);
-            } catch (err) {
-                console.warn("Nén ảnh thất bại, dùng ảnh gốc:", err);
-                data[slot.id] = await new Promise(r => {
-                    const reader = new FileReader();
-                    reader.onload = (e) => r(e.target.result);
-                    reader.readAsDataURL(file);
-                });
+        updateUIProgress(`Đang nén ${slot.label} (${currentStep}/${filesToProcess.length})...`, Math.round((currentStep / totalSteps) * 100));
+
+        try {
+            const compressed = await compressWithTimeout(file, slot.label);
+            data[slot.id] = await imageCompression.getDataUrlFromFile(compressed);
+        } catch (err) {
+            if (err.message === "TIMEOUT") {
+                console.warn(`Nén ${slot.label} quá 10s, dùng ảnh gốc.`);
+                // Thong bao nho cho user biet
+                progressLabel.text(`Bỏ qua nén ${slot.label} (quá 10s)...`);
+            } else {
+                console.error(`Lỗi nén ${slot.label}:`, err);
             }
+            // Fallback dung anh goc
+            data[slot.id] = await new Promise(r => {
+                const reader = new FileReader();
+                reader.onload = (e) => r(e.target.result);
+                reader.readAsDataURL(file);
+            });
         }
     }
 
+    // Buoc cuoi: Gui du lieu len Server
+    updateUIProgress('Đang gửi dữ liệu & đồng bộ hồ sơ...', 95);
     btn.html('<span class="spinner-border spinner-border-sm"></span> Đang lưu hồ sơ...');
     
     runAPI('api_submitregistration', data, (res) => {
         btn.prop('disabled', false).html(oldBtn);
-        progressWrapper.hide();
         if (res.status === 'success') {
+            updateUIProgress('Đã hoàn thành!', 100);
+            setTimeout(() => progressWrapper.fadeOut(), 2000);
             showAlert('Thành công!', 'Hồ sơ đã được lưu và đồng bộ.', 'success');
             document.getElementById('frm-mo-tk').reset();
             $('.img-preview-box').hide();
             AppCache.clear('myCustomers');
-        } else showAlert('Lỗi', res.message, 'error');
-    }, () => btn.prop('disabled', false).html(oldBtn), 'NONE');
+        } else {
+            progressWrapper.hide();
+            showAlert('Lỗi', res.message, 'error');
+        }
+    }, () => {
+        btn.prop('disabled', false).html(oldBtn);
+        progressWrapper.hide();
+    }, 'NONE');
 }
+
 
 /**
  * STAFF CUSTOMER LOGIC
@@ -1356,16 +1392,19 @@ function handleChangePassword(e) {
         return;
     }
     
-    const btn = $('#btnSubmitChangePwd');
-    const oldHtml = btn.html();
     btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Đang xử lý...');
     
+    // Hash passwords for security
+    const oldH = CryptoJS.SHA256(oldP).toString();
+    const newH = CryptoJS.SHA256(newP).toString();
+
     runAPI('api_changepassword', {
         email: AppState.user.email,
-        oldHashed: CryptoJS.SHA256(oldP).toString(),
-        newHashed: CryptoJS.SHA256(newP).toString()
+        oldHashed: oldH,
+        newHashed: newH
     }, (res) => {
         btn.prop('disabled', false).html(oldHtml);
+
         if (res.status === 'success') {
             showAlert('Thành công', 'Đổi mật khẩu thành công! Vui lòng truy cập hệ thống.', 'success');
             $('#modalChangePassword').modal('hide');

@@ -318,8 +318,13 @@
 
 
                     <div id="compress-progress-wrapper" class="mt-4 initially-hidden">
+                        <div class="d-flex justify-content-between mb-1">
+                            <small class="text-secondary fw-bold" id="compress-progress-label">Đang nén ảnh...</small>
+                            <small class="text-primary fw-bold" id="compress-progress-pct">0%</small>
+                        </div>
                         <div class="progress" style="height: 10px;"><div class="progress-bar progress-bar-striped progress-bar-animated bg-success" id="compress-progress-bar" style="width: 0%"></div></div>
                     </div>
+
 
                     <div class="mt-4 pt-3 text-center border-top">
                         <button type="submit" class="btn btn-primary btn-lg px-5 shadow-sm d-flex align-items-center mx-auto gap-2" id="btnSubmitAccount">
