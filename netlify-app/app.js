@@ -4,7 +4,7 @@
  * Hệ thống giao tiếp với GAS Backend qua API JSON (doPost).
  */
 
-const GAS_API_URL = "https://script.google.com/macros/s/AKfycbzf4m3V5P61c3XhU8T0Y4-U0o7B8hE_z6x9_7z6_7z6/exec"; // CẦN CẬP NHẬT URL THỰC TẾ
+const GAS_API_URL = "https://script.google.com/macros/s/AKfycbyXBMdJO2JmoaarxW9l7mg-l4tyN6BF1U01jaMPQ48xmVOZM9WFWLnOTIc9Wyf1OpFr/exec";
 
 const AppState = {
     user: JSON.parse(localStorage.getItem('HOKINHDOANH_SESSION')) || null,
