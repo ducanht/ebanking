@@ -440,7 +440,7 @@ function renderMyCustomersTable(data) {
         const statusColor = d['Trạng thái'] === 'Đã xác minh' ? 'text-success' : 'text-warning';
         return `
             <tr onclick="openEditCustomerModal('${d.ID || d['Mã GD']}')" class="cursor-pointer">
-                <td><small class="text-muted">${utils_formatVN(d['Thời điểm nhập'])}</small></td>
+                <td><small class="text-muted">${utils_formatVN(d['Thời điểm nhập'], 'date')}</small></td>
                 <td class="fw-bold">${d['Tên khách hàng']}<br><small class="text-secondary fw-normal">${d['Số điện thoại']}</small></td>
                 <td><small>${d['Số CCCD']}</small></td>
                 <td><small>${d['Số GP ĐKKD'] || ''}</small></td>
@@ -462,7 +462,8 @@ function renderMyCustomersTable(data) {
             buttons: [
                 { extend: 'excelHtml5', text: '<i class="bx bxs-file-export"></i> Xuất Excel', className: 'btn btn-sm btn-success shadow-sm' }
             ],
-            language: { url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json" }
+            language: { url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json" },
+            columnDefs: [{ targets: [3], visible: false }]
         });
     }
 }
@@ -489,16 +490,58 @@ async function initDashboard() {
             renderAdminStats(s);
             renderAdminCharts(s);
             renderAdminTable(s.allData || [], s.allStaffs || []);
+            renderAdminTopStaff(s.allStaffs || []);
+
+            // Initialize Flatpickr for date filters
+            if (typeof flatpickr !== 'undefined') {
+                flatpickr('#filterFromDate', { altInput: true, altFormat: 'd/m/Y', dateFormat: 'Y-m-d' });
+                flatpickr('#filterToDate', { altInput: true, altFormat: 'd/m/Y', dateFormat: 'Y-m-d' });
+            }
         }
     });
 }
 
 function renderAdminStats(s) {
     $('#db-total').text(s.total || 0);
-    $('#db-pending').text(s.pending || 0);
-    $('#db-approved').text(s.approved || 0);
+    $('#db-ca-nhan-sub').text(s.caNhan || 0);
+    $('#db-hkd-sub').text(s.hkd || 0);
     $('#db-ca-nhan').text(s.caNhan || 0);
     $('#db-hkd-count').text(s.hkd || 0);
+}
+
+function renderAdminTopStaff(allStaffs) {
+    if (!allStaffs || allStaffs.length === 0) {
+        $('#db-topstaff').html('<div class="text-center text-muted small p-2">Không có dữ liệu cán bộ.</div>');
+        return;
+    }
+    const sorted = [...allStaffs].sort((a,b) => (b.total || 0) - (a.total || 0)).slice(0, 5);
+    let html = '';
+    sorted.forEach((st, idx) => {
+        let rankColor = 'text-secondary';
+        let trophy = `<span class="fw-bold ms-2">${idx + 1}.</span>`;
+        if (idx === 0) { rankColor = 'text-warning'; trophy = `<i class='bx bxs-trophy ms-1 fs-5 text-warning'></i>`; }
+        else if (idx === 1) { rankColor = 'text-secondary'; trophy = `<i class='bx bxs-medal ms-1 fs-5 text-secondary'></i>`; }
+        else if (idx === 2) { rankColor = 'text-danger'; trophy = `<i class='bx bxs-medal ms-1 fs-5 text-danger'></i>`; }
+        
+        html += `
+            <div class="d-flex align-items-center justify-content-between p-2 rounded-3 border bg-light shadow-sm">
+                <div class="d-flex align-items-center gap-2">
+                    <div class="rounded-circle bg-white shadow-sm d-flex align-items-center justify-content-center" style="width:35px;height:35px">
+                        ${trophy}
+                    </div>
+                    <div>
+                        <p class="mb-0 fw-bold small text-dark text-truncate" style="max-width:150px;" title="${st.name}">${st.name}</p>
+                        <small class="text-muted" style="font-size:11px;">${st.department || 'Phòng ban'}</small>
+                    </div>
+                </div>
+                <div class="text-end">
+                    <h5 class="mb-0 fw-bold text-primary">${st.total}</h5>
+                    <small class="text-muted" style="font-size:10px;">Hồ sơ</small>
+                </div>
+            </div>
+        `;
+    });
+    $('#db-topstaff').html(html);
 }
 
 function renderAdminCharts(s) {
@@ -526,11 +569,14 @@ function renderAdminTable(allData, allStaffs) {
     
     const html = window._adminAllData.map(d => `
         <tr onclick="openEditCustomerModal('${d.ID}')" class="cursor-pointer">
-            <td><small class="text-muted">${utils_formatVN(d['Thời điểm nhập'], 'datetime')}</small></td>
+            <td><small class="text-muted">${utils_formatVN(d['Thời điểm nhập'], 'date')}</small></td>
             <td class="fw-bold text-dark">${d['Tên khách hàng'] || ''}</td>
-            <td><small>${(d['Số CCCD'] || '').toString().replace(/^'/, '')}</small></td>
-            <td><small>${(d['Số ĐKKD'] || d['Số GP ĐKKD'] || '').toString().replace(/^'/, '')}</small></td>
             <td><span class="badge bg-light text-dark border">${d['Loại hình dịch vụ'] || 'Cá nhân'}</span></td>
+            <td>${d['Số tài khoản'] || ''}</td>
+            <td>${(d['Số ĐKKD'] || d['Số GP ĐKKD'] || '').toString().replace(/^'/, '')}</td>
+            <td>${(d['Số CCCD'] || '').toString().replace(/^'/, '')}</td>
+            <td>${d['Tên đăng nhập'] || ''}</td>
+            <td>${d['Mật khẩu'] || ''}</td>
             <td class="text-truncate" style="max-width: 150px;" title="${staffMap[d['Cán bộ thực hiện']] || d['Cán bộ thực hiện']}"><small class="text-secondary">${staffMap[d['Cán bộ thực hiện']] || d['Cán bộ thực hiện']}</small></td>
             <td><span class="badge ${d['Trạng thái'] === 'Đã xác minh' ? 'bg-success' : 'bg-warning'}">${d['Trạng thái']}</span></td>
             <td class="text-end"><button class="btn btn-sm btn-outline-primary" onclick="openEditCustomerModal('${d.ID}')"><i class="bx bx-info-circle"></i></button></td>
@@ -542,6 +588,7 @@ function renderAdminTable(allData, allStaffs) {
     
     const dtAdmin = $('#tblKH').DataTable({
         responsive: true,
+        order: [[0, 'desc']],
         dom: "<'row mb-2'<'col-sm-12 col-md-4 d-flex align-items-center justify-content-start'l><'col-sm-12 col-md-4 d-flex align-items-center justify-content-center'B><'col-sm-12 col-md-4 d-flex align-items-center justify-content-end'f>>" +
              "<'row'<'col-sm-12'tr>>" +
              "<'row mt-2'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
@@ -549,22 +596,39 @@ function renderAdminTable(allData, allStaffs) {
             extend: 'excelHtml5',
             text: '<i class="bx bxs-file-export"></i> Xuất Excel',
             className: 'btn btn-sm btn-success shadow-sm',
-            exportOptions: { columns: [0, 1, 2, 3, 4, 5, 6] },
-            title: 'Lich_Su_Giao_Dich_Admin'
+            exportOptions: { columns: [0, 1, 2, 3, 4, 5, 6, 7] },
+            title: 'Bao_Cao_KH_YenTho_' + new Date().toISOString().slice(0,10)
         }],
         language: { url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json" },
         search: { caseInsensitive: true },
-        columnDefs: [{ targets: [3], visible: false }]
+        columnDefs: [
+            { targets: [3, 4, 5, 6, 7], visible: false },
+            { targets: [10], orderable: false, searchable: false }
+        ]
+    });
+
+    // Custom filtering function which will search data in column 0 (Thời gian)
+    $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+        if (settings.nTable.id !== 'tblKH') return true;
+        
+        const minVal = $('#filterFromDate').val(); // YYYY-MM-DD
+        const maxVal = $('#filterToDate').val(); // YYYY-MM-DD
+        const dateStr = window._adminAllData[dataIndex]['Thời điểm nhập']; // Original data
+        if (!dateStr) return true;
+        
+        const rowDate = new Date(dateStr).toISOString().slice(0, 10);
+        
+        if (minVal && rowDate < minVal) return false;
+        if (maxVal && rowDate > maxVal) return false;
+        return true;
     });
 
     $('#filterStaffAdmin').off('change').on('change', function() {
-        const val = $(this).val();
-        if (val === '') {
-            dtAdmin.column(5).search('').draw();
-        } else {
-            const filterText = $(this).find('option:selected').text();
-            dtAdmin.column(5).search(filterText, false, false, true).draw();
-        }
+        dtAdmin.column(8).search($(this).val()).draw();
+    });
+
+    $('#filterFromDate, #filterToDate').on('change', function() {
+        dtAdmin.draw();
     });
 }
 // --- MONTHLY CHARTS ---
