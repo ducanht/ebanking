@@ -1,7 +1,7 @@
 
 
 # Project Memory — ebanking
-> 96 notes | Score threshold: >40
+> 107 notes | Score threshold: >40
 
 ## Safety — Never Run Destructive Commands
 
@@ -18,19 +18,32 @@
 
 **Stack:** Unknown stack
 
-## 📝 NOTE: 1 uncommitted file(s) in working tree.\n\n## Project Standards
+## 📝 NOTE: 1 uncommitted file(s) in working tree.\n\n## Active: `netlify-app`
 
-- Strengthened types Kinh — adds runtime type validation before use
+- **Fixed null crash in Last — wraps unsafe operation in error boundary — confirmed 3x**
+- **Fixed null crash in OPENCV — offloads heavy computation off the main thread — confirmed 3x**
+- **Added session cookies authentication — confirmed 3x**
+- **what-changed in app.js — confirmed 3x**
+- **Fixed null crash in AppState — confirmed 4x**
+
+## Project Standards
+
 - Fixed null crash in Last — wraps unsafe operation in error boundary — confirmed 3x
-- Strengthened types GIAN — adds runtime type validation before use
-- Strengthened types Nguoi — adds runtime type validation before use
-- Strengthened types Modal — adds runtime type validation before use
 - Fixed null crash in OPENCV — offloads heavy computation off the main thread — confirmed 3x
 - Added session cookies authentication — confirmed 3x
 - what-changed in app.js — confirmed 3x
+- Fixed null crash in AppState — confirmed 4x
+- convention in index.html
+- Strengthened types Kinh — adds runtime type validation before use
+- Strengthened types GIAN — adds runtime type validation before use
+
+## Known Fixes
+
+- ❌ - async function runAPI(action, data = {}, successHandler, errorHandler, loadingMsg = 'Đang xử lý... → ✅ Patched security issue VERSION — offloads heavy computation off the main thread
 
 ## Recent Decisions
 
+- decision in style.css
 - decision in style.css
 
 ## Verified Best Practices

@@ -8,9 +8,24 @@ const GAS_API_URL = "https://script.google.com/macros/s/AKfycbyXBMdJO2JmoaarxW9l
 
 const AppState = {
     user: JSON.parse(localStorage.getItem('HOKINHDOANH_SESSION')) || null,
-    VERSION: "2.0.0-HIFI",
-    apiBase: "" // Sẽ được cập nhật từ URL triển khai
+    VERSION: "2.1.0-AUDITED",
+    apiBase: "",
+    lastActive: Date.now()
 };
+
+/**
+ * AUTO-LOGOUT SECURITY
+ */
+const INACTIVITY_LIMIT = 60 * 60 * 1000; // 60 minutes
+function checkInactivity() {
+    if (AppState.user && (Date.now() - AppState.lastActive > INACTIVITY_LIMIT)) {
+        logout();
+        showAlert('Hết phiên làm việc', 'Phiên làm việc đã kết thúc do bạn không hoạt động trong 60 phút.', 'warning');
+    }
+}
+$(document).on('click keydown scroll mousedown touchstart', () => AppState.lastActive = Date.now());
+setInterval(checkInactivity, 5 * 60 * 1000);
+
 
 /**
  * CACHE SYSTEM
@@ -42,19 +57,25 @@ const AppCache = {
 
 /**
  * CORE API WRAPPER
+ * Hardened with Timeout (30s) and Auto-Retry (Max 2)
  */
-async function runAPI(action, data = {}, successHandler, errorHandler, loadingMsg = 'Đang xử lý...') {
-    if (loadingMsg !== 'NONE') showLoading(loadingMsg);
+async function runAPI(action, data = {}, successHandler, errorHandler, loadingMsg = 'Đang xử lý...', retryCount = 0) {
+    if (loadingMsg !== 'NONE' && retryCount === 0) showLoading(loadingMsg);
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 35000); // 35s timeout
 
     try {
-        // Sử dụng text/plain để tránh kích hoạt CORS Preflight (OPTIONS request) mà GAS không hỗ trợ
         const response = await fetch(GAS_API_URL, {
             method: "POST",
             headers: {
                 "Content-Type": "text/plain;charset=utf-8"
             },
-            body: JSON.stringify({ action: action, data: data })
+            body: JSON.stringify({ action: action, data: data }),
+            signal: controller.signal
         });
+
+        clearTimeout(timeoutId);
 
         if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
         
@@ -65,18 +86,26 @@ async function runAPI(action, data = {}, successHandler, errorHandler, loadingMs
         return result;
 
     } catch (error) {
+        clearTimeout(timeoutId);
+        
+        // Auto-retry on timeout or network failure (max 2 times)
+        if (retryCount < 2 && (error.name === 'AbortError' || error.message === 'Failed to fetch')) {
+            console.warn(`API Retry [${action}] attempt ${retryCount + 1}...`);
+            return runAPI(action, data, successHandler, errorHandler, loadingMsg, retryCount + 1);
+        }
+
         if (loadingMsg !== 'NONE') hideLoading();
         console.error(`API Error [${action}]:`, error);
         
-        // Trình duyệt có thể ném lỗi "Failed to fetch" nếu URL sai hoặc CORS bị chặn
-        const errorMsg = error.message === 'Failed to fetch' 
-            ? 'Không thể kết nối tới máy chủ API. Vui lòng kiểm tra lại GAS_API_URL trong app.js.'
-            : error.message;
+        let errorMsg = error.message;
+        if (error.name === 'AbortError') errorMsg = 'Yêu cầu quá hạn (35s). Vui lòng thử lại.';
+        else if (error.message === 'Failed to fetch') errorMsg = 'Không thể kết nối tới máy chủ. Vui lòng kiểm tra mạng.';
 
         if (errorHandler) errorHandler(error);
         else showAlert('Lỗi kết nối', errorMsg, 'error');
     }
 }
+
 
 // --- UI UTILS ---
 function showLoading(msg = 'Đang tải...') {

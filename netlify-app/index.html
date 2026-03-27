@@ -19,29 +19,7 @@
     <link href="style.css" rel="stylesheet">
 </head>
 <body>
-    <style>
-        :root { --emerald: #10b981; --emerald-dark: #059669; --slate: #64748b; --amber: #f59e0b; }
-        body { background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); min-height: 100vh; font-family: 'Inter', sans-serif; color: #1e293b; margin: 0; padding: 0; }
-        .glass-card { background: rgba(255, 255, 255, 0.8); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 1rem; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); transition: transform 0.2s; }
-        #global-spinner { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.9); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .handle-interaction { pointer-events: auto; cursor: move; }
-        .chart-container-pie { height: 250px; position: relative; }
-        .mw-150px { max-width: 150px; }
-        div#preact-border-shadow-host { display: none; }
-        .img-preview-box { width: 100%; height: 120px; border: 2px dashed #10b981; border-radius: 0.5rem; overflow: hidden; background: #f8fafc; display: flex; align-items: center; justify-content: center; }
-        .img-preview-inner { width: 100%; height: 100%; object-fit: contain; display: block; }
-        .img-detail-box { width: 100%; height: 130px; border-radius: 0.5rem; overflow: hidden; background: #f1f5f9; display: flex; align-items: center; justify-content: center; border: 1px solid #e2e8f0; }
-        .img-detail-inner { width: 100%; height: 100%; object-fit: contain; display: block; transition: transform 0.2s; }
-        .img-detail-inner:hover { transform: scale(1.04); }
-        .compress-progress-track { height: 10px; border-radius: 5px; }
-        .view-item-hidden { display: none; }
-        .progress-bar-zero { width: 0%; }
-        .select-auto-width { width: auto !important; }
-        .chart-container-monthly { position: relative; height: 240px; }
-        .initially-hidden { display: none; }
-        canvas.canvas-responsive { max-width: 100%; height: auto; }
-        .quad-handle { cursor: move; stroke-width: 2; }
-    </style>
+
     <div id="global-spinner">
         <div class="spinner-border text-success spinner-lg" role="status"></div>
         <h5 class="mt-3 fw-bold text-secondary">Đang kết nối hệ thống...</h5>
@@ -199,7 +177,7 @@
                     </div>
                     <div class="glass-card p-4">
                         <h6 class="fw-bold mb-3 text-secondary text-uppercase">Phân Bổ Nguồn Khách</h6>
-                        <div class="chart-container-pie" style="height: 200px;"><canvas id="chartLoaiHinh"></canvas></div>
+                        <div class="chart-container-pie"><canvas id="chartLoaiHinh"></canvas></div>
                     </div>
                 </div>
             </div>
@@ -211,9 +189,10 @@
             <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
                 <div>
                     <h4 class="fw-bold text-primary mb-0 d-flex align-items-center gap-2">
-                        <img src="logo.png" class="app-logo" alt="Logo" style="height: 32px; width: 32px; object-fit: contain;">
+                        <img src="logo.png" class="app-logo" alt="Logo Quỹ Yên Thọ" title="Logo Quỹ Yên Thọ">
                         <i class='bx bx-user-plus app-icon'></i> Khai Báo Hồ Sơ Mới
                     </h4>
+
                     <p class="text-muted mb-0 small mt-1">Xin chào, <span id="user-name-display-user" class="fw-bold text-dark"></span>!</p>
                 </div>
                 <div class="d-flex gap-2">
@@ -230,28 +209,33 @@
                     <h5 class="fw-bold border-bottom pb-2 mb-3 text-secondary"><span class="badge bg-primary rounded-circle">A</span> Thông tin định danh</h5>
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold">Loại hình</label>
-                            <select class="form-select" id="loai_hinh" onchange="toggleFormFields()">
+                            <label for="loai_hinh" class="form-label fw-semibold">Loại hình</label>
+                            <select class="form-select" id="loai_hinh" onchange="toggleFormFields()" title="Chọn loại hình khách hàng">
                                 <option value="Cá nhân">Cá nhân</option>
                                 <option value="Hộ kinh doanh">Hộ kinh doanh</option>
                             </select>
                         </div>
+
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold">Họ và Tên Khách/HKD</label>
-                            <input type="text" class="form-control text-uppercase" id="ten_kh" required>
+                            <label for="ten_kh" class="form-label fw-semibold">Họ và Tên Khách/HKD</label>
+                            <input type="text" class="form-control text-uppercase" id="ten_kh" placeholder="NHẬP HỌ TÊN" title="Vui lòng nhập họ và tên khách hàng" required>
                         </div>
+
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold">Số CCCD (12 số)</label>
-                            <input type="text" class="form-control" id="cccd" pattern="[0-9]{12}" maxlength="12" title="Căn cước công dân bắt buộc đúng 12 chữ số" required onblur="checkDuplicate(this)">
+                            <label for="cccd" class="form-label fw-semibold">Số CCCD (12 số)</label>
+                            <input type="text" class="form-control" id="cccd" placeholder="12 số CCCD" pattern="[0-9]{12}" maxlength="12" title="Căn cước công dân bắt buộc đúng 12 chữ số" required onblur="checkDuplicate(this)">
+
                             <div class="invalid-feedback">Căn cước công dân bắt buộc đúng 12 chữ số.</div>
                         </div>
                         <div class="col-md-6 initially-hidden" id="div_dkkd">
-                            <label class="form-label fw-semibold">Số ĐKKD</label>
-                            <input type="text" class="form-control text-uppercase" id="dkkd" onblur="checkDuplicate(this)">
+                            <label for="dkkd" class="form-label fw-semibold">Số ĐKKD</label>
+                            <input type="text" class="form-control text-uppercase" id="dkkd" placeholder="SỐ ĐKKD" title="Nhập số đăng ký kinh doanh" onblur="checkDuplicate(this)">
                         </div>
+
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold">Số điện thoại</label>
-                            <input type="tel" class="form-control" id="sdt" pattern="0[0-9]{9}" maxlength="10" title="Số điện thoại phải bắt đầu bằng 0 và đủ 10 chữ số" required onblur="checkDuplicate(this)">
+                            <label for="sdt" class="form-label fw-semibold">Số điện thoại</label>
+                            <input type="tel" class="form-control" id="sdt" placeholder="0xxxxxxxxx" pattern="0[0-9]{9}" maxlength="10" title="Số điện thoại phải bắt đầu bằng 0 và đủ 10 chữ số" required onblur="checkDuplicate(this)">
+
                             <div class="invalid-feedback">SĐT bắt buộc bắt đầu bằng 0 và đủ 10 chữ số.</div>
                         </div>
                     </div>
@@ -259,17 +243,19 @@
                     <h5 class="fw-bold border-bottom pb-2 mt-4 mb-3 text-secondary"><span class="badge bg-primary rounded-circle">B</span> Thông tin Tài khoản</h5>
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold">Số CIF (16 số)</label>
+                            <label for="so_tk" class="form-label fw-semibold">Số CIF (16 số)</label>
                             <div class="input-group has-validation">
                                 <span class="input-group-text bg-light fw-bold text-secondary">3800200</span>
                                 <input type="text" class="form-control" id="so_tk" placeholder="Nhập 9 số cuối" pattern="[0-9]{9}" maxlength="9" title="Nhập đúng 9 chữ số tài khoản" required onblur="checkDuplicate(this)">
                                 <div class="invalid-feedback">Cần nhập đúng 9 chữ số cuối.</div>
                             </div>
                         </div>
+
                         <div class="col-md-3">
-                            <label class="form-label fw-semibold">Ngày ĐK</label>
+                            <label for="ngay_mo" class="form-label fw-semibold">Ngày ĐK</label>
                             <input type="text" class="form-control js-datepicker" id="ngay_mo" required>
                         </div>
+
                     </div>
 
                     <h5 class="fw-bold border-bottom pb-2 mt-4 mb-3 text-secondary"><span class="badge bg-primary rounded-circle">C</span> Chứng từ Đính kèm</h5>
@@ -277,42 +263,42 @@
                         <div class="col-md-6">
                             <label class="form-label fw-semibold">CCCD Mặt trước</label>
                             <div class="input-group">
-                                <input class="form-control" type="file" id="img_truoc" accept="image/*" required>
+                                <input class="form-control" type="file" id="img_truoc" accept="image/*" title="Chọn ảnh mặt trước CCCD" required>
                                 <button type="button" class="btn btn-outline-primary" onclick="openCamera('img_truoc')" title="Chụp ảnh"><i class='bx bx-camera'></i></button>
                             </div>
-                            <div id="preview_img_truoc" class="mt-2 initially-hidden img-preview-box"><img src="" class="img-preview-inner"></div>
+                            <div id="preview_img_truoc" class="mt-2 initially-hidden img-preview-box"><img src="" class="img-preview-inner" alt="Xem trước CCCD Trước" title="Xem trước CCCD Trước"></div>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-semibold">CCCD Mặt sau</label>
                             <div class="input-group">
-                                <input class="form-control" type="file" id="img_sau" accept="image/*" required>
+                                <input class="form-control" type="file" id="img_sau" accept="image/*" title="Chọn ảnh mặt sau CCCD" required>
                                 <button type="button" class="btn btn-outline-primary" onclick="openCamera('img_sau')" title="Chụp ảnh"><i class='bx bx-camera'></i></button>
                             </div>
-                            <div id="preview_img_sau" class="mt-2 initially-hidden img-preview-box"><img src="" class="img-preview-inner"></div>
+                            <div id="preview_img_sau" class="mt-2 initially-hidden img-preview-box"><img src="" class="img-preview-inner" alt="Xem trước CCCD Sau" title="Xem trước CCCD Sau"></div>
                         </div>
                         <div class="col-md-4">
                             <label class="form-label fw-semibold">QR Tài khoản</label>
                             <div class="input-group">
-                                <input class="form-control" type="file" id="img_qr" accept="image/*" required>
+                                <input class="form-control" type="file" id="img_qr" accept="image/*" title="Chọn ảnh mã QR tài khoản" required>
                                 <button type="button" class="btn btn-outline-primary" onclick="openCamera('img_qr')" title="Chụp ảnh"><i class='bx bx-qr-scan'></i></button>
                             </div>
-                            <div id="preview_img_qr" class="mt-2 initially-hidden img-preview-box"><img src="" class="img-preview-inner"></div>
+                            <div id="preview_img_qr" class="mt-2 initially-hidden img-preview-box"><img src="" class="img-preview-inner" alt="Xem trước QR" title="Xem trước QR"></div>
                         </div>
                         <div class="col-md-4">
                             <label class="form-label fw-semibold">Ảnh thực hiện</label>
                             <div class="input-group">
-                                <input class="form-control" type="file" id="img_thuchien" accept="image/*" required>
+                                <input class="form-control" type="file" id="img_thuchien" accept="image/*" title="Chọn ảnh thực hiện giao dịch" required>
                                 <button type="button" class="btn btn-outline-primary" onclick="openCamera('img_thuchien')" title="Chụp ảnh"><i class='bx bx-camera'></i></button>
                             </div>
-                            <div id="preview_img_thuchien" class="mt-2 initially-hidden img-preview-box"><img src="" class="img-preview-inner"></div>
+                            <div id="preview_img_thuchien" class="mt-2 initially-hidden img-preview-box"><img src="" class="img-preview-inner" alt="Xem trước Ảnh thực hiện" title="Xem trước Ảnh thực hiện"></div>
                         </div>
                         <div class="col-md-4 initially-hidden" id="div_img_dkkd">
                             <label class="form-label fw-semibold">Giấy phép ĐKKD</label>
                             <div class="input-group">
-                                <input class="form-control" type="file" id="img_dkkd" accept="image/*">
+                                <input class="form-control" type="file" id="img_dkkd" accept="image/*" title="Chọn ảnh giấy phép đăng ký kinh doanh">
                                 <button type="button" class="btn btn-outline-primary" onclick="openCamera('img_dkkd')" title="Chụp ảnh"><i class='bx bx-camera'></i></button>
                             </div>
-                            <div id="preview_img_dkkd" class="mt-2 initially-hidden img-preview-box"><img src="" class="img-preview-inner"></div>
+                            <div id="preview_img_dkkd" class="mt-2 initially-hidden img-preview-box"><img src="" class="img-preview-inner" alt="Xem trước Giấy phép" title="Xem trước Giấy phép"></div>
                         </div>
                     </div>
 
@@ -322,7 +308,7 @@
                             <small class="text-secondary fw-bold" id="compress-progress-label">Đang nén ảnh...</small>
                             <small class="text-primary fw-bold" id="compress-progress-pct">0%</small>
                         </div>
-                        <div class="progress" style="height: 10px;"><div class="progress-bar progress-bar-striped progress-bar-animated bg-success" id="compress-progress-bar" style="width: 0%"></div></div>
+                        <div class="progress compress-progress-track"><div class="progress-bar progress-bar-striped progress-bar-animated bg-success progress-bar-zero" id="compress-progress-bar"></div></div>
                     </div>
 
 
