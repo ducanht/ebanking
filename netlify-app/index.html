@@ -461,15 +461,16 @@
     <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/browser-image-compression@2.0.2/dist/browser-image-compression.js"></script>
     <script>
         var Module = {
-            onRuntimeInitialized: function() { if (typeof onOpenCvReady === 'function') onOpenCvReady(); }
+            onRuntimeInitialized: function() { 
+                console.log("OpenCV.js is ready.");
+                if (typeof onOpenCvReady === 'function') onOpenCvReady(); 
+            }
         };
     </script>
-    <script src="https://docs.opencv.org/4.8.0/opencv.js" async></script>
-    
-    <!-- Scripts bổ sung -->
-    <script async src="https://docs.opencv.org/4.8.0/opencv.js" onload="onOpenCvReady()"></script>
+    <script async src="https://docs.opencv.org/4.8.0/opencv.js"></script>
     <script src="app.js"></script>
 </body>
 </html>

@@ -123,7 +123,9 @@ let imageMatStore = {};
 
 function onOpenCvReady() {
     isCvReady = true;
-    console.log("OpenCV.js matches production version.");
+    console.log("OpenCV.js matches production version & logic ready.");
+    // Un-disable any camera buttons if they were disabled
+    $('.btn-outline-primary i.bx-camera, .btn-outline-primary i.bx-qr-scan').closest('.btn').prop('disabled', false).removeClass('disabled');
 }
 
 function processImageWithAI(source) {
@@ -281,6 +283,13 @@ function finishCropping() {
         dt.items.add(file);
         input.files = dt.files;
         $(`#preview_${currentInputTargetId}`).removeClass('initially-hidden').show().find('img').attr('src', outCanvas.toDataURL('image/jpeg'));
+        
+        // Cleanup memory
+        if (imageMatStore[currentInputTargetId]) {
+            imageMatStore[currentInputTargetId].delete();
+            delete imageMatStore[currentInputTargetId];
+        }
+        
         bootstrap.Modal.getInstance(document.getElementById('cropModal')).hide();
     }, 'image/jpeg', 0.8);
     srcCoords.delete(); dstCoords.delete(); M.delete(); warpedMat.delete();
@@ -298,10 +307,30 @@ function skipCropping() {
             dt.items.add(file);
             input.files = dt.files;
             $(`#preview_${currentInputTargetId}`).removeClass('initially-hidden').show().find('img').attr('src', outCanvas.toDataURL('image/jpeg'));
+            
+            // Cleanup memory
+            if (imageMatStore[currentInputTargetId]) {
+                imageMatStore[currentInputTargetId].delete();
+                delete imageMatStore[currentInputTargetId];
+            }
+            
             bootstrap.Modal.getInstance(document.getElementById('cropModal')).hide();
         }, 'image/jpeg', 0.85);
-    } else bootstrap.Modal.getInstance(document.getElementById('cropModal')).hide();
+    } else {
+        bootstrap.Modal.getInstance(document.getElementById('cropModal')).hide();
+    }
 }
+
+// Global cleanup when modal is closed (any way)
+$(document).ready(() => {
+    $('#cropModal').on('hidden.bs.modal', function () {
+        // Clear all mats if any left
+        Object.keys(imageMatStore).forEach(key => {
+            try { imageMatStore[key].delete(); } catch(e) {}
+            delete imageMatStore[key];
+        });
+    });
+});
 
 /**
  * REGISTRATION LOGIC
