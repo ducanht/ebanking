@@ -18,6 +18,29 @@
     <link href="style.css" rel="stylesheet">
 </head>
 <body>
+    <style>
+        :root { --emerald: #10b981; --emerald-dark: #059669; --slate: #64748b; --amber: #f59e0b; }
+        body { background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); min-height: 100vh; font-family: 'Inter', sans-serif; color: #1e293b; margin: 0; padding: 0; }
+        .glass-card { background: rgba(255, 255, 255, 0.8); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 1rem; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); transition: transform 0.2s; }
+        #global-spinner { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.9); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .handle-interaction { pointer-events: auto; cursor: move; }
+        .chart-container-pie { height: 250px; position: relative; }
+        .mw-150px { max-width: 150px; }
+        div#preact-border-shadow-host { display: none; }
+        .img-preview-box { width: 100%; height: 120px; border: 2px dashed #10b981; border-radius: 0.5rem; overflow: hidden; background: #f8fafc; display: flex; align-items: center; justify-content: center; }
+        .img-preview-inner { width: 100%; height: 100%; object-fit: contain; display: block; }
+        .img-detail-box { width: 100%; height: 130px; border-radius: 0.5rem; overflow: hidden; background: #f1f5f9; display: flex; align-items: center; justify-content: center; border: 1px solid #e2e8f0; }
+        .img-detail-inner { width: 100%; height: 100%; object-fit: contain; display: block; transition: transform 0.2s; }
+        .img-detail-inner:hover { transform: scale(1.04); }
+        .compress-progress-track { height: 10px; border-radius: 5px; }
+        .view-item-hidden { display: none; }
+        .progress-bar-zero { width: 0%; }
+        .select-auto-width { width: auto !important; }
+        .chart-container-monthly { position: relative; height: 240px; }
+        .initially-hidden { display: none; }
+        canvas.canvas-responsive { max-width: 100%; height: auto; }
+        .quad-handle { cursor: move; stroke-width: 2; }
+    </style>
     <div id="global-spinner">
         <div class="spinner-border text-success spinner-lg" role="status"></div>
         <h5 class="mt-3 fw-bold text-secondary">Đang kết nối hệ thống...</h5>
@@ -253,8 +276,9 @@
 
                     <div class="mt-4 pt-3 text-center border-top">
                         <button type="submit" class="btn btn-primary btn-lg px-5 shadow-sm d-flex align-items-center mx-auto gap-2" id="btnSubmitAccount">
-                            <i class='bx bx-cloud-upload'></i> Gửi Hồ Sơ & Nén Ảnh
+                            <i class='bx bx-cloud-upload'></i> Gửi Hồ Sơ &amp; Nén Tự Động
                         </button>
+                        <small class="d-block mt-2 text-muted">* Mọi ảnh tải lên sẽ tự động đi qua thuật toán Crop &amp; Compress tối ưu dung lượng (&lt; 500KB).</small>
                     </div>
                 </form>
             </div>
@@ -278,20 +302,53 @@
     </div>
 
     <!-- Modals -->
+    <!-- Modal Cắt Ảnh (Cropper) -->
+    <div class="modal fade" id="cropModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content glass-card">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title fw-bold text-primary"><i class='bx bx-crop'></i> Cân chỉnh & Làm phẳng ảnh</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-0 bg-dark text-center overflow-hidden position-relative" style="min-height: 300px;">
+                    <div id="quad-wrapper" class="position-relative d-inline-block">
+                        <canvas id="quad-canvas" class="canvas-responsive"></canvas>
+                        <svg id="quad-svg" class="position-absolute top-0 start-0 w-100 h-100" style="pointer-events: none;">
+                            <polygon id="quad-poly" points="" fill="rgba(16, 185, 129, 0.3)" stroke="#10b981" stroke-width="2" />
+                            <circle id="p0" class="quad-handle" r="14" fill="#10b981" stroke="white" style="pointer-events: auto;" />
+                            <circle id="p1" class="quad-handle" r="14" fill="#10b981" stroke="white" style="pointer-events: auto;" />
+                            <circle id="p2" class="quad-handle" r="14" fill="#10b981" stroke="white" style="pointer-events: auto;" />
+                            <circle id="p3" class="quad-handle" r="14" fill="#10b981" stroke="white" style="pointer-events: auto;" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 d-flex justify-content-between bg-light">
+                    <button type="button" class="btn btn-outline-secondary" onclick="skipCropping()">
+                        <i class='bx bx-skip-next'></i> Dùng ảnh gốc
+                    </button>
+                    <button type="button" class="btn btn-primary px-4 shadow-sm fw-bold" onclick="finishCropping()">
+                        <i class='bx bx-check-double'></i> HOÀN TẤT & LÀM PHẲNG
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Các Modal khác từ bản gốc -->
     <div class="modal fade" id="modalChangePassword" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 shadow-lg rounded-4">
-                <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title">Đổi Mật Khẩu</h5>
+            <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+                <div class="modal-header bg-primary text-white border-0">
+                    <h5 class="modal-title fw-bold"><i class='bx bx-lock-open-alt'></i> Đổi Mật Khẩu</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body p-4">
                     <form id="frmChangePassword">
-                        <div id="pwdAlertForce" class="alert alert-warning initially-hidden">Đổi mật khẩu để tiếp tục.</div>
+                        <div id="pwdAlertForce" class="alert alert-warning initially-hidden">Đối mật khẩu để tiếp tục.</div>
                         <div class="mb-3"><label class="form-label">Mật khẩu cũ</label><input type="password" class="form-control" id="pwdOld" required></div>
                         <div class="mb-3"><label class="form-label">Mật khẩu mới</label><input type="password" class="form-control" id="pwdNew" required></div>
-                        <div class="mb-3"><label class="form-label">Nhập lại</label><input type="password" class="form-control" id="pwdNewConfirm" required></div>
-                        <button type="submit" class="btn btn-primary w-100">CẬP NHẬT</button>
+                        <div class="mb-3"><label class="form-label">Nhập lại mật khẩu mới</label><input type="password" class="form-control" id="pwdNewConfirm" required></div>
+                        <button type="submit" class="btn btn-primary w-100" id="btnSubmitChangePwd">XÁC NHẬN</button>
                     </form>
                 </div>
             </div>
@@ -301,20 +358,29 @@
     <div class="modal fade" id="modalEditCustomer" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content border-0 shadow-lg rounded-4">
-                <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title">Chi tiết Hồ sơ</h5>
+                <div class="modal-header bg-primary text-white border-0 py-3">
+                    <h5 class="modal-title fw-bold">Chi tiết Hồ sơ</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body bg-light">
-                    <form id="frmEditCustomer" class="card p-3 border-0">
+                    <form id="frmEditCustomer" class="card p-3 border-0 shadow-sm">
                         <input type="hidden" id="edit_id">
                         <div class="row g-3">
-                            <div class="col-md-6"><label class="form-label">Tên KH</label><input type="text" class="form-control" id="edit_ten_kh" required></div>
-                            <div class="col-md-6"><label class="form-label">Số ĐT</label><input type="tel" class="form-control" id="edit_sdt" required></div>
-                            <div class="col-md-6"><label class="form-label">Ngày mở</label><input type="text" class="form-control js-datepicker" id="edit_ngay_mo" required></div>
+                            <div class="col-md-6"><label class="form-label">Tên Khách Hàng</label><input type="text" class="form-control" id="edit_ten_kh" required></div>
+                            <div class="col-md-6"><label class="form-label">Số điện thoại</label><input type="tel" class="form-control" id="edit_sdt" required></div>
+                            <div class="col-md-6"><label class="form-label">Ngày mở</label><input type="text" class="form-control js-datepicker-edit" id="edit_ngay_mo" required></div>
+                            <div class="col-md-6">
+                                <label class="form-label">Số Tài khoản</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">3800200</span>
+                                    <input type="text" class="form-control" id="edit_so_tk" placeholder="9 số cuối" maxlength="9">
+                                </div>
+                            </div>
                         </div>
-                        <div class="row g-3 mt-3" id="edit_images_container"></div>
+                        <h6 class="fw-bold text-secondary mt-4 mb-3 border-bottom pb-2">Chứng từ đính kèm</h6>
+                        <div class="row g-3" id="edit_images_container"></div>
                         <div class="mt-4 text-end">
+                            <button type="button" class="btn btn-secondary px-4 me-2" data-bs-dismiss="modal">Đóng</button>
                             <button type="submit" class="btn btn-success px-4" id="btnSaveEdit">Lưu thay đổi</button>
                         </div>
                     </form>
@@ -348,6 +414,8 @@
     </script>
     <script src="https://docs.opencv.org/4.8.0/opencv.js" async></script>
     
+    <!-- Scripts bổ sung -->
+    <script async src="https://docs.opencv.org/4.8.0/opencv.js" onload="onOpenCvReady()"></script>
     <script src="app.js"></script>
 </body>
 </html>

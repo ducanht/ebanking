@@ -17,43 +17,40 @@ function include(filename) {
 }
 
 /** 
- * API ROUTER cho Netlify (Bản PoC)
- * Hỗ trợ các yêu cầu Fetch từ bên ngoài
+ * API ROUTER cho Netlify / Vercel
+ * Hỗ trợ các yêu cầu Fetch từ Front-end tách biệt
  */
 function doPost(e) {
-  var result = { status: "error", message: "Unknown error" };
+  var result = { status: "error", message: "Unknown action" };
   try {
+    // 1. Parse dữ liệu đầu vào
     var postData = JSON.parse(e.postData.contents);
-    var action = postData.action;
+    var rawAction = (postData.action || "").toString().trim().toLowerCase();
     var data = postData.data || {};
 
-    // Định tuyến API cho tất cả nghiệp vụ
-    if (action === "api_login") {
-      result = api_login(data);
-    } 
-    else if (action === "api_changePassword") {
-      result = api_changePassword(data);
-    }
-    else if (action === "api_submitRegistration") {
-      result = api_submitRegistration(data);
-    }
-    else if (action === "api_getMyCustomers") {
-      result = api_getMyCustomers(data);
-    } 
-    else if (action === "api_getAdminDashboardData") {
-       result = api_getAdminDashboardData(); 
-    }
-    else if (action === "api_updateCustomer") {
-      result = api_updateCustomer(data);
-    }
-    else {
-      result.message = "Action '" + action + "' không được hỗ trợ.";
+    // 2. Định nghĩa các hàm xử lý API
+    // (Đường dẫn đến các hàm thực tế trong api_auth.gs, api_account.gs, api_admin.gs)
+    var apiHandlers = {
+      "api_login": api_auth_login,
+      "api_changepassword": api_auth_changePassword,
+      "api_submitregistration": api_submitAccountForm,
+      "api_getmycustomers": api_getMyCustomers,
+      "api_getadmindashboarddata": api_getAdminDashboardData,
+      "api_updatecustomer": api_updateMyCustomer
+    };
+
+    // 3. Thực thi hàm tương ứng hoặc báo lỗi
+    if (apiHandlers[rawAction]) {
+      result = apiHandlers[rawAction](data);
+    } else {
+      result.message = "Action '" + (postData.action || 'empty') + "' không được hỗ trợ.";
     }
   } catch (err) {
-    result.message = "Backend Error: " + err.message;
+    result.message = "GAS Backend Error: " + err.toString();
+    console.error(err);
   }
 
-  // Luôn trả về dữ liệu đã được Serialize JSON
+  // 4. Trả về kết quả JSON kèm CORS Header (mặc định của ContentService)
   return ContentService.createTextOutput(JSON.stringify(result))
     .setMimeType(ContentService.MimeType.JSON);
 }

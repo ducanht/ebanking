@@ -209,6 +209,10 @@ function calculateStaffRanking(staffEmail) {
  * Lấy danh sách khách hàng của Cán bộ (Staff)
  */
 function api_getMyCustomers(email) {
+  // HACK: Hỗ trợ cả 2 chuẩn gọi: Object (Netlify) và String (GAS Monolith)
+  if (typeof email === 'object') {
+    email = email.email;
+  }
   try {
     const data = getSheetDataAsObjects(CONFIG.SHEET_DATA);
     let myData = [];

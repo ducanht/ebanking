@@ -1,6 +1,6 @@
 ---
 name: html
-description: "Html for ebanking. 16 conventions, 29 fixes, 1 error→fix pairs."
+description: "Html for ebanking. 18 conventions, 29 fixes, 1 error→fix pairs."
 domain: html
 triggers:
   - glob: "**/*.html"
@@ -10,7 +10,7 @@ enabled: true
 
 # Html
 
-Auto-compiled from **85 real patterns** in **ebanking**. This skill is auto-routed to agents when working on html files.
+Auto-compiled from **87 real patterns** in **ebanking**. This skill is auto-routed to agents when working on html files.
 
 ## 🔧 Problem Playbooks
 

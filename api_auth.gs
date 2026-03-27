@@ -8,6 +8,11 @@
  * Client gọi google.script.run lên và truyền vào email cùng pass đã hash 256
  */
 function api_auth_login(email, hashedPassword) {
+  // HACK: Hỗ trợ cả 2 chuẩn gọi: Object (Netlify) và Multi-args (GAS Monolith)
+  if (typeof email === 'object') {
+    hashedPassword = email.password;
+    email = email.email;
+  }
   try {
     const staffs = getSheetDataAsObjects(CONFIG.SHEET_STAFF);
     const user = staffs.find(s => s["Email"] === email && s["Mật khẩu (SHA-256)"] === hashedPassword && s["Trạng thái"] === "Hoạt động");
@@ -62,6 +67,12 @@ function generateSHA256Hash(inputString) {
  * Đổi mật khẩu chủ động
  */
 function api_auth_changePassword(email, oldHashed, newHashed) {
+  // HACK: Hỗ trợ cả 2 chuẩn gọi: Object (Netlify) và Multi-args (GAS Monolith)
+  if (typeof email === 'object') {
+    oldHashed = email.oldHashed;
+    newHashed = email.newHashed;
+    email = email.email;
+  }
   const lock = LockService.getScriptLock();
   try {
     lock.waitLock(10000); // 10s timeout

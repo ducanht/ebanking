@@ -1,7 +1,7 @@
 
 
 # Project Memory — HoKinhDoanh
-> 185 notes | Score threshold: >40
+> 198 notes | Score threshold: >40
 
 ## Safety — Never Run Destructive Commands
 
@@ -23,28 +23,22 @@
 - **⚠️ GOTCHA: Replaced auth Walkthrough — prevents XSS injection attacks** — - # Walkthrough:### Summary of Definitive Fix: Full ES5 Sanitization
 +
 
-## Active: `netlify-app`
-
-- **Strengthened types Scripts — adds runtime type validation before use**
-- **Strengthened types Module — adds runtime type validation before use**
-- **Fixed null crash in HACK — hardens HTTP security headers — confirmed 3x**
-- **Fixed null crash in FEATURE — cleans up event listeners to prevent memory leaks**
-
 ## Project Standards
 
+- Strengthened types Khai
+- Fixed null crash in NONE — adds runtime type validation before use — confirmed 5x
+- Replaced auth Inter — adds runtime type validation before use — confirmed 3x
 - Strengthened types Scripts — adds runtime type validation before use
 - Strengthened types Module — adds runtime type validation before use
 - Fixed null crash in HACK — hardens HTTP security headers — confirmed 3x
-- 🟢 Edited frmDashboard.html (8 changes, 11min) — confirmed 3x
-- Fixed null crash in JSON — wraps unsafe operation in error boundary — confirmed 6x
-- what-changed in frmDashboard.html — confirmed 3x
-- Fixed null crash in Array — wraps unsafe operation in error boundary — confirmed 5x
-- Strengthened types Scripts
+- Added session cookies authentication — evolves the database schema to support... — confirmed 3x
+- Fixed null crash in HtmlService — confirmed 3x
 
 ## Known Fixes
 
 - ❌ +     Logger.log("doGet Error: " + e.message); → ✅ Fixed null crash in TDND — wraps unsafe operation in error boundary
 - ❌ -     Logger.log("doGet Error: " + e.message); → ✅ Fixed null crash in HtmlService
+- ❌ -     return { status: "error", message: "Lỗi lấy dữ liệu Admin: " + e.message }; → ✅ Fixed null crash in HACK — adds runtime type validation before use
 
 ## Recent Decisions
 
@@ -55,6 +49,7 @@
 
 - When encountering this, fix by: Fixed null crash in AppState — wraps unsafe operation in error boundary (seen 2x)
 - Avoid: ⚠️ GOTCHA: Replaced auth Open (seen 2x)
+- Always: Strengthened types Scripts — adds runtime type validation before use (seen 2x)
 - Agent generates new migration for every change (squash related changes)
 - Agent installs packages without checking if already installed
 

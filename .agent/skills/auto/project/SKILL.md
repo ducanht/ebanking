@@ -1,6 +1,6 @@
 ---
 name: project
-description: "Project for ebanking. 25 gotchas, 34 conventions, 6 fixes."
+description: "Project for ebanking. 25 gotchas, 35 conventions, 8 fixes."
 domain: project
 triggers:
   - glob: "**/*"
@@ -10,7 +10,7 @@ enabled: true
 
 # Project
 
-Auto-compiled from **93 real patterns** in **ebanking**. This skill is auto-routed to agents when working on project files.
+Auto-compiled from **103 real patterns** in **ebanking**. This skill is auto-routed to agents when working on project files.
 
 ## ⚠️ Anti-Patterns & Gotchas
 
@@ -45,6 +45,46 @@ Auto-compiled from **93 real patterns** in **ebanking**. This skill is auto-rout
 | Never force push to main, master, or production br | Never force push to main, master, or production branches |
 
 ## 🔧 Problem Playbooks
+
+### Fixed null crash in HACK — adds runtime type validation before use
+-   try {
++   // HACK: Hỗ trợ cả 2 chuẩn gọi: Object (Netlify) và String (GAS Monolith)
+-     const data = getSheetDataAsObjects(CONFIG.SHEET_DATA);
++   if (typeof email === 'object') {
+-     let myData = [];
++     email = email.email;
+-     let timelineByDate = {};
++   }
+- 
++   try {
+-     for (let i = 0; i < data.length; i++) {
++     const data = getSheetDataAsObjects(CONFIG.SHEET_DATA);
+-      
+
+**Actionable Steps:**
+1. Modified 1 files
+2. identifier: HACK
+3. identifier: Object
+4. identifier: Netlify
+5. identifier: String
+
+### Fixed null crash in HACK — adds runtime type validation before use
+-   try {
++   // HACK: Hỗ trợ cả 2 chuẩn gọi: Object (Netlify) và Multi-args (GAS Monolith)
+-     const staffs = getSheetDataAsObjects(CONFIG.SHEET_STAFF);
++   if (typeof email === 'object') {
+-     const user = staffs.find(s => s["Email"] === email && s["Mật khẩu (SHA-256)"] === hashedPassword && s["Trạng thái"] === "Hoạt động");
++     hashed[REDACTED]
+-     
++     email = email.email;
+-     cons
+
+**Actionable Steps:**
+1. Modified 1 files
+2. identifier: HACK
+3. identifier: Object
+4. identifier: Netlify
+5. identifier: Multi
 
 ### Fixed null crash in Action
 -     if (action === "api_getMyCustomers") {
@@ -162,6 +202,8 @@ Auto-compiled from **93 real patterns** in **ebanking**. This skill is auto-rout
 ## 📐 Conventions & Best Practices
 
 ### Project Conventions
+- 📐 **Strengthened types Khai** — - # Hướng Dẫn Triển Khai Netlify & Tổng Quan Hệ Thống
++ # Hướng Dẫn Triển Khai & Báo Cáo Hoàn Tất Po
 - 📐 **Added session cookies authentication — evolves the database schema to support... — confirmed 3x** — - # Task Breakdown: Netlify PoC for 'My Customers'
 + # Task Breakdown: Full Netlify Migration (Phase
 - 📐 **Fixed null crash in HtmlService — confirmed 3x** — -   try {
@@ -200,17 +242,6 @@ CLAUDE.md
 - 📐 **Write tests for business logic — test behavior/output, not implementation details** — Write tests for business logic — test behavior/output, not implementation details
 - 📐 **Close resources (streams, connections, handles) when done** — Close resources (streams, connections, handles) when done
 - 📐 **Debounce user input handlers (search, resize, scroll)** — Debounce user input handlers (search, resize, scroll)
-- 📐 **Use pagination for lists over 100 items** — Use pagination for lists over 100 items
-- 📐 **Implement retry logic for transient failures with exponential backoff** — Implement retry logic for transient failures with exponential backoff
-- 📐 **Return proper HTTP status codes — not 500 for everything** — Return proper HTTP status codes — not 500 for everything
-- 📐 **Always wrap async/await in try/catch** — Always wrap async/await in try/catch
-- 📐 **Hash passwords with cost factor ≥12 (bcrypt) or memory ≥64MB (argon2)** — Hash passwords with cost factor ≥12 (bcrypt) or memory ≥64MB (argon2)
-- 📐 **Implement rate limiting on login endpoints to prevent brute force** — Implement rate limiting on login endpoints to prevent brute force
-- 📐 **Use constants for magic numbers and strings** — Use constants for magic numbers and strings
-- 📐 **Handle edge cases: empty arrays, empty strings, null, undefined, 0, NaN** — Handle edge cases: empty arrays, empty strings, null, undefined, 0, NaN
-- 📐 **Keep functions under 50 lines and single-responsibility** — Keep functions under 50 lines and single-responsibility
-- 📐 **Remove unused imports, variables, and dead code** — Remove unused imports, variables, and dead code
-- 📐 **Always pull before push to avoid conflicts** — Always pull before push to avoid conflicts
-- 📐 **Use meaningful commit messages in imperative mood: "Add feature" not "Added feature"** — Use
+- 📐 **Use pagination for lists over 100 items** — Use pagination for lists over 100
 
 ... [Truncated — see individual observations for full content]
