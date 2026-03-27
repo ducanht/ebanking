@@ -47,28 +47,19 @@ async function runAPI(action, data = {}, successHandler, errorHandler, loadingMs
     if (loadingMsg !== 'NONE') showLoading(loadingMsg);
 
     try {
+        // Sử dụng text/plain để tránh kích hoạt CORS Preflight (OPTIONS request) mà GAS không hỗ trợ
         const response = await fetch(GAS_API_URL, {
             method: "POST",
-            mode: "no-cors", // Quan trọng cho GAS
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ action, ...data })
+            headers: {
+                "Content-Type": "text/plain;charset=utf-8"
+            },
+            body: JSON.stringify({ action: action, data: data })
         });
 
-        // Với no-cors, chúng ta không đọc được body trực tiếp. 
-        // Tuy nhiên, chúng ta sẽ sử dụng một trick: GAS sẽ redirect về một URL chứa kết quả nếu cần, 
-        // hoặc chúng ta dùng JSONP/CORS chuẩn nếu người dùng đã cấu hình.
-        // Ở đây, giả định GAS đã được cấu hình CORS chuẩn (trả về Content-Type: application/json).
+        if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
         
-        // TRICK: Vì fetch no-cors không đọc được response, 
-        // nhưng GAS Web App bản chất là hỗ trợ CORS nếu ta xử lý Option request hoặc dùng Redirect.
-        // Giải pháp tốt nhất cho Standalone là dùng CORS thực thụ (GAS trả về TextOutput).
+        const result = await response.json();
         
-        const realResponse = await fetch(GAS_API_URL, {
-            method: "POST",
-            body: JSON.stringify({ action, ...data })
-        });
-        
-        const result = await realResponse.json();
         if (loadingMsg !== 'NONE') hideLoading();
         if (successHandler) successHandler(result);
         return result;
@@ -76,8 +67,14 @@ async function runAPI(action, data = {}, successHandler, errorHandler, loadingMs
     } catch (error) {
         if (loadingMsg !== 'NONE') hideLoading();
         console.error(`API Error [${action}]:`, error);
+        
+        // Trình duyệt có thể ném lỗi "Failed to fetch" nếu URL sai hoặc CORS bị chặn
+        const errorMsg = error.message === 'Failed to fetch' 
+            ? 'Không thể kết nối tới máy chủ API. Vui lòng kiểm tra lại GAS_API_URL trong app.js.'
+            : error.message;
+
         if (errorHandler) errorHandler(error);
-        else showAlert('Lỗi kết nối', 'Không thể kết nối tới máy chủ GAS. Vui lòng kiểm tra đường truyền.', 'error');
+        else showAlert('Lỗi kết nối', errorMsg, 'error');
     }
 }
 

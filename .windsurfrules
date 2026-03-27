@@ -1,5 +1,5 @@
 # ebanking — Project Memory
-# Auto-synced | 198 observations
+# Auto-synced | 203 observations
 
 **Stack:** Unknown stack
 
@@ -41,4 +41,4 @@
 > ℹ️ DO NOT call get_context() or get_gotchas() at startup — context above IS your context.
 
 ---
-*Auto-synced | 2026-03-26*
+*Auto-synced | 2026-03-27*

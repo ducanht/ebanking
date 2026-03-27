@@ -2,74 +2,63 @@
 > Dynamically loaded for active file: `netlify-app\app.js` (Domain: **Generic Logic**)
 
 ### 📐 Generic Logic Conventions & Fixes
-- **[problem-fix] Fixed null crash in NETLIFY — hardens HTTP security headers**: -  * NETLIFY APP ENGINE - V2.0
-+  * NETLIFY HIGH-FIDELITY APP ENGINE (app.js)
--  * Decoupled Frontend logic for HoKinhDoanh System
-+  * Phiên bản nâng cấp: Hỗ trợ OpenCV, Nén ảnh tự động, Dashboard và DataTables chuyên nghiệp.
--  */
-+  * Hệ thống giao tiếp với GAS Backend qua API JSON (doPost).
+- **[convention] Fixed null crash in NONE — adds runtime type validation before use — confirmed 5x**: -     }, () => btn.prop('disabled', false).html(oldBtn), 'NONE');
++         } else showAlert('Lỗi', res.message, 'error');
+- }
++     }, () => btn.prop('disabled', false).html(oldBtn), 'NONE');
 - 
-+  */
-- const CONFIG = {
-+ 
--     // URL của Google Apps Script Web App (doPost)
-+ const GAS_API_URL = "https://script.google.com/macros/s/AKfycbzf4m3V5P61c3XhU8T0Y4-U0o7B8hE_z6x9_7z6_7z6/exec"; // CẦN CẬP NHẬT URL THỰC TẾ
--     API_URL: "https://script.google.com/macros/s/AKfycbyXBMdJO2JmoaarxW9l7mg-l4tyN6BF1U01jaMPQ48xmVOZM9WFWLnOTIc9Wyf1OpFr/exec",
-+ 
--     VERSION: "2.0.0-netlify",
-+ const AppState = {
--     CACHE_TTL: 180000 // 3 minutes
-+     user: JSON.parse(localStorage.getItem('HOKINHDOANH_SESSION')) || null,
-- };
-+     VERSION: "2.0.0-HIFI",
-- 
-+     apiBase: "" // Sẽ được cập nhật từ URL triển khai
-- const AppState = {
-+ };
--     user: null,
-+ 
--     isInitialLoad: true
-+ /**
-- };
-+  * CACHE SYSTEM
-- 
-+  */
--     set(key, val) {
-+     TTL: 180000, 
--         this.data[key] = val;
-+     isFresh(key) {
--         this.timestamp[key] = Date.now();
-+         if (!this.timestamp[key]) return false;
--     },
-+         return (Date.now() - this.timestamp[key]) < this.TTL;
--     get(key) {
-+     },
--         if (!this.timestamp[key] || (Date.now() - this.timestamp[key]) > CONFIG.CACHE_TTL) return null;
-+     set(key, val) {
--         return this.data[key];
-+         this.data[key] = val;
--     },
-+         this.timestamp[key] = Date.now();
--     clear(key) {
-+     },
--         delete this.data[key];
-+     get(key) {
--         delete this.timestamp[key];
-+         return this.isFresh(key) ? this.data[key] : null;
--     clearAll() {
-+     clear(key) {
--         this.data = {};
-+         delete this.data[key];
--         this.timestamp = {};
-+         delete this.timestamp[key];
--     }
-+     },
-- };
-+     clearAll() {
-- 
-+         this.data = {};
++ }
 - /**
-+         this.timest
++ 
+-  * STAFF CUSTOMER LOGIC
++ /**
+-  */
++  * STAFF CUSTOMER LOGIC
+- async function initMyCustomersList() {
++  */
+-     if (!AppState.user) return;
++ async function initMyCustomersList() {
+-     
++     if (!AppState.user) return;
+-     const cached = AppCache.get('myCustomers');
++     
+-     if (cached) {
++     const cached = AppCache.get('myCustomers');
+-         renderMyCustomersTable(cached.data);
++     if (cached) {
+-         return;
++         renderMyCustomersTable(cached.data);
+-     }
++         return;
+- 
++     }
+-     $('#tbMyCustomersBody').html('<tr><td colspan="7" class="text-center py-4"><span class="spinner-border text-primary"></span><br>Đang đồng bộ...</td></tr>');
++ 
+-     
++     $('#tbMyCustomersBody').html('<tr><td colspan="7" class="text-center py-4"><span class="spinner-border text-primary"></span><br>Đang đồng bộ...</td></tr>');
+-     runAPI('api_getMyCustomers', { email: AppState.user.email }, (res) => {
++     
+-         if (res.status === 'success') {
++     runAPI('api_getMyCustomers', { email: AppState.user.email }, (res) => {
+-             AppCache.set('myCustomers', res);
++         if (res.status === 'success') {
+-             renderMyCustomersTable(res.data || []);
++             AppCache.set('myCustomers', res);
+-         } else {
++             renderMyCustomersTable(res.data || []);
+-             $('#tbMyCustomersBody').html(`<tr><td colspan="7" class="text-center text-danger py-4">Lỗi: ${res.message}</td></tr>`);
++         } else {
+-         }
++             $('#tbMyCustomersBody').html(`<tr><td colspan="7" class="text-center text-danger py-4">Lỗi: ${res.message}</td></tr>`);
+-     }, null, 'NONE');
++         }
+- }
++     }, null, 'NONE');
+- 
++ }
+- function renderMyCustomersTable(data) {
++ 
+-     const html = data.slice().reverse().map(d
 … [diff truncated]
 
 📌 IDE AST Context: Modified symbols likely include [GAS_API_URL, AppState, AppCache, runAPI, showLoading]
