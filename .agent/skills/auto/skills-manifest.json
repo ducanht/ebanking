@@ -1,69 +1,36 @@
 {
-  "html": {
-    "enabled": true,
-    "lastGenerated": "2026-03-27T02:22:26.540Z",
-    "observationCount": 91,
-    "skillCount": 0,
-    "domain": "html",
-    "triggerGlobs": [
-      "**/*.html"
-    ],
-    "description": "Html for ebanking. 18 conventions, 30 fixes, 1 error→fix pairs."
-  },
   "project": {
     "enabled": true,
-    "lastGenerated": "2026-03-27T02:22:26.539Z",
-    "observationCount": 117,
+    "lastGenerated": "2026-03-27T15:41:29.310Z",
+    "observationCount": 55,
     "skillCount": 0,
     "domain": "project",
     "triggerGlobs": [
       "**/*"
     ],
-    "description": "Project for ebanking. 25 gotchas, 37 conventions, 8 fixes."
-  },
-  "gotcha": {
-    "enabled": true,
-    "lastGenerated": "2026-03-27T02:22:26.541Z",
-    "observationCount": 0,
-    "skillCount": 1,
-    "domain": "gotcha",
-    "triggerGlobs": [
-      "**/*"
-    ],
-    "description": "Gotcha for ebanking. ."
-  },
-  "problem-fix": {
-    "enabled": true,
-    "lastGenerated": "2026-03-27T02:22:26.541Z",
-    "observationCount": 0,
-    "skillCount": 1,
-    "domain": "problem-fix",
-    "triggerGlobs": [
-      "**/*"
-    ],
-    "description": "Problem Fix for ebanking. 4 error→fix pairs."
+    "description": "Project for ebanking. 19 gotchas, 28 conventions, 2 fixes."
   },
   "javascript": {
     "enabled": true,
-    "lastGenerated": "2026-03-27T02:22:26.538Z",
-    "observationCount": 18,
+    "lastGenerated": "2026-03-27T15:41:29.311Z",
+    "observationCount": 7,
     "skillCount": 0,
     "domain": "javascript",
     "triggerGlobs": [
       "**/*.js",
       "**/*.jsx"
     ],
-    "description": "Javascript for ebanking. 4 conventions, 8 fixes."
+    "description": "Javascript for ebanking. 1 conventions, 2 fixes."
   },
-  "convention": {
+  "html": {
     "enabled": true,
-    "lastGenerated": "2026-03-27T02:22:26.542Z",
-    "observationCount": 0,
-    "skillCount": 1,
-    "domain": "convention",
+    "lastGenerated": "2026-03-27T15:41:29.312Z",
+    "observationCount": 5,
+    "skillCount": 0,
+    "domain": "html",
     "triggerGlobs": [
-      "**/*"
+      "**/*.html"
     ],
-    "description": "Convention for ebanking. ."
+    "description": "Html for ebanking. 1 conventions."
   }
 }

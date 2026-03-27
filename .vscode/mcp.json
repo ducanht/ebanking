@@ -5,7 +5,7 @@
       "args": [
         "c:\\Users\\ducan\\.antigravity\\extensions\\dawoodahmad.brainsync-2.2.5-universal\\dist\\mcp-server.js",
         "--db",
-        "C:\\Users\\ducan\\.brainsync\\hokinhdoanh\\memory.db"
+        "C:\\Users\\ducan\\.brainsync\\ebanking\\memory.db"
       ],
       "type": "stdio",
       "env": {

@@ -97,6 +97,36 @@ function showAlert(title, text, icon) {
     Swal.fire({ title, text, icon, confirmButtonColor: '#10b981' });
 }
 
+function checkDuplicate(input) {
+    const val = input.value.trim();
+    if (!val) {
+        $(input).removeClass('is-invalid');
+        input.setCustomValidity('');
+        return;
+    }
+    
+    if (!input.checkValidity()) {
+        $(input).addClass('is-invalid');
+        return;
+    }
+
+    runAPI('api_validateduplicate', { field: input.id, value: val }, (res) => {
+        if (res && res.isDup) {
+            input.setCustomValidity(res.msg || 'Giá trị này đã tồn tại!');
+            $(input).addClass('is-invalid');
+            if ($(input).siblings('.invalid-feedback').length) {
+                $(input).siblings('.invalid-feedback').text(res.msg || 'Giá trị này đã tồn tại!');
+            }
+        } else {
+            input.setCustomValidity('');
+            $(input).removeClass('is-invalid');
+            if (input.id === 'cccd') $(input).siblings('.invalid-feedback').text('Căn cước công dân bắt buộc đúng 12 chữ số.');
+            else if (input.id === 'sdt') $(input).siblings('.invalid-feedback').text('SĐT bắt buộc bắt đầu bằng 0 và đủ 10 chữ số.');
+            else if (input.id === 'so_tk') $(input).siblings('.invalid-feedback').text('Cần nhập đúng 9 chữ số cuối.');
+        }
+    }, null, 'NONE');
+}
+
 function utils_formatVN(val, type = 'date') {
     if (!val) return 'N/A';
     const dateObj = new Date(val);
@@ -454,14 +484,108 @@ async function initMyCustomersList() {
 
     $('#tbMyCustomersBody').html('<tr><td colspan="7" class="text-center py-4"><span class="spinner-border text-primary"></span><br>Đang đồng bộ...</td></tr>');
     
-    runAPI('api_getMyCustomers', { email: AppState.user.email }, (res) => {
+    runAPI('api_getmycustomers', { email: AppState.user.email }, (res) => {
         if (res.status === 'success') {
             AppCache.set('myCustomers', res);
             renderMyCustomersTable(res.data || []);
+            renderStaffDashboardLocal(res.data || []);
+            
+            // Fetch rankings silently
+            runAPI('api_getadmindashboarddata', {}, (adminRes) => {
+                if (adminRes.status === 'success') {
+                    updateStaffRankings(adminRes.data, AppState.user.email);
+                }
+            }, null, 'NONE');
         } else {
             $('#tbMyCustomersBody').html(`<tr><td colspan="7" class="text-center text-danger py-4">Lỗi: ${res.message}</td></tr>`);
         }
     }, null, 'NONE');
+}
+
+function renderStaffDashboardLocal(data) {
+    let caNhan = 0, hkd = 0;
+    let timeline = {};
+
+    data.forEach(d => {
+        if (d['Loại hình dịch vụ'] === 'Cá nhân') caNhan++;
+        else if (d['Loại hình dịch vụ'] === 'Hộ kinh doanh') hkd++;
+
+        let rawDate = new Date(d["Thời điểm nhập"]);
+        if (!isNaN(rawDate)) {
+            let strDate = `${String(rawDate.getDate()).padStart(2,"0")}/${String(rawDate.getMonth()+1).padStart(2,"0")}`;
+            timeline[strDate] = (timeline[strDate] || 0) + 1;
+        }
+    });
+
+    $('#staffDash-canhan').text(caNhan);
+    $('#staffDash-hkd').text(hkd);
+
+    // Render chart
+    renderStaffLineChart(timeline);
+}
+
+function updateStaffRankings(adminData, email) {
+    if(!adminData || !adminData.allStaffs) return;
+    
+    let staffs = adminData.allStaffs;
+    let rank = staffs.findIndex(s => s.email === email) + 1;
+    let me = staffs.find(s => s.email === email);
+    
+    if (rank > 0) {
+        $('#staffDash-rank').text(`#${rank} / ${staffs.length}`);
+    } else {
+        $('#staffDash-rank').text('Chưa xếp hạng');
+    }
+
+    if (staffs.length > 0) {
+        let top1 = staffs[0];
+        $('#staffDash-top1Name').text(top1.name || top1.email);
+        $('#staffDash-top1Count').text(`${top1.total} hồ sơ`);
+    }
+}
+
+let staffChartInstance = null;
+function renderStaffLineChart(timeline) {
+    const ctx = document.getElementById('chartStaffMonthly');
+    if (!ctx) return;
+    
+    // Last 30 days calculation
+    let labels = [];
+    let counts = [];
+    let d = new Date();
+    for (let i = 29; i >= 0; i--) {
+        let tmp = new Date(d);
+        tmp.setDate(tmp.getDate() - i);
+        let sDate = `${String(tmp.getDate()).padStart(2,"0")}/${String(tmp.getMonth()+1).padStart(2,"0")}`;
+        labels.push(sDate);
+        counts.push(timeline[sDate] || 0);
+    }
+
+    if (staffChartInstance) staffChartInstance.destroy();
+
+    staffChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Hồ sơ mở',
+                data: counts,
+                borderColor: '#10b981',
+                backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                borderWidth: 2,
+                fill: true,
+                tension: 0.3
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { beginAtZero: true, ticks: { precision: 0 } }
+            }
+        }
+    });
 }
 
 function renderMyCustomersTable(data) {
@@ -470,11 +594,11 @@ function renderMyCustomersTable(data) {
         return `
             <tr onclick="openEditCustomerModal('${d.ID || d['Mã GD']}')" class="cursor-pointer">
                 <td><small class="text-muted">${utils_formatVN(d['Thời điểm nhập'], 'date')}</small></td>
-                <td class="fw-bold">${d['Tên khách hàng']}<br><small class="text-secondary fw-normal">${d['Số điện thoại']}</small></td>
+                <td class="fw-bold">${d['Tên khách hàng']}</td>
                 <td><small>${d['Số CCCD']}</small></td>
                 <td><small>${d['Số GP ĐKKD'] || ''}</small></td>
                 <td><span class="badge bg-light text-dark border">${d['Loại hình dịch vụ']}</span></td>
-                <td><span class="${statusColor} fw-bold"><i class="bx bxs-circle"></i> ${d['Trạng thái']}</span></td>
+                <td><small>${d['Số điện thoại']}</small></td>
                 <td>${AppState.user ? AppState.user.name : (d['Cán bộ thực hiện'] || '')}</td>
                 <td><button class="btn btn-sm btn-outline-primary shadow-sm"><i class="bx bx-search-alt"></i> Chi tiết</button></td>
             </tr>
@@ -775,9 +899,7 @@ function showAllStaffModal() {
 function openEditCustomerModal(id) {
     try {
         if (!id) return;
-        let row = null;
-        let sourceData = (AppState.user && AppState.user.role === 'Admin') ? (window._adminAllData || []) : (AppCache.get('myCustomers') || []);
-        
+        let sourceData = (AppState.user && AppState.user.role === 'Admin') ? (window._adminAllData || []) : ((AppCache.get('myCustomers') || {}).data || []);
         for (let i = 0; i < sourceData.length; i++) {
             if (String(sourceData[i]['ID'] || sourceData[i]['Mã GD']).trim() === String(id).trim()) {
                 row = sourceData[i];

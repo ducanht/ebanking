@@ -1,6 +1,6 @@
 ---
 name: javascript
-description: "Javascript for ebanking. 4 conventions, 8 fixes."
+description: "Javascript for ebanking. 1 conventions, 2 fixes."
 domain: javascript
 triggers:
   - glob: "**/*.js"
@@ -11,182 +11,52 @@ enabled: true
 
 # Javascript
 
-Auto-compiled from **18 real patterns** in **ebanking**. This skill is auto-routed to agents when working on javascript files.
+Auto-compiled from **7 real patterns** in **ebanking**. This skill is auto-routed to agents when working on javascript files.
 
 ## 🔧 Problem Playbooks
 
-### Fixed null crash in Date — wraps unsafe operation in error boundary
--     const staffMap = {};
-+     window._adminAllData = allData.sort((a,b) => (new Date(b['Thời điểm nhập']) || 0) - (new Date(a['Thời điểm nhập']) || 0));
--     allStaffs.forEach(st => staffMap[st.email] = st.name);
-+     window._adminRawStaffs = allStaffs;
--     
-+ 
--     const html = allData.map(d => `
-+     const staffMap = {};
--         <tr onclick="openEditCustomerModal('${d.ID}')" class="cu
+### Fixed null crash in AppState — wraps unsafe operation in error boundary
+-     runAPI('api_getMyCustomers', { email: AppState.user.email }, (res) => {
++     runAPI('api_getmycustomers', { email: AppState.user.email }, (res) => {
+-         } else {
++             renderStaffDashboardLocal(res.data || []);
+-             $('#tbMyCustomersBody').html(`<tr><td colspan="7" class="text-center text-danger py-4">Lỗi: ${res.message}</td></tr>`);
++             
+-         }
++      
 
 **Actionable Steps:**
 1. Modified 1 files
-2. identifier: Date
-3. identifier: CCCD
-4. identifier: KKD
-5. identifier: DataTable
+2. identifier: AppState
+3. identifier: Fetch
+4. identifier: NONE
+5. identifier: Date
 
-### Fixed null crash in JSON — wraps unsafe operation in error boundary
--             const s = typeof res.stats === 'string' ? JSON.parse(res.stats) : res.stats;
-+             let s = null;
--             renderAdminStats(s);
-+             if (res.statsStr) {
--             renderAdminCharts(s);
-+                 try { s = JSON.parse(res.statsStr); } catch(e) { console.error("Parse statsStr error", e); }
--             renderAdminTable(s.allData, s.allStaffs);
-+        
-
-**Actionable Steps:**
-1. Modified 1 files
-2. identifier: JSON
-3. identifier: Parse
-4. identifier: Dashboard
-5. identifier: Chart
-
-### Fixed null crash in CORS — hardens HTTP security headers
--         const response = await fetch(GAS_API_URL, {
-+         // Sử dụng text/plain để tránh kích hoạt CORS Preflight (OPTIONS request) mà GAS không hỗ trợ
--             method: "POST",
-+         const response = await fetch(GAS_API_URL, {
--             mode: "no-cors", // Quan trọng cho GAS
-+             method: "POST",
--             headers: { "Content-Type": "application/json" },
-+           
-
-**Actionable Steps:**
-1. Modified 1 files
-2. identifier: CORS
-3. identifier: Preflight
-4. identifier: OPTIONS
-5. identifier: GAS
-
-### Fixed null crash in NONE — adds runtime type validation before use
--         } else showAlert('Lỗi', res.message, 'error');
-+     }, () => btn.prop('disabled', false).html(oldBtn), 'NONE');
--     }, () => btn.prop('disabled', false).html(oldBtn), 'NONE');
-+ }
-- }
-+ 
-- 
-+ /**
-- /**
-+  * STAFF CUSTOMER LOGIC
--  * DASHBOARD & DATA LOGIC
-+  */
--  */
-+ async function initMyCustomersList() {
-- let charts = {};
-+     if (!AppState.user) return;
-- 
-+     
-- async functio
+### Fixed null crash in NONE — offloads heavy computation off the main thread
+- function utils_formatVN(val, type = 'date') {
++ function checkDuplicate(input) {
+-     if (!val) return 'N/A';
++     const val = input.value.trim();
+-     const dateObj = new Date(val);
++     if (!val) {
+-     if (isNaN(dateObj)) return val;
++         $(input).removeClass('is-invalid');
+-     const d = ('0' + dateObj.getDate()).slice(-2);
++         input.setCustomValidity('');
+-     const m = ('
 
 **Actionable Steps:**
 1. Modified 1 files
 2. identifier: NONE
-3. identifier: STAFF
-4. identifier: CUSTOMER
-5. identifier: LOGIC
-
-### Fixed null crash in NETLIFY — hardens HTTP security headers
--  * NETLIFY APP ENGINE - V2.0
-+  * NETLIFY HIGH-FIDELITY APP ENGINE (app.js)
--  * Decoupled Frontend logic for HoKinhDoanh System
-+  * Phiên bản nâng cấp: Hỗ trợ OpenCV, Nén ảnh tự động, Dashboard và DataTables chuyên nghiệp.
--  */
-+  * Hệ thống giao tiếp với GAS Backend qua API JSON (doPost).
-- 
-+  */
-- const CONFIG = {
-+ 
--     // URL của Google Apps Script Web App (doPost)
-+ const GAS_API_URL 
-
-**Actionable Steps:**
-1. Modified 1 files
-2. identifier: NETLIFY
-3. identifier: HIGH
-4. identifier: FIDELITY
-5. identifier: APP
-
-### Fixed null crash in FEATURE — cleans up event listeners to prevent memory leaks
-- function initMoTaiKhoanForm() {
-+ /**
--     console.log("Initializing MoTaiKhoan form...");
-+  * FEATURE: MO TAI KHOAN (FORM LOGIC)
--     // Ported from frmMoTaiKhoan script...
-+  */
--     if ($('.js-datepicker').length > 0) {
-+ let isCvReady = false;
--         flatpickr('.js-datepicker', { dateFormat: "Y-m-d", altFormat: "d/m/Y", altInput: true });
-+ let imageMatStore = {};
--     }
-+ let curren
-
-**Actionable Steps:**
-1. Modified 1 files
-2. identifier: FEATURE
-3. identifier: TAI
-4. identifier: KHOAN
-5. identifier: FORM
-
-### Fixed null crash in Trong
--     $("#global-spinner").show();
-+     const spinner = document.getElementById("global-spinner");
--     
-+     if (spinner) spinner.style.display = "flex";
--     // Giả lập email của user cho PoC (Trong bản thật sẽ lấy từ Auth)
-+     
--     const mockUserEmail = "staff@example.com"; 
-+     // Giả lập email của user cho PoC (Trong bản thật sẽ lấy từ Auth)
-- 
-+     const mockUserEmail = "staff@exa
-
-**Actionable Steps:**
-1. Modified 1 files
-2. identifier: PoC
-3. identifier: Trong
-4. identifier: Auth
-5. identifier: Swal
-
-### Fixed null crash in Calling — hardens HTTP security headers
--     try {
-+     console.log(`[PoC] Calling action: ${action}`, data);
--         const response = await fetch(APPS_SCRIPT_URL, {
-+     try {
--             redirect: "follow",
-+         const response = await fetch(APPS_SCRIPT_URL, {
--             body: JSON.stringify({
-+             mode: "cors", // Cần thiết để đọc response sau redirect
--                 action: action,
-+             cache: "no-
-
-**Actionable Steps:**
-1. Modified 1 files
-2. identifier: PoC
-3. identifier: Calling
-4. identifier: Content
-5. identifier: Type
+3. identifier: Date
+4. identifier: OPENCV
+5. identifier: IMAGE
 
 ## 📐 Conventions & Best Practices
 
 ### Project Conventions
-- 📐 **Added session cookies authentication — confirmed 3x** — -     if (!silent) showAlert('Thành công', `Chào mừng ${AppState.user.fullName}!`, 'success');
-+    
-- 📐 **what-changed in app.js — confirmed 3x** — -         $('#staffBottomNav').hide();
-+         $('#staffBottomNav').addClass('d-none');
--         
-- 📐 **Fixed null crash in NONE — adds runtime type validation before use — confirmed 5x** — -     }, () => btn.prop('disabled', false).html(oldBtn), 'NONE');
-+         } else showAlert('Lỗi', 
-- 📐 **Fixed null crash in HACK — hardens HTTP security headers — confirmed 3x** — -         // Lưu ý: GAS Web App khi gọi từ domain khác thường gặp vấn đề CORS.
-+         // HACK: Dù
+- 📐 **Fixed null crash in AppState — confirmed 4x** — -         let row = null;
++         let sourceData = (AppState.user && AppState.user.role === 'Admin
 
 ---
-*Auto-generated by BrainSync 🧠 | 18 patterns | 2026-03-27*
+*Auto-generated by BrainSync 🧠 | 7 patterns | 2026-03-27*

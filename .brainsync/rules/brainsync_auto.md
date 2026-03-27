@@ -1,7 +1,7 @@
 
 
-# Project Memory — HoKinhDoanh
-> 226 notes | Score threshold: >40
+# Project Memory — ebanking
+> 68 notes | Score threshold: >40
 
 ## Safety — Never Run Destructive Commands
 
@@ -18,39 +18,23 @@
 
 **Stack:** Unknown stack
 
-## 📝 NOTE: 1 uncommitted file(s) in working tree.\n\n## Important Warnings
+## 📝 NOTE: 1 uncommitted file(s) in working tree.\n\n## Project Standards
 
-- **⚠️ GOTCHA: Replaced auth Walkthrough — prevents XSS injection attacks** — - # Walkthrough:### Summary of Definitive Fix: Full ES5 Sanitization
-+
-
-## Project Standards
-
-- Updated API endpoint Engine — confirmed 3x
-- Fixed null crash in CONFIG — adds runtime type validation before use — confirmed 3x
-- what-changed in app.js — confirmed 3x
-- Strengthened types Khai
-- Fixed null crash in NONE — adds runtime type validation before use — confirmed 5x
-- Replaced auth Inter — adds runtime type validation before use — confirmed 3x
-- Strengthened types Scripts — adds runtime type validation before use
-- Strengthened types Module — adds runtime type validation before use
-
-## Known Fixes
-
-- ❌ +     Logger.log("doGet Error: " + e.message); → ✅ Fixed null crash in TDND — wraps unsafe operation in error boundary
-- ❌ -     Logger.log("doGet Error: " + e.message); → ✅ Fixed null crash in HtmlService
-- ❌ -     return { status: "error", message: "Lỗi lấy dữ liệu Admin: " + e.message }; → ✅ Fixed null crash in HACK — adds runtime type validation before use
-- ❌ -         status: "error", → ✅ Fixed null crash in CONFIG — adds runtime type validation before use
+- Strengthened types Kinh — adds runtime type validation before use
+- Strengthened types Implementation
+- Version your API from day 1 (/api/v1/)
+- Use consistent response format across all endpoints
+- Implement soft delete for important data — don't hard delete without confirmation
+- Handle timezone correctly — store UTC, display in user's timezone
+- Make layouts responsive from the start — mobile-first approach
+- Disable submit button during form submission — prevent double-submit
 
 ## Recent Decisions
 
-- decision in frmDashboard.html
-- decision in frmMyCustomers.html
+- decision in style.css
 
-## Learned Patterns
+## Verified Best Practices
 
-- When encountering this, fix by: Fixed null crash in AppState — wraps unsafe operation in error boundary (seen 2x)
-- Avoid: ⚠️ GOTCHA: Replaced auth Open (seen 2x)
-- Always: Strengthened types Scripts — adds runtime type validation before use (seen 2x)
 - Agent generates new migration for every change (squash related changes)
 - Agent installs packages without checking if already installed
 

@@ -216,6 +216,9 @@
                     <p class="text-muted mb-0 small mt-1">Xin chào, <span id="user-name-display-user" class="fw-bold text-dark"></span>!</p>
                 </div>
                 <div class="d-flex gap-2">
+                    <button class="btn btn-outline-secondary btn-sm d-none d-sm-flex align-items-center gap-1 shadow-sm" onclick="$('#modalChangePassword').modal('show')">
+                        <i class='bx bx-lock-open-alt fs-5'></i> <span class="d-none d-sm-inline">Đổi Pass</span>
+                    </button>
                     <button class="btn btn-outline-danger btn-sm d-flex align-items-center gap-1 shadow-sm" onclick="logout()">
                         <i class='bx bx-log-out fs-5'></i> <span class="d-none d-sm-inline">Thoát</span>
                     </button>
@@ -238,15 +241,17 @@
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-semibold">Số CCCD (12 số)</label>
-                            <input type="text" class="form-control" id="cccd" maxlength="12" required>
+                            <input type="text" class="form-control" id="cccd" pattern="[0-9]{12}" maxlength="12" title="Căn cước công dân bắt buộc đúng 12 chữ số" required onblur="checkDuplicate(this)">
+                            <div class="invalid-feedback">Căn cước công dân bắt buộc đúng 12 chữ số.</div>
                         </div>
                         <div class="col-md-6 initially-hidden" id="div_dkkd">
                             <label class="form-label fw-semibold">Số ĐKKD</label>
-                            <input type="text" class="form-control text-uppercase" id="dkkd">
+                            <input type="text" class="form-control text-uppercase" id="dkkd" onblur="checkDuplicate(this)">
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-semibold">Số điện thoại</label>
-                            <input type="tel" class="form-control" id="sdt" required>
+                            <input type="tel" class="form-control" id="sdt" pattern="0[0-9]{9}" maxlength="10" title="Số điện thoại phải bắt đầu bằng 0 và đủ 10 chữ số" required onblur="checkDuplicate(this)">
+                            <div class="invalid-feedback">SĐT bắt buộc bắt đầu bằng 0 và đủ 10 chữ số.</div>
                         </div>
                     </div>
                     
@@ -254,9 +259,10 @@
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label class="form-label fw-semibold">Số CIF (16 số)</label>
-                            <div class="input-group">
+                            <div class="input-group has-validation">
                                 <span class="input-group-text bg-light fw-bold text-secondary">3800200</span>
-                                <input type="text" class="form-control" id="so_tk" placeholder="Nhập 9 số cuối" maxlength="9" required>
+                                <input type="text" class="form-control" id="so_tk" placeholder="Nhập 9 số cuối" pattern="[0-9]{9}" maxlength="9" title="Nhập đúng 9 chữ số tài khoản" required onblur="checkDuplicate(this)">
+                                <div class="invalid-feedback">Cần nhập đúng 9 chữ số cuối.</div>
                             </div>
                         </div>
                         <div class="col-md-3">
@@ -330,14 +336,56 @@
 
         <!-- VIEW: HỒ SƠ CỦA TÔI (STAFF) -->
         <section id="view-my-customers" class="view-section d-none">
-             <div class="d-flex justify-content-between align-items-center mb-4">
+             <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
                 <h4 class="fw-bold text-primary mb-0"><i class='bx bx-list-ul'></i> Hồ Sơ Của Tôi</h4>
-                <button class="btn btn-outline-primary btn-sm" onclick="initMyCustomersList()"><i class='bx bx-refresh'></i> Làm mới</button>
+                <div class="d-flex gap-2 align-items-center">
+                    <button class="btn btn-outline-primary btn-sm d-flex align-items-center gap-1 bg-white shadow-sm" onclick="initMyCustomersList()">
+                        <i class='bx bx-refresh fs-5'></i> <span class="d-none d-sm-inline">Làm mới</span>
+                    </button>
+                    <button class="btn btn-outline-secondary btn-sm d-none d-sm-flex align-items-center gap-1 bg-white shadow-sm" onclick="$('#modalChangePassword').modal('show')">
+                        <i class='bx bx-lock-open-alt fs-5'></i> <span class="d-none d-sm-inline">Đổi Pass</span>
+                    </button>
+                    <button class="btn btn-outline-danger btn-sm d-flex align-items-center gap-1 bg-white shadow-sm" onclick="logout()">
+                        <i class='bx bx-log-out fs-5'></i> <span class="d-none d-sm-inline">Thoát</span>
+                    </button>
+                </div>
             </div>
+            <div class="row g-3 mb-4" id="staff-dashboard-cards">
+                <div class="col-6 col-md-3">
+                    <div class="glass-card p-3 text-center border-start border-4 border-success h-100 shadow-sm align-content-center">
+                        <h6 class="text-muted mb-1 small text-uppercase">Hạng của tôi</h6>
+                        <h3 class="fw-bold text-success mb-0" id="staffDash-rank"><i class='bx bx-loader-alt bx-spin'></i></h3>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="glass-card p-3 text-center border-start border-4 border-primary h-100 shadow-sm align-content-center">
+                        <h6 class="text-muted mb-1 small text-uppercase">Cá nhân</h6>
+                        <h3 class="fw-bold text-primary mb-0" id="staffDash-canhan">--</h3>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="glass-card p-3 text-center border-start border-4 border-warning h-100 shadow-sm align-content-center">
+                        <h6 class="text-muted mb-1 small text-uppercase">Kinh doanh</h6>
+                        <h3 class="fw-bold text-warning mb-0" id="staffDash-hkd">--</h3>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="glass-card p-2 text-center bg-white border border-danger h-100 shadow-sm align-content-center">
+                        <h6 class="text-muted mb-1 small text-uppercase"><i class='bx bxs-crown text-danger'></i> Top 1</h6>
+                        <p class="fw-bold text-dark mb-0 small text-truncate" id="staffDash-top1Name" style="max-width: 100%;">--</p>
+                        <span class="badge bg-danger rounded-pill mt-1" id="staffDash-top1Count">--</span>
+                    </div>
+                </div>
+            </div>
+            <div class="glass-card p-3 mb-4">
+                <h6 class="fw-bold mb-3 text-secondary text-uppercase"><i class='bx bx-trending-up'></i> Tiến độ cá nhân (30 ngày)</h6>
+                <div class="chart-container-monthly"><canvas id="chartStaffMonthly"></canvas></div>
+            </div>
+            
             <div class="glass-card p-3 p-md-4">
                 <div class="table-responsive">
                     <table id="tblMyCustomers" class="table table-hover dt-responsive nowrap w-100 align-middle">
-                        <thead><tr><th>THỜI GIAN</th><th>Họ TÊN</th><th>CCCD</th><th>SỐ ĐKKD</th><th>LOẠI HÌNH</th><th>TRẠNG THÁI</th><th>TÊN CÁN BỘ</th><th class="text-end">XEM</th></tr></thead>
+                        <thead><tr><th>THỜI GIAN</th><th>Họ TÊN</th><th>CCCD</th><th>SỐ ĐKKD</th><th>LOẠI HÌNH</th><th>SỐ ĐIỆN THOẠI</th><th>TÊN CÁN BỘ</th><th class="text-end">XEM</th></tr></thead>
                         <tbody id="tbMyCustomersBody"></tbody>
                     </table>
                 </div>
@@ -349,15 +397,15 @@
     <!-- Modal Cắt Ảnh (Cropper) -->
     <div class="modal fade" id="cropModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
         <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content glass-card">
-                <div class="modal-header border-0">
+            <div class="modal-content glass-card d-flex flex-column" style="max-height: 90vh;">
+                <div class="modal-header border-0 flex-shrink-0">
                     <h5 class="modal-title fw-bold text-primary"><i class='bx bx-crop'></i> Cân chỉnh & Làm phẳng ảnh</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body p-0 bg-dark text-center overflow-hidden position-relative" style="min-height: 300px;">
+                <div class="modal-body p-0 bg-dark text-center overflow-auto position-relative" style="min-height: 300px;">
                     <div id="quad-wrapper" class="position-relative d-inline-block">
-                        <canvas id="quad-canvas" class="canvas-responsive"></canvas>
-                        <svg id="quad-svg" class="position-absolute top-0 start-0 w-100 h-100" style="pointer-events: none;">
+                        <canvas id="quad-canvas" class="canvas-responsive" style="max-width: 100%; height: auto; max-height: 60vh; object-fit: contain;"></canvas>
+                        <svg id="quad-svg" class="position-absolute top-0 start-0 w-100 h-100" style="pointer-events: none; z-index: 5;">
                             <polygon id="quad-poly" points="" fill="rgba(16, 185, 129, 0.3)" stroke="#10b981" stroke-width="2" />
                             <circle id="p0" class="quad-handle" r="14" fill="#10b981" stroke="white" style="pointer-events: auto;" />
                             <circle id="p1" class="quad-handle" r="14" fill="#10b981" stroke="white" style="pointer-events: auto;" />
@@ -366,12 +414,12 @@
                         </svg>
                     </div>
                 </div>
-                <div class="modal-footer border-0 d-flex justify-content-between bg-light">
+                <div class="modal-footer border-0 d-flex justify-content-between bg-light flex-shrink-0" style="position: relative; z-index: 10;">
                     <button type="button" class="btn btn-outline-secondary" onclick="skipCropping()">
                         <i class='bx bx-skip-next'></i> Dùng ảnh gốc
                     </button>
                     <button type="button" class="btn btn-primary px-4 shadow-sm fw-bold" onclick="finishCropping()">
-                        <i class='bx bx-check-double'></i> HOÀN TẤT & LÀM PHẲNG
+                        <i class='bx bx-check-double'></i> LÀM PHẲNG
                     </button>
                 </div>
             </div>

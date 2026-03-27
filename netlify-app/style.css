@@ -48,6 +48,7 @@ body {
 
 .view-section {
     animation: fadeIn 0.4s ease-out;
+    padding-bottom: 80px;
 }
 
 @keyframes fadeIn {
