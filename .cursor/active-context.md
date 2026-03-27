@@ -2,6 +2,20 @@
 > Dynamically loaded for active file: `netlify-app\app.js` (Domain: **Generic Logic**)
 
 ### 📐 Generic Logic Conventions & Fixes
+- **[what-changed] what-changed in app.js**: -         $('#staffBottomNav').hide();
++         $('#staffBottomNav').addClass('d-none');
+-         $('#staffBottomNav').show();
++         $('#staffBottomNav').removeClass('d-none');
+
+📌 IDE AST Context: Modified symbols likely include [GAS_API_URL, AppState, AppCache, runAPI, showLoading]
+- **[what-changed] 🟢 Edited netlify-app/app.js (6 changes, 15min)**: Active editing session on netlify-app/app.js.
+6 content changes over 15 minutes.
+- **[what-changed] what-changed in app.js**: -     $('.view-item').addClass('view-item-hidden');
++     $('.view-section').addClass('d-none');
+-     $(`#${viewId}`).removeClass('view-item-hidden');
++     $(`#${viewId}`).removeClass('d-none');
+
+📌 IDE AST Context: Modified symbols likely include [GAS_API_URL, AppState, AppCache, runAPI, showLoading]
 - **[problem-fix] Fixed null crash in JSON — wraps unsafe operation in error boundary**: -             const s = typeof res.stats === 'string' ? JSON.parse(res.stats) : res.stats;
 +             let s = null;
 -             renderAdminStats(s);
@@ -218,6 +232,16 @@
 … [diff truncated]
 
 📌 IDE AST Context: Modified symbols likely include [CONFIG, AppState, AppCache, fetchAPI, runAPI]
+- **[problem-fix] problem-fix in index.html**: -         <section id="view-dashboard" class="view-section initially-hidden">
++         <section id="view-dashboard" class="view-section d-none">
+-         <section id="view-mo-tai-khoan" class="view-section initially-hidden">
++         <section id="view-mo-tai-khoan" class="view-section d-none">
+-         <section id="view-my-customers" class="view-section initially-hidden">
++         <section id="view-my-customers" class="view-section d-none">
+-     <nav class="navbar fixed-bottom bg-white border-top shadow-sm initially-hidden" id="staffBottomNav">
++     <nav class="navbar fixed-bottom bg-white border-top shadow-sm d-none" id="staffBottomNav">
+
+📌 IDE AST Context: Modified symbols likely include [html]
 - **[convention] Replaced auth Inter — adds runtime type validation before use — confirmed 3x**: -     <div id="global-spinner">
 +     <style>
 -         <div class="spinner-border text-success spinner-lg" role="status"></div>

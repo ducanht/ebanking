@@ -577,11 +577,11 @@ function handleLoginSuccess(silent) {
     if (!silent) showAlert('Thành công', `Chào mừng ${AppState.user.fullName}!`, 'success');
     
     if (AppState.user.role === 'Admin') {
-        $('#staffBottomNav').hide();
+        $('#staffBottomNav').addClass('d-none');
         showView('view-dashboard');
         initDashboard();
     } else {
-        $('#staffBottomNav').show();
+        $('#staffBottomNav').removeClass('d-none');
         showView('view-mo-tai-khoan');
         initMoTaiKhoanForm();
     }

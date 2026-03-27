@@ -1,6 +1,6 @@
 ---
 name: html
-description: "Html for ebanking. 18 conventions, 29 fixes, 1 error→fix pairs."
+description: "Html for ebanking. 18 conventions, 30 fixes, 1 error→fix pairs."
 domain: html
 triggers:
   - glob: "**/*.html"
@@ -10,7 +10,7 @@ enabled: true
 
 # Html
 
-Auto-compiled from **87 real patterns** in **ebanking**. This skill is auto-routed to agents when working on html files.
+Auto-compiled from **88 real patterns** in **ebanking**. This skill is auto-routed to agents when working on html files.
 
 ## 🔧 Problem Playbooks
 
@@ -19,6 +19,17 @@ Auto-compiled from **87 real patterns** in **ebanking**. This skill is auto-rout
 | Error Pattern | Fix | Seen |
 |-------|-----|------|
 | `-     Logger.log("doGet Error: " + e.message);` | Fixed null crash in HtmlService | 2x |
+
+### problem-fix in index.html
+-         <section id="view-dashboard" class="view-section initially-hidden">
++         <section id="view-dashboard" class="view-section d-none">
+-         <section id="view-mo-tai-khoan" class="view-section initially-hidden">
++         <section id="view-mo-tai-khoan" class="view-section d-none">
+-         <section id="view-my-customers" class="view-section initially-hidden">
++         <section id
+
+**Actionable Steps:**
+1. Modified 1 files
 
 ### problem-fix in index.html
 -     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
@@ -298,21 +309,6 @@ Auto-compiled from **87 real patterns** in **ebanking**. This skill is auto-rout
 -         if (stk.length > 6 && stk.startsWith('380200')) {
 +         if (stk.length > 7 && stk.startsWith('3800200')) {
 -             stk = stk.substring(6);
-+             stk = stk.substring(7);
-- </script>
-+ 
-- 
-+ $(document).ready(function() {
-+     $('#frmEditCustomer').off('submit').on('submit', function(e) {
-+         e.preventDefault();
-+         var data = {
-+             id: $('#edit_id'
-
-**Actionable Steps:**
-1. Modified 1 files
-
-### Fixed null crash in Excel — wraps unsafe operation in error boundary
--                 language: { url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json" },
-+                 dom: "<'row mb-2'<'col-sm-1
++             stk = stk.s
 
 ... [Truncated — see individual observations for full content]

@@ -1,7 +1,7 @@
 
 
 # Project Memory — HoKinhDoanh
-> 206 notes | Score threshold: >40
+> 211 notes | Score threshold: >40
 
 ## Safety — Never Run Destructive Commands
 
