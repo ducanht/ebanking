@@ -458,6 +458,197 @@ function skipCropping() {
 $(document).on('hidden.bs.modal', '#cropModal', function() { _cleanupAllMats(); });
 
 /**
+ * CAMERA MODULE (getUserMedia Flow)
+ * - Dung cho Netlify (HTTPS), ho tro ca mobile va desktop.
+ * - Fallback an toan sang file picker neu browser khong ho tro hoac user tu choi quyen.
+ */
+let _cameraStream = null;         // MediaStream hien tai
+let _cameraFacing = 'environment'; // 'environment' = camera sau (mac dinh cho chup chung tu)
+let _cameraTargetId = null;        // ID input file se nhan anh sau khi chup
+let _galleryInput = null;          // input[type=file] an dung de fallback gallery
+
+/**
+ * Mo modal camera hoac fallback sang gallery neu getUserMedia khong kha dung
+ */
+async function openCamera(targetId) {
+    _cameraTargetId = targetId;
+    _cameraFacing = 'environment'; // always start with back camera
+
+    // Kiem tra browser ho tro getUserMedia va dang chay tren HTTPS / localhost
+    const isSecure = location.protocol === 'https:' || location.hostname === 'localhost';
+    if (!isSecure || !navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        // Fallback: mo file picker truc tiep
+        _openFilePicker(targetId);
+        return;
+    }
+
+    // Hien modal
+    const modalEl = document.getElementById('cameraModal');
+    const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+    document.getElementById('cameraError').classList.add('d-none');
+    document.getElementById('cameraVideo').classList.remove('d-none');
+    document.getElementById('btnCapturePhoto').disabled = true;
+    modal.show();
+
+    await _startCameraStream();
+}
+
+async function _startCameraStream() {
+    // Dung stream cu neu co
+    _stopCameraStream();
+
+    const constraints = {
+        video: {
+            facingMode: _cameraFacing,
+            width:  { ideal: 1920 },
+            height: { ideal: 1080 }
+        },
+        audio: false
+    };
+
+    try {
+        _cameraStream = await navigator.mediaDevices.getUserMedia(constraints);
+        const video = document.getElementById('cameraVideo');
+        video.srcObject = _cameraStream;
+        await video.play();
+        document.getElementById('btnCapturePhoto').disabled = false;
+    } catch (err) {
+        console.error('Camera error:', err);
+        let msg = 'Không thể truy cập camera.';
+        if (err.name === 'NotAllowedError')  msg = 'Bạn đã từ chối quyền camera. Vui lòng cấp quyền từ cài đặt trình duyệt.';
+        if (err.name === 'NotFoundError')    msg = 'Thiết bị không có camera phù hợp.';
+        if (err.name === 'NotReadableError') msg = 'Camera đang được ứng dụng khác sử dụng.';
+        if (err.name === 'OverconstrainedError') {
+            // Thu lai voi constraint don gian hon
+            try {
+                _cameraStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+                const video = document.getElementById('cameraVideo');
+                video.srcObject = _cameraStream;
+                await video.play();
+                document.getElementById('btnCapturePhoto').disabled = false;
+                return;
+            } catch(e2) { msg = 'Camera không tương thích.'; }
+        }
+        // Hien man hinh loi
+        document.getElementById('cameraVideo').classList.add('d-none');
+        document.getElementById('cameraError').classList.remove('d-none');
+        document.getElementById('cameraErrorMsg').textContent = msg;
+    }
+}
+
+/**
+ * Doi camera truoc / sau
+ */
+async function switchCamera() {
+    _cameraFacing = _cameraFacing === 'environment' ? 'user' : 'environment';
+    document.getElementById('btnCapturePhoto').disabled = true;
+    await _startCameraStream();
+}
+
+/**
+ * Chup anh tu video stream
+ */
+function capturePhoto() {
+    const video = document.getElementById('cameraVideo');
+    if (!video || !_cameraStream) return;
+
+    const snapshot = document.getElementById('cameraSnapshot');
+    snapshot.width  = video.videoWidth;
+    snapshot.height = video.videoHeight;
+    const ctx = snapshot.getContext('2d');
+    // Neu dung camera truoc (selfie), can lat anh lai cho tu nhien
+    if (_cameraFacing === 'user') {
+        ctx.translate(snapshot.width, 0);
+        ctx.scale(-1, 1);
+    }
+    ctx.drawImage(video, 0, 0, snapshot.width, snapshot.height);
+
+    snapshot.toBlob(async (blob) => {
+        if (!blob) return;
+        const file = new File([blob], `${_cameraTargetId}_cam.jpg`, { type: 'image/jpeg' });
+        closeCameraModal();
+
+        // Gui anh qua pipeline phan tich + crop
+        showLoading('Đang phân tích ảnh chụp...');
+        try {
+            const processed = await processImageWithAI(file);
+            startCroppingFlow(processed, _cameraTargetId);
+        } catch(e) {
+            startCroppingFlow(file, _cameraTargetId);
+        } finally {
+            hideLoading();
+        }
+    }, 'image/jpeg', 0.92);
+}
+
+/**
+ * Dong modal camera va giai phong stream
+ */
+function closeCameraModal() {
+    _stopCameraStream();
+    const modalEl = document.getElementById('cameraModal');
+    const modal = bootstrap.Modal.getInstance(modalEl);
+    if (modal) modal.hide();
+}
+
+/**
+ * Fallback: mo file picker (gallery / he thong)
+ */
+function fallbackToGallery() {
+    closeCameraModal();
+    _openFilePicker(_cameraTargetId);
+}
+
+function _openFilePicker(targetId) {
+    // Tao input an de mo he thong file picker
+    if (_galleryInput) { try { document.body.removeChild(_galleryInput); } catch(e) {} }
+    _galleryInput = document.createElement('input');
+    _galleryInput.type = 'file';
+    _galleryInput.accept = 'image/*';
+    _galleryInput.style.display = 'none';
+    _galleryInput.onchange = async function() {
+        const file = this.files && this.files[0];
+        if (!file) return;
+        assignFileToInput(targetId, file);
+        showLoading('Đang phân tích ảnh...');
+        try {
+            const processed = await processImageWithAI(file);
+            startCroppingFlow(processed, targetId);
+        } catch(e) {
+            startCroppingFlow(file, targetId);
+        } finally {
+            hideLoading();
+        }
+    };
+    document.body.appendChild(_galleryInput);
+    _galleryInput.click();
+}
+
+function _stopCameraStream() {
+    if (_cameraStream) {
+        _cameraStream.getTracks().forEach(t => t.stop());
+        _cameraStream = null;
+    }
+    const video = document.getElementById('cameraVideo');
+    if (video) { video.srcObject = null; }
+}
+
+// Dam bao stream bi dung khi dong modal
+$(document).on('hide.bs.modal', '#cameraModal', function() { _stopCameraStream(); });
+
+// Bind nut X thu cong vi data-bs-dismiss co the khong gan duoc voi static backdrop
+$(document).on('click', '#btnCloseCameraModal', function() { closeCameraModal(); });
+
+// Expose ra window
+window.openCamera      = openCamera;
+window.capturePhoto    = capturePhoto;
+window.switchCamera    = switchCamera;
+window.closeCameraModal = closeCameraModal;
+window.fallbackToGallery = fallbackToGallery;
+
+
+
+/**
  * REGISTRATION LOGIC
  */
 function initMoTaiKhoanForm() {

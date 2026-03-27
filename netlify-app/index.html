@@ -278,8 +278,7 @@
                             <label class="form-label fw-semibold">CCCD Mặt trước</label>
                             <div class="input-group">
                                 <input class="form-control" type="file" id="img_truoc" accept="image/*" required>
-                                <input type="file" id="cam_truoc" accept="image/*" capture="environment" class="d-none">
-                                <label for="cam_truoc" class="btn btn-outline-primary"><i class='bx bx-camera'></i></label>
+                                <button type="button" class="btn btn-outline-primary" onclick="openCamera('img_truoc')" title="Chụp ảnh"><i class='bx bx-camera'></i></button>
                             </div>
                             <div id="preview_img_truoc" class="mt-2 initially-hidden img-preview-box"><img src="" class="img-preview-inner"></div>
                         </div>
@@ -287,8 +286,7 @@
                             <label class="form-label fw-semibold">CCCD Mặt sau</label>
                             <div class="input-group">
                                 <input class="form-control" type="file" id="img_sau" accept="image/*" required>
-                                <input type="file" id="cam_sau" accept="image/*" capture="environment" class="d-none">
-                                <label for="cam_sau" class="btn btn-outline-primary"><i class='bx bx-camera'></i></label>
+                                <button type="button" class="btn btn-outline-primary" onclick="openCamera('img_sau')" title="Chụp ảnh"><i class='bx bx-camera'></i></button>
                             </div>
                             <div id="preview_img_sau" class="mt-2 initially-hidden img-preview-box"><img src="" class="img-preview-inner"></div>
                         </div>
@@ -296,8 +294,7 @@
                             <label class="form-label fw-semibold">QR Tài khoản</label>
                             <div class="input-group">
                                 <input class="form-control" type="file" id="img_qr" accept="image/*" required>
-                                <input type="file" id="cam_qr" accept="image/*" capture="environment" class="d-none">
-                                <label for="cam_qr" class="btn btn-outline-primary"><i class='bx bx-qr-scan'></i></label>
+                                <button type="button" class="btn btn-outline-primary" onclick="openCamera('img_qr')" title="Chụp ảnh"><i class='bx bx-qr-scan'></i></button>
                             </div>
                             <div id="preview_img_qr" class="mt-2 initially-hidden img-preview-box"><img src="" class="img-preview-inner"></div>
                         </div>
@@ -305,8 +302,7 @@
                             <label class="form-label fw-semibold">Ảnh thực hiện</label>
                             <div class="input-group">
                                 <input class="form-control" type="file" id="img_thuchien" accept="image/*" required>
-                                <input type="file" id="cam_thuchien" accept="image/*" capture="environment" class="d-none">
-                                <label for="cam_thuchien" class="btn btn-outline-primary"><i class='bx bx-camera'></i></label>
+                                <button type="button" class="btn btn-outline-primary" onclick="openCamera('img_thuchien')" title="Chụp ảnh"><i class='bx bx-camera'></i></button>
                             </div>
                             <div id="preview_img_thuchien" class="mt-2 initially-hidden img-preview-box"><img src="" class="img-preview-inner"></div>
                         </div>
@@ -314,12 +310,12 @@
                             <label class="form-label fw-semibold">Giấy phép ĐKKD</label>
                             <div class="input-group">
                                 <input class="form-control" type="file" id="img_dkkd" accept="image/*">
-                                <input type="file" id="cam_dkkd" accept="image/*" capture="environment" class="d-none">
-                                <label for="cam_dkkd" class="btn btn-outline-primary"><i class='bx bx-camera'></i></label>
+                                <button type="button" class="btn btn-outline-primary" onclick="openCamera('img_dkkd')" title="Chụp ảnh"><i class='bx bx-camera'></i></button>
                             </div>
                             <div id="preview_img_dkkd" class="mt-2 initially-hidden img-preview-box"><img src="" class="img-preview-inner"></div>
                         </div>
                     </div>
+
 
                     <div id="compress-progress-wrapper" class="mt-4 initially-hidden">
                         <div class="progress" style="height: 10px;"><div class="progress-bar progress-bar-striped progress-bar-animated bg-success" id="compress-progress-bar" style="width: 0%"></div></div>
@@ -427,7 +423,48 @@
         </div>
     </div>
 
-    <!-- Các Modal khác từ bản gốc -->
+    <!-- Modal Camera Live --  >
+    <div class="modal fade" id="cameraModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content bg-dark text-white border-0 rounded-4 overflow-hidden">
+                <div class="modal-header border-0 py-2 px-3">
+                    <h6 class="modal-title fw-bold"><i class='bx bx-camera'></i> Chụp Ảnh Trực Tiếp</h6>
+                    <div class="ms-auto d-flex gap-2">
+                        <button type="button" class="btn btn-sm btn-outline-light" id="btnSwitchCamera" onclick="switchCamera()" title="Đổi camera">
+                            <i class='bx bx-refresh'></i>
+                        </button>
+                        <button type="button" class="btn-close btn-close-white" id="btnCloseCameraModal"></button>
+                    </div>
+                </div>
+                <div class="modal-body p-0 position-relative" style="min-height:300px;">
+                    <video id="cameraVideo" autoplay playsinline muted class="w-100 d-block" style="max-height:65vh;object-fit:cover;background:#000;"></video>
+                    <div id="cameraError" class="d-none p-4 text-center">
+                        <i class='bx bx-error-circle fs-1 text-warning'></i>
+                        <p class="mt-2 mb-1" id="cameraErrorMsg">Không thể truy cập camera.</p>
+                        <small class="text-muted">Vui lòng cấp quyền hoặc chọn ảnh từ thư viện.</small>
+                        <div class="mt-3">
+                            <button class="btn btn-outline-light btn-sm" id="btnFallbackGallery" onclick="fallbackToGallery()">
+                                <i class='bx bx-image-add'></i> Chọn từ thư viện
+                            </button>
+                        </div>
+                    </div>
+                    <canvas id="cameraSnapshot" class="d-none"></canvas>
+                </div>
+                <div class="modal-footer border-0 bg-dark justify-content-center gap-3 py-3">
+                    <button type="button" class="btn btn-outline-light px-4" onclick="closeCameraModal()">
+                        <i class='bx bx-x'></i> Huỷ
+                    </button>
+                    <button type="button" class="btn btn-success btn-lg px-5 shadow" id="btnCapturePhoto" onclick="capturePhoto()">
+                        <i class='bx bx-aperture'></i> CHỤP
+                    </button>
+                    <button type="button" class="btn btn-outline-light px-4" onclick="fallbackToGallery()">
+                        <i class='bx bx-image-add'></i> Thư viện
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="modal fade" id="modalChangePassword" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">

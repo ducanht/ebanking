@@ -2,221 +2,324 @@
 > Dynamically loaded for active file: `netlify-app\app.js` (Domain: **Generic Logic**)
 
 ### 📐 Generic Logic Conventions & Fixes
-- **[problem-fix] Fixed null crash in AppState — wraps unsafe operation in error boundary**: -     runAPI('api_getMyCustomers', { email: AppState.user.email }, (res) => {
-+     runAPI('api_getmycustomers', { email: AppState.user.email }, (res) => {
--         } else {
-+             renderStaffDashboardLocal(res.data || []);
--             $('#tbMyCustomersBody').html(`<tr><td colspan="7" class="text-center text-danger py-4">Lỗi: ${res.message}</td></tr>`);
-+             
--         }
-+             // Fetch rankings silently
--     }, null, 'NONE');
-+             runAPI('api_getadmindashboarddata', {}, (adminRes) => {
-- }
-+                 if (adminRes.status === 'success') {
-- 
-+                     updateStaffRankings(adminRes.data, AppState.user.email);
-- function renderMyCustomersTable(data) {
-+                 }
--     const html = data.sort((a,b) => (new Date(b['Thời điểm nhập']) || 0) - (new Date(a['Thời điểm nhập']) || 0)).map(d => {
-+             }, null, 'NONE');
--         const statusColor = d['Trạng thái'] === 'Đã xác minh' ? 'text-success' : 'text-warning';
-+         } else {
--         return `
-+             $('#tbMyCustomersBody').html(`<tr><td colspan="7" class="text-center text-danger py-4">Lỗi: ${res.message}</td></tr>`);
--             <tr onclick="openEditCustomerModal('${d.ID || d['Mã GD']}')" class="cursor-pointer">
-+         }
--                 <td><small class="text-muted">${utils_formatVN(d['Thời điểm nhập'], 'date')}</small></td>
-+     }, null, 'NONE');
--                 <td class="fw-bold">${d['Tên khách hàng']}</td>
-+ }
--                 <td><small>${d['Số CCCD']}</small></td>
-+ 
--                 <td><small>${d['Số GP ĐKKD'] || ''}</small></td>
-+ function renderStaffDashboardLocal(data) {
--                 <td><span class="badge bg-light text-dark border">${d['Loại hình dịch vụ']}</span></td>
-+     let caNhan = 0, hkd = 0;
--                 <td><small>${d['Số điện thoại']}</small></td>
-+     let timeline = {};
--                 <td>${AppState.user ? AppState.user.name : (d['Cán bộ thực hiện'] || '')}</td>
-+ 
--                 <td><butto
-… [diff truncated]
-
-📌 IDE AST Context: Modified symbols likely include [GAS_API_URL, AppState, AppCache, runAPI, showLoading]
-- **[problem-fix] Fixed null crash in NONE — offloads heavy computation off the main thread**: - function utils_formatVN(val, type = 'date') {
-+ function checkDuplicate(input) {
--     if (!val) return 'N/A';
-+     const val = input.value.trim();
--     const dateObj = new Date(val);
-+     if (!val) {
--     if (isNaN(dateObj)) return val;
-+         $(input).removeClass('is-invalid');
--     const d = ('0' + dateObj.getDate()).slice(-2);
-+         input.setCustomValidity('');
--     const m = ('0' + (dateObj.getMonth() + 1)).slice(-2);
-+         return;
--     const y = dateObj.getFullYear();
-+     }
--     if (type === 'datetime') {
-+     
--         const hh = ('0' + dateObj.getHours()).slice(-2);
-+     if (!input.checkValidity()) {
--         const mm = ('0' + dateObj.getMinutes()).slice(-2);
-+         $(input).addClass('is-invalid');
--         return `${hh}:${mm} ${d}/${m}/${y}`;
-+         return;
--     return `${d}/${m}/${y}`;
-+ 
-- }
-+     runAPI('api_validateduplicate', { field: input.id, value: val }, (res) => {
-- 
-+         if (res && res.isDup) {
-- /**
-+             input.setCustomValidity(res.msg || 'Giá trị này đã tồn tại!');
--  * OPENCV & IMAGE PROCESSING (PORTED)
-+             $(input).addClass('is-invalid');
+- **[problem-fix] Fixed null crash in CAMERA — offloads heavy computation off the main thread**: -  * REGISTRATION LOGIC
++  * CAMERA MODULE (getUserMedia Flow)
 -  */
-+             if ($(input).siblings('.invalid-feedback').length) {
++  * - Dung cho Netlify (HTTPS), ho tro ca mobile va desktop.
+- function initMoTaiKhoanForm() {
++  * - Fallback an toan sang file picker neu browser khong ho tro hoac user tu choi quyen.
+-     flatpickr(".js-datepicker", { dateFormat: "Y-m-d", altInput: true, altFormat: "d/m/Y", defaultDate: "today" });
++  */
+-     
++ let _cameraStream = null;         // MediaStream hien tai
+-     $('#frm-mo-tk').off('submit').on('submit', handleRegistration);
++ let _cameraFacing = 'environment'; // 'environment' = camera sau (mac dinh cho chup chung tu)
+-     $('#loai_hinh').on('change', toggleFormFields);
++ let _cameraTargetId = null;        // ID input file se nhan anh sau khi chup
+- 
++ let _galleryInput = null;          // input[type=file] an dung de fallback gallery
+-     // Map camera inputs -> corresponding file inputs
++ 
+-     const camMap = {
++ /**
+-         'cam_truoc': 'img_truoc',
++  * Mo modal camera hoac fallback sang gallery neu getUserMedia khong kha dung
+-         'cam_sau':   'img_sau',
++  */
+-         'cam_dkkd':  'img_dkkd',
++ async function openCamera(targetId) {
+-         'cam_qr':    'img_qr',
++     _cameraTargetId = targetId;
+-         'cam_thuchien': 'img_thuchien'
++     _cameraFacing = 'environment'; // always start with back camera
+-     };
++ 
+- 
++     // Kiem tra browser ho tro getUserMedia va dang chay tren HTTPS / localhost
+-     const triggerProcessing = async (file, targetId) => {
++     const isSecure = location.protocol === 'https:' || location.hostname === 'localhost';
+-         if (!file) return;
++     if (!isSecure || !navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+-         showLoading('Phan tich anh...');
++         // Fallback: mo file picker truc tiep
+-         try {
++         _openFilePicker(targetId);
+-             const processed = await processImageWithAI(file);
++         return;
+-             startCroppingFlow(processed, targetId);
++     }
+-         } c
+… [diff truncated]
+
+📌 IDE AST Context: Modified symbols likely include [GAS_API_URL, AppState, AppCache, runAPI, showLoading]
+- **[what-changed] 🟢 Edited netlify-app/app.js (15 changes, 41min)**: Active editing session on netlify-app/app.js.
+15 content changes over 41 minutes.
+- **[convention] Fixed null crash in OPENCV — offloads heavy computation off the main thread — confirmed 3x**: -  * OPENCV & IMAGE PROCESSING (PORTED)
++  * OPENCV & IMAGE PROCESSING
+-  */
++  * Hardened version based on GAS production frmMoTaiKhoan.html.
 - let isCvReady = false;
-+                 $(input).siblings('.invalid-feedback').text(res.msg || 'Giá trị này đã tồn tại!');
++  */
 - let currentInputTargetId = null;
-+             }
++ let isCvReady = false;
 - let quadPoints = [ {x:0.1, y:0.1}, {x:0.9, y:0.1}, {x:0.9, y:0.9}, {x:0.1, y:0.9} ];
-+         } else {
++ let currentInputTargetId = null;
 - let activePointIndex = -1;
-+             input.setCustomValidity('');
++ let quadPoints = [ {x:0.1, y:0.1}, {x:0.9, y:0.1}, {x:0.9, y:0.9}, {x:0.1, y:0.9} ];
 - let imageMatStore = {};
-+             $(input).removeClass('is-invalid');
++ let activePointIndex = -1;
 - 
-+             if (input.id === 'cccd') $(input).siblings('.invalid-feedback').text('Căn cước công dân bắt buộc đúng 12 chữ số.');
++ let imageMatStore = {}; // Map: targetId -> cv.Mat (image)
 - function onOpenCvReady() {
-+             else if (input.id === 'sdt') $(input).siblings('.invalid-feedback').text('SĐT bắt buộc bắt đầu bằng 0 và đủ 10 chữ số.');
++ 
 -     isCvReady = true;
-+             else if (input.id === 
-… [diff truncated]
-
-📌 IDE AST Context: Modified symbols likely include [GAS_API_URL, AppState, AppCache, runAPI, showLoading]
-- **[what-changed] what-changed in app.js**: -                 <td class="fw-bold">${d['Tên khách hàng']}<br><small class="text-secondary fw-normal">${d['Số điện thoại']}</small></td>
-+                 <td class="fw-bold">${d['Tên khách hàng']}</td>
--                 <td><span class="${statusColor} fw-bold"><i class="bx bxs-circle"></i> ${d['Trạng thái']}</span></td>
-+                 <td><small>${d['Số điện thoại']}</small></td>
-
-📌 IDE AST Context: Modified symbols likely include [GAS_API_URL, AppState, AppCache, runAPI, showLoading]
-- **[what-changed] Added session cookies authentication**: - });
-+     $('#frmEditCustomer').on('submit', handleEditCustomer);
-- 
-+ });
-- function handleLogin(e) {
-+ 
--     e.preventDefault();
-+ function handleLogin(e) {
--     const email = $('#loginEmail').val().trim();
-+     e.preventDefault();
--     const pwd = $('#loginPassword').val();
-+     const email = $('#loginEmail').val().trim();
--     const hashedPwd = CryptoJS.SHA256(pwd).toString();
-+     const pwd = $('#loginPassword').val();
-- 
-+     const hashedPwd = CryptoJS.SHA256(pwd).toString();
--     runAPI('api_login', { email, [REDACTED] }, (res) => {
-+ 
--         if (res.status === 'success') {
-+     runAPI('api_login', { email, [REDACTED] }, (res) => {
--             AppState.user = res.user;
-+         if (res.status === 'success') {
--             localStorage.setItem('HOKINHDOANH_SESSION', JSON.stringify(res.user));
-+             AppState.user = res.user;
--             if (res.requirePasswordChange) {
-+             localStorage.setItem('HOKINHDOANH_SESSION', JSON.stringify(res.user));
--                 $('#modalChangePassword').modal('show');
-+             if (res.requirePasswordChange) {
--                 $('#pwdAlertForce').removeClass('initially-hidden').show();
-+                 $('#modalChangePassword').modal('show');
--                 $('#modalChangePassword .btn-close').hide();
-+                 $('#pwdAlertForce').removeClass('initially-hidden').show();
--                 $('#modalChangePassword').attr('data-bs-keyboard', 'false');
-+                 $('#modalChangePassword .btn-close').hide();
--                 hideLoading();
-+                 $('#modalChangePassword').attr('data-bs-keyboard', 'false');
--             } else {
-+                 hideLoading();
--                 handleLoginSuccess(false);
-+             } else {
--             }
-+                 handleLoginSuccess(false);
--         } else showAlert('Lỗi', res.message, 'error');
-+             }
--     });
-+         } else showAlert('Lỗi', res.message, 'error');
-- }
-+     });
-- 
-+
-… [diff truncated]
-
-📌 IDE AST Context: Modified symbols likely include [GAS_API_URL, AppState, AppCache, runAPI, showLoading]
-- **[what-changed] Added session cookies authentication**: - });
-+     $('#frmChangePassword').on('submit', handleChangePassword);
-- 
-+ });
-- function handleLogin(e) {
-+ 
--     e.preventDefault();
-+ function handleLogin(e) {
--     const email = $('#loginEmail').val().trim();
-+     e.preventDefault();
--     const pwd = $('#loginPassword').val();
-+     const email = $('#loginEmail').val().trim();
--     const hashedPwd = CryptoJS.SHA256(pwd).toString();
-+     const pwd = $('#loginPassword').val();
-- 
-+     const hashedPwd = CryptoJS.SHA256(pwd).toString();
--     runAPI('api_login', { email, [REDACTED] }, (res) => {
-+ 
--         if (res.status === 'success') {
-+     runAPI('api_login', { email, [REDACTED] }, (res) => {
--             AppState.user = res.user;
-+         if (res.status === 'success') {
--             localStorage.setItem('HOKINHDOANH_SESSION', JSON.stringify(res.user));
-+             AppState.user = res.user;
--             handleLoginSuccess(false);
-+             localStorage.setItem('HOKINHDOANH_SESSION', JSON.stringify(res.user));
--         } else showAlert('Lỗi', res.message, 'error');
-+             if (res.requirePasswordChange) {
--     });
-+                 $('#modalChangePassword').modal('show');
-- }
-+                 $('#pwdAlertForce').removeClass('initially-hidden').show();
-- 
-+                 $('#modalChangePassword .btn-close').hide();
-- function handleLoginSuccess(silent) {
-+                 $('#modalChangePassword').attr('data-bs-keyboard', 'false');
--     hideLoading();
-+                 hideLoading();
--     const userName = AppState.user.fullName || AppState.user.name || AppState.user.email;
-+             } else {
--     if (!silent) showAlert('Thành công', `Chào mừng ${userName}!`, 'success');
-+                 handleLoginSuccess(false);
--     
-+             }
--     $('#user-name-display-admin').text(userName);
-+         } else showAlert('Lỗi', res.message, 'error');
--     $('#user-name-display-user').text(userName);
-+     });
--     
++ function onOpenCvReady() {
+-     console.log("OpenCV.js matches production version & logic ready.");
++     isCvReady = true;
+-     // Un-disable any camera buttons if they were disabled
++     console.log('OpenCV.js ready (Netlify).');
+-     $('.btn-outline-primary i.bx-camera, .btn-outline-primary i.bx-qr-scan').closest('.btn').prop('disabled', false).removeClass('disabled');
 + }
--     if (AppState.user.role === 'Admin') {
+- }
++ 
+- 
++ /**
+- function processImageWithAI(source) {
++  * Giai phong tat ca Mat con ton dong trong imageMatStore
+-     return new Promise((resolve) => {
++  */
+-         if (!isCvReady || !window.cv) return resolve(source);
++ function _cleanupAllMats() {
+-         const img = new Image();
++     Object.keys(imageMatStore).forEach(key => {
+-         img.onload = () => {
++         try { imageMatStore[key].delete(); } catch(e) {}
+-             let src, dst, contours, hierarchy, maxContour;
++         delete imageMatStore[key];
+-             try {
++     });
+-                 src = cv.imread(img);
++ }
+-                 dst = new cv.Mat();
++ 
+-                 cv.cvtColor(src, dst, cv.COLOR_RGBA2GRAY);
++ /**
+-                 cv.GaussianBlur(dst, dst, new cv.Size(5, 5), 0);
++  * Giai phong Mat cho 1 targetId cu the
+-                 cv.Canny(dst, dst, 75, 200, 3, false);
++  */
+-                 contours = new cv.MatVector();
++ function _cleanupMat(targetId) {
 
 … [diff truncated]
 
 📌 IDE AST Context: Modified symbols likely include [GAS_API_URL, AppState, AppCache, runAPI, showLoading]
-- **[what-changed] what-changed in app.js**: -         action: "api_submitAccountForm",
-+         action: "api_submitregistration",
--     runAPI('api_submitAccountForm', data, (res) => {
-+     runAPI('api_submitregistration', data, (res) => {
+- **[convention] Added session cookies authentication — confirmed 3x**: - function handleLoginSuccess(silent) {
++ /**
+-     hideLoading();
++  * Xử lý Lưu thay đổi Hồ sơ Khách hàng
+-     const userName = AppState.user.fullName || AppState.user.name || AppState.user.email;
++  */
+-     if (!silent) showAlert('Thành công', `Chào mừng ${userName}!`, 'success');
++ function handleEditCustomer(e) {
+-     
++     e.preventDefault(); // Ngăn reload trang khi submit form
+-     $('#user-name-display-admin').text(userName);
++ 
+-     $('#user-name-display-user').text(userName);
++     const id = $('#edit_id').val();
+-     
++     if (!id) {
+-     if (AppState.user.role === 'Admin') {
++         showAlert('Lỗi', 'Không tìm thấy mã hồ sơ để cập nhật.', 'error');
+-         $('#staffBottomNav').addClass('d-none');
++         return;
+-         showView('view-dashboard');
++     }
+-         initDashboard();
++ 
+-     } else {
++     const btn = $('#btnSaveEdit');
+-         $('#staffBottomNav').removeClass('d-none');
++     const oldHtml = btn.html();
+-         showView('view-mo-tai-khoan');
++     btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Đang lưu...');
+-         initMoTaiKhoanForm();
++ 
+-     }
++     const sdtVal = $('#edit_sdt').val().trim();
+- }
++     if (sdtVal && !/^0\d{9}$/.test(sdtVal)) {
+- 
++         showAlert('Lỗi', 'Số điện thoại phải bắt đầu bằng 0 và đủ 10 chữ số.', 'warning');
+- function logout() {
++         btn.prop('disabled', false).html(oldHtml);
+-     localStorage.removeItem('HOKINHDOANH_SESSION');
++         return;
+-     sessionStorage.removeItem('HOKINHDOANH_SESSION');
++     }
+-     AppCache.clearAll();
++ 
+-     AppState.user = null;
++     const payload = {
+-     $('#frm-login')[0].reset();
++         id: id,
+-     window.location.reload();
++         email: AppState.user ? AppState.user.email : '',
+- }
++         ten_kh:    $('#edit_ten_kh').val().trim().toUpperCase(),
+- 
++         sdt:       sdtVal,
+- window.onOpenCvReady = onOpenCvReady;
++         ngay_mo:   $('#edit_ngay_mo').val(),
+- window.loadStaf
+… [diff truncated]
 
 📌 IDE AST Context: Modified symbols likely include [GAS_API_URL, AppState, AppCache, runAPI, showLoading]
+- **[convention] what-changed in app.js — confirmed 3x**: -             { targets: [3, 4, 5, 6, 7, 8, 9, 11], visible: false },
++             { targets: [3, 4, 5, 6, 7, 8, 9], visible: false },
+
+📌 IDE AST Context: Modified symbols likely include [GAS_API_URL, AppState, AppCache, runAPI, showLoading]
+- **[convention] Fixed null crash in AppState — confirmed 4x**: -         let row = null;
++         let sourceData = (AppState.user && AppState.user.role === 'Admin') ? (window._adminAllData || []) : ((AppCache.get('myCustomers') || {}).data || []);
+-         let sourceData = (AppState.user && AppState.user.role === 'Admin') ? (window._adminAllData || []) : (AppCache.get('myCustomers') || []);
++         for (let i = 0; i < sourceData.length; i++) {
+-         
++             if (String(sourceData[i]['ID'] || sourceData[i]['Mã GD']).trim() === String(id).trim()) {
+-         for (let i = 0; i < sourceData.length; i++) {
++                 row = sourceData[i];
+-             if (String(sourceData[i]['ID'] || sourceData[i]['Mã GD']).trim() === String(id).trim()) {
++                 break;
+-                 row = sourceData[i];
++             }
+-                 break;
++         }
+-             }
++         if (!row) return;
+-         }
++ 
+-         if (!row) return;
++         $('#edit_id').val(id);
+- 
++         $('#edit_ten_kh').val(row['Tên khách hàng'] || '');
+-         $('#edit_id').val(id);
++         $('#edit_sdt').val((row['Số điện thoại'] || '').toString().replace(/^'/, ''));
+-         $('#edit_ten_kh').val(row['Tên khách hàng'] || '');
++         
+-         $('#edit_sdt').val((row['Số điện thoại'] || '').toString().replace(/^'/, ''));
++         let dDate = row['Ngày mở TK'] || row['Thời điểm nhập'] || '';
+-         
++         if (dDate) {
+-         let dDate = row['Ngày mở TK'] || row['Thời điểm nhập'] || '';
++             const rawD = new Date(dDate);
+-         if (dDate) {
++             if (!isNaN(rawD)) {
+-             const rawD = new Date(dDate);
++                 dDate = String(rawD.getDate()).padStart(2, '0') + '/' + String(rawD.getMonth() + 1).padStart(2, '0') + '/' + rawD.getFullYear();
+-             if (!isNaN(rawD)) {
++             }
+-                 dDate = String(rawD.getDate()).padStart(2, '0') + '/' + String(rawD.getMonth() + 1).padStart(2, '0') + '/' + rawD.getFullYear();
++         }
+-             }
++         $('#ed
+… [diff truncated]
+
+📌 IDE AST Context: Modified symbols likely include [GAS_API_URL, AppState, AppCache, runAPI, showLoading]
+- **[convention] Strengthened types Modal — adds runtime type validation before use**: -     <!-- Các Modal khác từ bản gốc -->
++     <!-- Modal Camera Live --  >
+-     <div class="modal fade" id="modalChangePassword" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
++     <div class="modal fade" id="cameraModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+-         <div class="modal-dialog modal-dialog-centered">
++         <div class="modal-dialog modal-lg modal-dialog-centered">
+-             <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
++             <div class="modal-content bg-dark text-white border-0 rounded-4 overflow-hidden">
+-                 <div class="modal-header bg-primary text-white border-0">
++                 <div class="modal-header border-0 py-2 px-3">
+-                     <h5 class="modal-title fw-bold"><i class='bx bx-lock-open-alt'></i> Đổi Mật Khẩu</h5>
++                     <h6 class="modal-title fw-bold"><i class='bx bx-camera'></i> Chụp Ảnh Trực Tiếp</h6>
+-                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
++                     <div class="ms-auto d-flex gap-2">
+-                 </div>
++                         <button type="button" class="btn btn-sm btn-outline-light" id="btnSwitchCamera" onclick="switchCamera()" title="Đổi camera">
+-                 <div class="modal-body p-4">
++                             <i class='bx bx-refresh'></i>
+-                     <form id="frmChangePassword">
++                         </button>
+-                         <div id="pwdAlertForce" class="alert alert-warning initially-hidden">Đối mật khẩu để tiếp tục.</div>
++                         <button type="button" class="btn-close btn-close-white" id="btnCloseCameraModal"></button>
+-                         <div class="mb-3"><label class="form-label">Mật khẩu cũ</label><input type="password" class="form-control" id="pwdOld" required></div>
++                     </div>
+-                         <div class="mb-3"><label class="form-
+… [diff truncated]
+
+📌 IDE AST Context: Modified symbols likely include [html]
+- **[what-changed] Replaced auth CCCD — adds runtime type validation before use**: -                                 <input type="file" id="cam_truoc" accept="image/*" capture="environment" class="d-none">
++                                 <button type="button" class="btn btn-outline-primary" onclick="openCamera('img_truoc')" title="Chụp ảnh"><i class='bx bx-camera'></i></button>
+-                                 <label for="cam_truoc" class="btn btn-outline-primary"><i class='bx bx-camera'></i></label>
++                             </div>
+-                             </div>
++                             <div id="preview_img_truoc" class="mt-2 initially-hidden img-preview-box"><img src="" class="img-preview-inner"></div>
+-                             <div id="preview_img_truoc" class="mt-2 initially-hidden img-preview-box"><img src="" class="img-preview-inner"></div>
++                         </div>
+-                         </div>
++                         <div class="col-md-6">
+-                         <div class="col-md-6">
++                             <label class="form-label fw-semibold">CCCD Mặt sau</label>
+-                             <label class="form-label fw-semibold">CCCD Mặt sau</label>
++                             <div class="input-group">
+-                             <div class="input-group">
++                                 <input class="form-control" type="file" id="img_sau" accept="image/*" required>
+-                                 <input class="form-control" type="file" id="img_sau" accept="image/*" required>
++                                 <button type="button" class="btn btn-outline-primary" onclick="openCamera('img_sau')" title="Chụp ảnh"><i class='bx bx-camera'></i></button>
+-                                 <input type="file" id="cam_sau" accept="image/*" capture="environment" class="d-none">
++                             </div>
+-                                 <label for="cam_sau" class="btn btn-outline-primary"><i class='bx bx-camera'></i></label>
++                             <div id="preview_img_sau" class="
+… [diff truncated]
+
+📌 IDE AST Context: Modified symbols likely include [html]
+- **[what-changed] Replaced auth THAO — adds runtime type validation before use**: -                                         <th>TÊN ĐN</th>
++                                         <th>SỐ ĐIỆN THOẠI</th>
+-                                         <th>MK</th>
++                                         <th>TÊN ĐN</th>
+-                                         <th>TÊN CÁN BỘ</th>
++                                         <th>MK</th>
+-                                         <th>CÁN BỘ</th>
++                                         <th>TÊN CÁN BỘ</th>
+-                                         <th>TRẠNG THÁI</th>
++                                         <th>CÁN BỘ</th>
+-                                         <th class="text-end">THAO TÁC</th>
++                                         <th>TRẠNG THÁI</th>
+-                                     </tr>
++                                         <th class="text-end">THAO TÁC</th>
+-                                 </thead>
++                                     </tr>
+-                                 <tbody></tbody>
++                                 </thead>
+-                             </table>
++                                 <tbody></tbody>
+-                         </div>
++                             </table>
+-                     </div>
++                         </div>
+-                 </div>
++                     </div>
+-                 <div class="col-12 col-xl-4 d-flex flex-column gap-4">
++                 </div>
+-                     <div class="glass-card p-4">
++                 <div class="col-12 col-xl-4 d-flex flex-column gap-4">
+-                         <h6 class="fw-bold mb-3 text-secondary text-uppercase d-flex justify-content-between align-items-center">
++                     <div class="glass-card p-4">
+-                             <span>Top 5 Cán Bộ</span>
++                         <h6 class="fw-bold mb-3 text-secondary text-uppercase d-flex justify-content-between align-items-center">
+-                             <button class="btn btn-sm btn-outline-primary" onclick="showAllStaffM
+… [diff truncated]
+
+📌 IDE AST Context: Modified symbols likely include [html]
+- **[what-changed] what-changed in index.html**: -                         <thead><tr><th>THỜI GIAN</th><th>Họ TÊN</th><th>CCCD</th><th>SỐ ĐKKD</th><th>LOẠI HÌNH</th><th>SỐ ĐIỆN THOẠI</th><th>TÊN CÁN BỘ</th><th class="text-end">XEM</th></tr></thead>
++                         <thead><tr><th>THỜI GIAN</th><th>Họ TÊN</th><th>CCCD</th><th>SỐ ĐKKD</th><th>LOẠI HÌNH</th><th>SỐ ĐIỆN THOẠI</th><th>TÊN CÁN BỘ</th><th>NGÀY MỞ TK</th><th>SỐ TÀI KHOẢN</th><th>TRẠNG THÁI</th><th class="text-end">XEM</th></tr></thead>
+
+📌 IDE AST Context: Modified symbols likely include [html]
 - **[what-changed] 🟢 Edited netlify-app/index.html (6 changes, 3min)**: Active editing session on netlify-app/index.html.
 6 content changes over 3 minutes.
 - **[convention] Strengthened types Kinh — adds runtime type validation before use**: -             <div class="glass-card p-3 p-md-4">
@@ -382,32 +485,3 @@
 … [diff truncated]
 
 📌 IDE AST Context: Modified symbols likely include [:root, body, .glass-card, .glass-card:hover, #global-spinner]
-- **[what-changed] Replaced auth Pass — adds runtime type validation before use**: -                     <button class="btn btn-outline-danger btn-sm d-flex align-items-center gap-1 shadow-sm" onclick="logout()">
-+                     <button class="btn btn-outline-secondary btn-sm d-none d-sm-flex align-items-center gap-1 shadow-sm" onclick="$('#modalChangePassword').modal('show')">
--                         <i class='bx bx-log-out fs-5'></i> <span class="d-none d-sm-inline">Thoát</span>
-+                         <i class='bx bx-lock-open-alt fs-5'></i> <span class="d-none d-sm-inline">Đổi Pass</span>
--                 </div>
-+                     <button class="btn btn-outline-danger btn-sm d-flex align-items-center gap-1 shadow-sm" onclick="logout()">
--             </div>
-+                         <i class='bx bx-log-out fs-5'></i> <span class="d-none d-sm-inline">Thoát</span>
--             <div class="glass-card p-3 p-md-4 mb-4">
-+                     </button>
--                 <form id="frm-mo-tk">
-+                 </div>
--                     <h5 class="fw-bold border-bottom pb-2 mb-3 text-secondary"><span class="badge bg-primary rounded-circle">A</span> Thông tin định danh</h5>
-+             </div>
--                     <div class="row g-3">
-+             <div class="glass-card p-3 p-md-4 mb-4">
--                         <div class="col-md-6">
-+                 <form id="frm-mo-tk">
--                             <label class="form-label fw-semibold">Loại hình</label>
-+                     <h5 class="fw-bold border-bottom pb-2 mb-3 text-secondary"><span class="badge bg-primary rounded-circle">A</span> Thông tin định danh</h5>
--                             <select class="form-select" id="loai_hinh" onchange="toggleFormFields()">
-+                     <div class="row g-3">
--                                 <option value="Cá nhân">Cá nhân</option>
-+                         <div class="col-md-6">
--                                 <option value="Hộ kinh doanh">Hộ kinh doanh</option>
-+                             <label class="form-label fw-semi
-… [diff truncated]
-
-📌 IDE AST Context: Modified symbols likely include [html]

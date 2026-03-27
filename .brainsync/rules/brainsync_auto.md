@@ -1,7 +1,7 @@
 
 
 # Project Memory — ebanking
-> 78 notes | Score threshold: >40
+> 83 notes | Score threshold: >40
 
 ## Safety — Never Run Destructive Commands
 
@@ -18,16 +18,24 @@
 
 **Stack:** Unknown stack
 
-## 📝 NOTE: 1 uncommitted file(s) in working tree.\n\n## Project Standards
+## 📝 NOTE: 1 uncommitted file(s) in working tree.\n\n## Active: `netlify-app`
 
+- **Fixed null crash in OPENCV — offloads heavy computation off the main thread — confirmed 3x**
+- **Added session cookies authentication — confirmed 3x**
+- **what-changed in app.js — confirmed 3x**
+- **Fixed null crash in AppState — confirmed 4x**
+- **Strengthened types Modal — adds runtime type validation before use**
+
+## Project Standards
+
+- Fixed null crash in OPENCV — offloads heavy computation off the main thread — confirmed 3x
+- Added session cookies authentication — confirmed 3x
 - what-changed in app.js — confirmed 3x
 - Fixed null crash in AppState — confirmed 4x
+- Strengthened types Modal — adds runtime type validation before use
 - Strengthened types Kinh — adds runtime type validation before use
 - Strengthened types Implementation
 - Version your API from day 1 (/api/v1/)
-- Use consistent response format across all endpoints
-- Implement soft delete for important data — don't hard delete without confirmation
-- Handle timezone correctly — store UTC, display in user's timezone
 
 ## Recent Decisions
 
