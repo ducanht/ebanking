@@ -474,10 +474,21 @@ let charts = {};
 async function initDashboard() {
     runAPI('api_getAdminDashboardData', {}, (res) => {
         if (res.status === 'success') {
-            const s = typeof res.stats === 'string' ? JSON.parse(res.stats) : res.stats;
+            let s = null;
+            if (res.statsStr) {
+                try { s = JSON.parse(res.statsStr); } catch(e) { console.error("Parse statsStr error", e); }
+            } else {
+                s = res.stats;
+            }
+
+            if (!s) {
+                console.error("Dashboard stats is null", res);
+                return;
+            }
+
             renderAdminStats(s);
             renderAdminCharts(s);
-            renderAdminTable(s.allData, s.allStaffs);
+            renderAdminTable(s.allData || [], s.allStaffs || []);
         }
     });
 }
