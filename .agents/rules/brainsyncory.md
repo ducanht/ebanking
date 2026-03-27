@@ -1,7 +1,7 @@
 
 
 # Project Memory — ebanking
-> 75 notes | Score threshold: >40
+> 78 notes | Score threshold: >40
 
 ## Safety — Never Run Destructive Commands
 
@@ -20,6 +20,7 @@
 
 ## 📝 NOTE: 1 uncommitted file(s) in working tree.\n\n## Project Standards
 
+- what-changed in app.js — confirmed 3x
 - Fixed null crash in AppState — confirmed 4x
 - Strengthened types Kinh — adds runtime type validation before use
 - Strengthened types Implementation
@@ -27,7 +28,6 @@
 - Use consistent response format across all endpoints
 - Implement soft delete for important data — don't hard delete without confirmation
 - Handle timezone correctly — store UTC, display in user's timezone
-- Make layouts responsive from the start — mobile-first approach
 
 ## Recent Decisions
 

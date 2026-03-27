@@ -143,27 +143,68 @@ function utils_formatVN(val, type = 'date') {
 }
 
 /**
- * OPENCV & IMAGE PROCESSING (PORTED)
+ * OPENCV & IMAGE PROCESSING
+ * Hardened version based on GAS production frmMoTaiKhoan.html.
  */
 let isCvReady = false;
 let currentInputTargetId = null;
 let quadPoints = [ {x:0.1, y:0.1}, {x:0.9, y:0.1}, {x:0.9, y:0.9}, {x:0.1, y:0.9} ];
 let activePointIndex = -1;
-let imageMatStore = {};
+let imageMatStore = {}; // Map: targetId -> cv.Mat (image)
 
 function onOpenCvReady() {
     isCvReady = true;
-    console.log("OpenCV.js matches production version & logic ready.");
-    // Un-disable any camera buttons if they were disabled
-    $('.btn-outline-primary i.bx-camera, .btn-outline-primary i.bx-qr-scan').closest('.btn').prop('disabled', false).removeClass('disabled');
+    console.log('OpenCV.js ready (Netlify).');
 }
 
+/**
+ * Giai phong tat ca Mat con ton dong trong imageMatStore
+ */
+function _cleanupAllMats() {
+    Object.keys(imageMatStore).forEach(key => {
+        try { imageMatStore[key].delete(); } catch(e) {}
+        delete imageMatStore[key];
+    });
+}
+
+/**
+ * Giai phong Mat cho 1 targetId cu the
+ */
+function _cleanupMat(targetId) {
+    if (imageMatStore[targetId]) {
+        try { imageMatStore[targetId].delete(); } catch(e) {}
+        delete imageMatStore[targetId];
+    }
+}
+
+/**
+ * Assign file an toan vao input[type=file]
+ * DataTransfer co the that bai tren mot so trinh duyet Android cu.
+ */
+function assignFileToInput(inputId, file) {
+    const input = document.getElementById(inputId);
+    if (!input) return;
+    try {
+        const dt = new DataTransfer();
+        dt.items.add(file);
+        input.files = dt.files;
+    } catch (e) {
+        // Fallback: luu custom de xu ly khi submit
+        input._customFile = file;
+        console.warn('DataTransfer not supported, using fallback for', inputId);
+    }
+}
+
+/**
+ * Phan tich anh bang OpenCV, phat hien goc tai lieu
+ * Tra ve source goc neu CV chua san hoac khong nhan dang duoc
+ */
 function processImageWithAI(source) {
     return new Promise((resolve) => {
         if (!isCvReady || !window.cv) return resolve(source);
         const img = new Image();
         img.onload = () => {
-            let src, dst, contours, hierarchy, maxContour;
+            let src = null, dst = null, contours = null, hierarchy = null, maxContour = null;
             try {
                 src = cv.imread(img);
                 dst = new cv.Mat();
@@ -188,31 +229,45 @@ function processImageWithAI(source) {
                         } else approx.delete();
                     }
                 }
+                // Chi cap nhat quadPoints neu tim thay tam giac > 10% dien tich
                 if (maxContour && maxArea > (src.rows * src.cols * 0.1)) {
                     const pArr = [];
                     for (let j = 0; j < 4; j++) {
                         pArr.push({ x: maxContour.data32S[j * 2] / src.cols, y: maxContour.data32S[j * 2 + 1] / src.rows });
                     }
                     quadPoints = sortPoints(pArr);
+                } else {
+                    // Reset ve vi tri mac dinh neu khong phat hien goc
+                    quadPoints = [{x:0.1,y:0.1},{x:0.9,y:0.1},{x:0.9,y:0.9},{x:0.1,y:0.9}];
                 }
                 resolve(source);
-            } catch(e) { resolve(source); }
-            finally {
-                if(src) src.delete(); if(dst) dst.delete();
-                if(contours) contours.delete(); if(hierarchy) hierarchy.delete();
-                if(maxContour) maxContour.delete();
+            } catch(e) {
+                console.warn('processImageWithAI error:', e);
+                quadPoints = [{x:0.1,y:0.1},{x:0.9,y:0.1},{x:0.9,y:0.9},{x:0.1,y:0.9}];
+                resolve(source);
+            } finally {
+                if (src) src.delete();
+                if (dst) dst.delete();
+                if (contours) contours.delete();
+                if (hierarchy) hierarchy.delete();
+                if (maxContour) maxContour.delete();
             }
         };
         img.onerror = () => resolve(source);
-        if (source instanceof File) {
+        if (source instanceof File || source instanceof Blob) {
             const reader = new FileReader();
-            reader.onload = (e) => img.src = e.target.result;
+            reader.onload = (ev) => img.src = ev.target.result;
             reader.readAsDataURL(source);
-        } else img.src = source.toDataURL();
+        } else if (source instanceof HTMLCanvasElement) {
+            img.src = source.toDataURL();
+        } else {
+            resolve(source);
+        }
     });
 }
 
 function sortPoints(pts) {
+    if (!pts || pts.length !== 4) return [{x:0.1,y:0.1},{x:0.9,y:0.1},{x:0.9,y:0.9},{x:0.1,y:0.9}];
     const sorted = new Array(4);
     const sum = pts.map(p => p.x + p.y);
     const diff = pts.map(p => p.x - p.y);
@@ -223,40 +278,68 @@ function sortPoints(pts) {
     return sorted;
 }
 
+/**
+ * Mo man hinh cat anh sau khi phan tich xong
+ */
 function startCroppingFlow(source, targetId) {
+    // Guard: neu CV chua san hoac source khong hop le
+    if (!source) {
+        console.warn('startCroppingFlow: no source provided');
+        return;
+    }
     currentInputTargetId = targetId;
     const img = new Image();
     img.onload = function() {
         const canvas = document.getElementById('quad-canvas');
+        if (!canvas) return;
         const ctx = canvas.getContext('2d');
-        const scale = Math.min((window.innerWidth * 0.9) / img.width, (window.innerHeight * 0.7) / img.height);
-        canvas.width = img.width * scale;
-        canvas.height = img.height * scale;
+        // Tinh toan scale vu phu hop voi man hinh
+        const maxW = Math.min(window.innerWidth * 0.92, 900);
+        const maxH = window.innerHeight * 0.60;
+        const scale = Math.min(maxW / img.width, maxH / img.height, 1);
+        canvas.width  = Math.round(img.width * scale);
+        canvas.height = Math.round(img.height * scale);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        if(imageMatStore[targetId]) { try { imageMatStore[targetId].delete(); } catch(e){} }
-        imageMatStore[targetId] = cv.imread(img);
+
+        // Luu Mat vao store (giai phong cai cu neu co)
+        _cleanupMat(targetId);
+        if (isCvReady && window.cv) {
+            try { imageMatStore[targetId] = cv.imread(img); } catch(e) { console.warn('cv.imread failed:', e); }
+        }
+
+        // Dam bao quadPoints luon duoc reset truoc khi mo modal
         updateQuadUI();
         initQuadInteraction();
-        (new bootstrap.Modal(document.getElementById('cropModal'))).show();
+
+        // Hien modal
+        const modalEl = document.getElementById('cropModal');
+        let modal = bootstrap.Modal.getInstance(modalEl);
+        if (!modal) modal = new bootstrap.Modal(modalEl);
+        modal.show();
     };
-    if (source instanceof HTMLCanvasElement) img.src = source.toDataURL('image/jpeg');
-    else {
+    img.onerror = () => console.warn('startCroppingFlow: failed to load image');
+    if (source instanceof File || source instanceof Blob) {
         const reader = new FileReader();
-        reader.onload = (e) => img.src = e.target.result;
+        reader.onload = (ev) => img.src = ev.target.result;
         reader.readAsDataURL(source);
+    } else if (source instanceof HTMLCanvasElement) {
+        img.src = source.toDataURL('image/jpeg');
+    } else {
+        img.src = source;
     }
 }
 
 function updateQuadUI() {
     const svg = document.getElementById('quad-svg');
     const poly = document.getElementById('quad-poly');
+    if (!svg || !poly) return;
     const w = svg.clientWidth, h = svg.clientHeight;
     let pointStr = "";
     quadPoints.forEach((p, i) => {
         const px = p.x * w, py = p.y * h;
         const circle = document.getElementById('p' + i);
-        circle.setAttribute('cx', px);
-        circle.setAttribute('cy', py);
+        if (circle) { circle.setAttribute('cx', px); circle.setAttribute('cy', py); }
         pointStr += `${px},${py} `;
     });
     poly.setAttribute('points', pointStr.trim());
@@ -264,11 +347,18 @@ function updateQuadUI() {
 
 function initQuadInteraction() {
     const svg = document.getElementById('quad-svg');
+    if (!svg) return;
+    // Xoa event cu de tranh duplicate
+    const newSvg = svg.cloneNode(true);
+    svg.parentNode.replaceChild(newSvg, svg);
+    const freshSvg = document.getElementById('quad-svg');
+
     const handleMove = (e) => {
         if (activePointIndex === -1) return;
-        const rect = svg.getBoundingClientRect();
+        e.preventDefault();
+        const rect = freshSvg.getBoundingClientRect();
         const touch = e.touches ? e.touches[0] : e;
-        const x = Math.max(0, Math.min(1, (touch.clientX - rect.left) / rect.width));
+        const x = Math.max(0, Math.min(1, (touch.clientX - rect.left)  / rect.width));
         const y = Math.max(0, Math.min(1, (touch.clientY - rect.top) / rect.height));
         quadPoints[activePointIndex] = { x, y };
         updateQuadUI();
@@ -276,91 +366,96 @@ function initQuadInteraction() {
     const handleEnd = () => {
         activePointIndex = -1;
         window.removeEventListener('mousemove', handleMove);
+        window.removeEventListener('mouseup', handleEnd);
         window.removeEventListener('touchmove', handleMove);
+        window.removeEventListener('touchend', handleEnd);
     };
     for (let i = 0; i < 4; i++) {
         const circle = document.getElementById('p' + i);
+        if (!circle) continue;
         const start = (e) => {
             activePointIndex = i;
             window.addEventListener('mousemove', handleMove);
             window.addEventListener('mouseup', handleEnd);
-            window.addEventListener('touchmove', handleMove, {passive:false});
+            window.addEventListener('touchmove', handleMove, {passive: false});
             window.addEventListener('touchend', handleEnd);
         };
-        circle.onmousedown = start;
+        circle.onmousedown  = start;
         circle.ontouchstart = start;
     }
 }
 
 function finishCropping() {
     const mat = imageMatStore[currentInputTargetId];
-    if (!mat) return;
-    const srcPoints = [];
-    quadPoints.forEach(p => { srcPoints.push(p.x * mat.cols); srcPoints.push(p.y * mat.rows); });
-    const w = Math.max(Math.hypot(srcPoints[4]-srcPoints[6], srcPoints[5]-srcPoints[7]), Math.hypot(srcPoints[2]-srcPoints[0], srcPoints[3]-srcPoints[1]));
-    const h = Math.max(Math.hypot(srcPoints[2]-srcPoints[4], srcPoints[3]-srcPoints[5]), Math.hypot(srcPoints[0]-srcPoints[6], srcPoints[1]-srcPoints[7]));
-    const srcCoords = cv.matFromArray(4, 1, cv.CV_32FC2, srcPoints);
-    const dstCoords = cv.matFromArray(4, 1, cv.CV_32FC2, [0, 0, w, 0, w, h, 0, h]);
-    const M = cv.getPerspectiveTransform(srcCoords, dstCoords);
-    const warpedMat = new cv.Mat();
-    cv.warpPerspective(mat, warpedMat, M, new cv.Size(w, h), cv.INTER_LINEAR, cv.BORDER_CONSTANT, new cv.Scalar());
-    const outCanvas = document.createElement('canvas');
-    cv.imshow(outCanvas, warpedMat);
-    outCanvas.toBlob((blob) => {
-        const file = new File([blob], `${currentInputTargetId}.jpg`, { type: "image/jpeg" });
-        const input = document.getElementById(currentInputTargetId);
-        const dt = new DataTransfer();
-        dt.items.add(file);
-        input.files = dt.files;
-        $(`#preview_${currentInputTargetId}`).removeClass('initially-hidden').show().find('img').attr('src', outCanvas.toDataURL('image/jpeg'));
-        
-        // Cleanup memory
-        if (imageMatStore[currentInputTargetId]) {
-            imageMatStore[currentInputTargetId].delete();
-            delete imageMatStore[currentInputTargetId];
-        }
-        
-        bootstrap.Modal.getInstance(document.getElementById('cropModal')).hide();
-    }, 'image/jpeg', 0.8);
-    srcCoords.delete(); dstCoords.delete(); M.delete(); warpedMat.delete();
+    if (!mat || !isCvReady) {
+        // Neu khong co mat (OpenCV chua san), skip ban lam phang nhung van luu anh
+        skipCropping();
+        return;
+    }
+    try {
+        const srcPoints = [];
+        quadPoints.forEach(p => { srcPoints.push(p.x * mat.cols); srcPoints.push(p.y * mat.rows); });
+        const w = Math.max(
+            Math.hypot(srcPoints[4]-srcPoints[6], srcPoints[5]-srcPoints[7]),
+            Math.hypot(srcPoints[2]-srcPoints[0], srcPoints[3]-srcPoints[1])
+        );
+        const h = Math.max(
+            Math.hypot(srcPoints[2]-srcPoints[4], srcPoints[3]-srcPoints[5]),
+            Math.hypot(srcPoints[0]-srcPoints[6], srcPoints[1]-srcPoints[7])
+        );
+        if (w < 10 || h < 10) { skipCropping(); return; }
+
+        const srcCoords = cv.matFromArray(4, 1, cv.CV_32FC2, srcPoints);
+        const dstCoords = cv.matFromArray(4, 1, cv.CV_32FC2, [0, 0, w, 0, w, h, 0, h]);
+        const M = cv.getPerspectiveTransform(srcCoords, dstCoords);
+        const warpedMat = new cv.Mat();
+        cv.warpPerspective(mat, warpedMat, M, new cv.Size(w, h), cv.INTER_LINEAR, cv.BORDER_CONSTANT, new cv.Scalar());
+        const outCanvas = document.createElement('canvas');
+        cv.imshow(outCanvas, warpedMat);
+        outCanvas.toBlob((blob) => {
+            const file = new File([blob], `${currentInputTargetId}.jpg`, { type: "image/jpeg" });
+            assignFileToInput(currentInputTargetId, file);
+            const previewSrc = outCanvas.toDataURL('image/jpeg');
+            $(`#preview_${currentInputTargetId}`).removeClass('initially-hidden').show().find('img').attr('src', previewSrc);
+            _cleanupMat(currentInputTargetId);
+            const modalInst = bootstrap.Modal.getInstance(document.getElementById('cropModal'));
+            if (modalInst) modalInst.hide();
+        }, 'image/jpeg', 0.82);
+        srcCoords.delete(); dstCoords.delete(); M.delete(); warpedMat.delete();
+    } catch(e) {
+        console.error('finishCropping error:', e);
+        skipCropping();
+    }
 }
 
 function skipCropping() {
     const mat = imageMatStore[currentInputTargetId];
-    if (mat) {
+    if (mat && isCvReady) {
         const outCanvas = document.createElement('canvas');
-        cv.imshow(outCanvas, mat);
-        outCanvas.toBlob((blob) => {
-            const file = new File([blob], `${currentInputTargetId}_raw.jpg`, { type: "image/jpeg" });
-            const input = document.getElementById(currentInputTargetId);
-            const dt = new DataTransfer();
-            dt.items.add(file);
-            input.files = dt.files;
-            $(`#preview_${currentInputTargetId}`).removeClass('initially-hidden').show().find('img').attr('src', outCanvas.toDataURL('image/jpeg'));
-            
-            // Cleanup memory
-            if (imageMatStore[currentInputTargetId]) {
-                imageMatStore[currentInputTargetId].delete();
-                delete imageMatStore[currentInputTargetId];
-            }
-            
-            bootstrap.Modal.getInstance(document.getElementById('cropModal')).hide();
-        }, 'image/jpeg', 0.85);
+        try {
+            cv.imshow(outCanvas, mat);
+            outCanvas.toBlob((blob) => {
+                const file = new File([blob], `${currentInputTargetId}_raw.jpg`, { type: "image/jpeg" });
+                assignFileToInput(currentInputTargetId, file);
+                $(`#preview_${currentInputTargetId}`).removeClass('initially-hidden').show().find('img').attr('src', outCanvas.toDataURL('image/jpeg'));
+                _cleanupMat(currentInputTargetId);
+                const modalInst = bootstrap.Modal.getInstance(document.getElementById('cropModal'));
+                if (modalInst) modalInst.hide();
+            }, 'image/jpeg', 0.85);
+        } catch(e) {
+            _cleanupMat(currentInputTargetId);
+            const modalInst = bootstrap.Modal.getInstance(document.getElementById('cropModal'));
+            if (modalInst) modalInst.hide();
+        }
     } else {
-        bootstrap.Modal.getInstance(document.getElementById('cropModal')).hide();
+        _cleanupMat(currentInputTargetId);
+        const modalInst = bootstrap.Modal.getInstance(document.getElementById('cropModal'));
+        if (modalInst) modalInst.hide();
     }
 }
 
-// Global cleanup when modal is closed (any way)
-$(document).ready(() => {
-    $('#cropModal').on('hidden.bs.modal', function () {
-        // Clear all mats if any left
-        Object.keys(imageMatStore).forEach(key => {
-            try { imageMatStore[key].delete(); } catch(e) {}
-            delete imageMatStore[key];
-        });
-    });
-});
+// Giai phong bo nho khi modal bi dong (bat ky nguyen nhan nao)
+$(document).on('hidden.bs.modal', '#cropModal', function() { _cleanupAllMats(); });
 
 /**
  * REGISTRATION LOGIC
@@ -371,24 +466,47 @@ function initMoTaiKhoanForm() {
     $('#frm-mo-tk').off('submit').on('submit', handleRegistration);
     $('#loai_hinh').on('change', toggleFormFields);
 
-    const uploads = ['img_truoc', 'img_sau', 'img_dkkd', 'img_qr', 'img_thuchien'];
-    uploads.forEach(id => {
-        $(`#${id}`).on('change', async function() {
+    // Map camera inputs -> corresponding file inputs
+    const camMap = {
+        'cam_truoc': 'img_truoc',
+        'cam_sau':   'img_sau',
+        'cam_dkkd':  'img_dkkd',
+        'cam_qr':    'img_qr',
+        'cam_thuchien': 'img_thuchien'
+    };
+
+    const triggerProcessing = async (file, targetId) => {
+        if (!file) return;
+        showLoading('Phan tich anh...');
+        try {
+            const processed = await processImageWithAI(file);
+            startCroppingFlow(processed, targetId);
+        } catch(e) {
+            startCroppingFlow(file, targetId);
+        } finally {
+            hideLoading();
+        }
+    };
+
+    // File (gallery) inputs
+    const uploadIds = ['img_truoc', 'img_sau', 'img_dkkd', 'img_qr', 'img_thuchien'];
+    uploadIds.forEach(id => {
+        $(`#${id}`).off('change').on('change', async function() {
             if (this.files && this.files[0]) {
-                showLoading('Phân tích ảnh...');
-                const processed = await processImageWithAI(this.files[0]);
-                startCroppingFlow(processed, id);
-                hideLoading();
+                await triggerProcessing(this.files[0], id);
             }
         });
-        // Native camera triggers
-        $(`input[id^="cam_"]`).on('change', function() {
-            const targetId = this.id.replace('cam_', 'img_');
+    });
+
+    // Camera inputs
+    Object.keys(camMap).forEach(camId => {
+        const targetId = camMap[camId];
+        $(`#${camId}`).off('change').on('change', async function() {
             if (this.files && this.files[0]) {
-                const dt = new DataTransfer();
-                dt.items.add(this.files[0]);
-                document.getElementById(targetId).files = dt.files;
-                $(`#${targetId}`).trigger('change');
+                const file = this.files[0];
+                // Sao chep sang input goc de validation van hoat dong
+                assignFileToInput(targetId, file);
+                await triggerProcessing(file, targetId);
             }
         });
     });
