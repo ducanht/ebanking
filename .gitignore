@@ -5,3 +5,11 @@ CLAUDE.md
 
 # Auto-generated agent rules (personalized per developer)
 .brainsync/agent-rules.md
+
+# GAS Backend (Sensitive Data - DO NOT PUSH TO GITHUB)
+*.gs
+appsscript.json
+.clasp.json
+.claspignore
+node_modules/
+package-lock.json
