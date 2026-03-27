@@ -267,7 +267,7 @@
 
                     <h5 class="fw-bold border-bottom pb-2 mt-4 mb-3 text-secondary"><span class="badge bg-primary rounded-circle">C</span> Chứng từ Đính kèm</h5>
                     <div class="row g-3">
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <label class="form-label fw-semibold">CCCD Mặt trước</label>
                             <div class="input-group">
                                 <input class="form-control" type="file" id="img_truoc" accept="image/*" required>
@@ -276,7 +276,7 @@
                             </div>
                             <div id="preview_img_truoc" class="mt-2 initially-hidden img-preview-box"><img src="" class="img-preview-inner"></div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <label class="form-label fw-semibold">CCCD Mặt sau</label>
                             <div class="input-group">
                                 <input class="form-control" type="file" id="img_sau" accept="image/*" required>
@@ -293,6 +293,24 @@
                                 <label for="cam_qr" class="btn btn-outline-primary"><i class='bx bx-qr-scan'></i></label>
                             </div>
                             <div id="preview_img_qr" class="mt-2 initially-hidden img-preview-box"><img src="" class="img-preview-inner"></div>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Ảnh thực hiện</label>
+                            <div class="input-group">
+                                <input class="form-control" type="file" id="img_thuchien" accept="image/*" required>
+                                <input type="file" id="cam_thuchien" accept="image/*" capture="environment" class="d-none">
+                                <label for="cam_thuchien" class="btn btn-outline-primary"><i class='bx bx-camera'></i></label>
+                            </div>
+                            <div id="preview_img_thuchien" class="mt-2 initially-hidden img-preview-box"><img src="" class="img-preview-inner"></div>
+                        </div>
+                        <div class="col-md-4 initially-hidden" id="div_img_dkkd">
+                            <label class="form-label fw-semibold">Giấy phép ĐKKD</label>
+                            <div class="input-group">
+                                <input class="form-control" type="file" id="img_dkkd" accept="image/*">
+                                <input type="file" id="cam_dkkd" accept="image/*" capture="environment" class="d-none">
+                                <label for="cam_dkkd" class="btn btn-outline-primary"><i class='bx bx-camera'></i></label>
+                            </div>
+                            <div id="preview_img_dkkd" class="mt-2 initially-hidden img-preview-box"><img src="" class="img-preview-inner"></div>
                         </div>
                     </div>
 

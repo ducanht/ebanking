@@ -389,7 +389,7 @@ async function handleRegistration(e) {
     ];
 
     const data = {
-        action: "api_submitAccountForm",
+        action: "api_submitregistration",
         email: AppState.user.email,
         loai_hinh: $('#loai_hinh').val(),
         ten_kh: $('#ten_kh').val().trim(),
@@ -428,7 +428,7 @@ async function handleRegistration(e) {
 
     btn.html('<span class="spinner-border spinner-border-sm"></span> Đang lưu hồ sơ...');
     
-    runAPI('api_submitAccountForm', data, (res) => {
+    runAPI('api_submitregistration', data, (res) => {
         btn.prop('disabled', false).html(oldBtn);
         progressWrapper.hide();
         if (res.status === 'success') {
@@ -861,6 +861,8 @@ $(document).ready(() => {
     }
 
     $('#frm-login').on('submit', handleLogin);
+    $('#frmChangePassword').on('submit', handleChangePassword);
+    $('#frmEditCustomer').on('submit', handleEditCustomer);
 });
 
 function handleLogin(e) {
@@ -873,8 +875,49 @@ function handleLogin(e) {
         if (res.status === 'success') {
             AppState.user = res.user;
             localStorage.setItem('HOKINHDOANH_SESSION', JSON.stringify(res.user));
-            handleLoginSuccess(false);
+            if (res.requirePasswordChange) {
+                $('#modalChangePassword').modal('show');
+                $('#pwdAlertForce').removeClass('initially-hidden').show();
+                $('#modalChangePassword .btn-close').hide();
+                $('#modalChangePassword').attr('data-bs-keyboard', 'false');
+                hideLoading();
+            } else {
+                handleLoginSuccess(false);
+            }
         } else showAlert('Lỗi', res.message, 'error');
+    });
+}
+
+function handleChangePassword(e) {
+    e.preventDefault();
+    if (!AppState.user) return;
+    
+    const oldP = $('#pwdOld').val();
+    const newP = $('#pwdNew').val();
+    const newPc = $('#pwdNewConfirm').val();
+    
+    if (newP !== newPc) {
+        showAlert('Lỗi', 'Mật khẩu mới không khớp!', 'warning');
+        return;
+    }
+    
+    const btn = $('#btnSubmitChangePwd');
+    const oldHtml = btn.html();
+    btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Đang xử lý...');
+    
+    runAPI('api_changepassword', {
+        email: AppState.user.email,
+        oldHashed: CryptoJS.SHA256(oldP).toString(),
+        newHashed: CryptoJS.SHA256(newP).toString()
+    }, (res) => {
+        btn.prop('disabled', false).html(oldHtml);
+        if (res.status === 'success') {
+            showAlert('Thành công', 'Đổi mật khẩu thành công! Vui lòng truy cập hệ thống.', 'success');
+            $('#modalChangePassword').modal('hide');
+            handleLoginSuccess(false);
+        } else {
+            showAlert('Lỗi', res.message, 'error');
+        }
     });
 }
 
