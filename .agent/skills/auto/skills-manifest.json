@@ -1,8 +1,8 @@
 {
   "html": {
     "enabled": true,
-    "lastGenerated": "2026-03-27T01:19:01.050Z",
-    "observationCount": 88,
+    "lastGenerated": "2026-03-27T02:22:26.540Z",
+    "observationCount": 91,
     "skillCount": 0,
     "domain": "html",
     "triggerGlobs": [
@@ -12,18 +12,18 @@
   },
   "project": {
     "enabled": true,
-    "lastGenerated": "2026-03-27T01:19:01.051Z",
-    "observationCount": 108,
+    "lastGenerated": "2026-03-27T02:22:26.539Z",
+    "observationCount": 117,
     "skillCount": 0,
     "domain": "project",
     "triggerGlobs": [
       "**/*"
     ],
-    "description": "Project for ebanking. 25 gotchas, 35 conventions, 8 fixes."
+    "description": "Project for ebanking. 25 gotchas, 37 conventions, 8 fixes."
   },
   "gotcha": {
     "enabled": true,
-    "lastGenerated": "2026-03-27T01:19:01.053Z",
+    "lastGenerated": "2026-03-27T02:22:26.541Z",
     "observationCount": 0,
     "skillCount": 1,
     "domain": "gotcha",
@@ -34,30 +34,30 @@
   },
   "problem-fix": {
     "enabled": true,
-    "lastGenerated": "2026-03-27T01:19:01.052Z",
+    "lastGenerated": "2026-03-27T02:22:26.541Z",
     "observationCount": 0,
     "skillCount": 1,
     "domain": "problem-fix",
     "triggerGlobs": [
       "**/*"
     ],
-    "description": "Problem Fix for ebanking. 3 error→fix pairs."
+    "description": "Problem Fix for ebanking. 4 error→fix pairs."
   },
   "javascript": {
     "enabled": true,
-    "lastGenerated": "2026-03-27T01:19:01.051Z",
-    "observationCount": 12,
+    "lastGenerated": "2026-03-27T02:22:26.538Z",
+    "observationCount": 18,
     "skillCount": 0,
     "domain": "javascript",
     "triggerGlobs": [
       "**/*.js",
       "**/*.jsx"
     ],
-    "description": "Javascript for ebanking. 2 conventions, 7 fixes."
+    "description": "Javascript for ebanking. 4 conventions, 8 fixes."
   },
   "convention": {
     "enabled": true,
-    "lastGenerated": "2026-03-27T01:19:01.053Z",
+    "lastGenerated": "2026-03-27T02:22:26.542Z",
     "observationCount": 0,
     "skillCount": 1,
     "domain": "convention",

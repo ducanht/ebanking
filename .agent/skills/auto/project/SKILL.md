@@ -1,6 +1,6 @@
 ---
 name: project
-description: "Project for ebanking. 25 gotchas, 35 conventions, 8 fixes."
+description: "Project for ebanking. 25 gotchas, 37 conventions, 8 fixes."
 domain: project
 triggers:
   - glob: "**/*"
@@ -10,7 +10,7 @@ enabled: true
 
 # Project
 
-Auto-compiled from **108 real patterns** in **ebanking**. This skill is auto-routed to agents when working on project files.
+Auto-compiled from **117 real patterns** in **ebanking**. This skill is auto-routed to agents when working on project files.
 
 ## ⚠️ Anti-Patterns & Gotchas
 
@@ -202,6 +202,11 @@ Auto-compiled from **108 real patterns** in **ebanking**. This skill is auto-rou
 ## 📐 Conventions & Best Practices
 
 ### Project Conventions
+- 📐 **Updated API endpoint Engine — confirmed 3x** — -     - [x] Triển khai core Engine ([app.js](file:///e:/Google%20Antigravity/HoKinhDoanh/netlify-app
+- 📐 **Fixed null crash in CONFIG — adds runtime type validation before use — confirmed 3x** — -   try {
++   
+-     const staffs = getSheetDataAsObjects(CONFIG.SHEET_STAFF);
++   if (typeof email 
 - 📐 **Strengthened types Khai** — - # Hướng Dẫn Triển Khai Netlify & Tổng Quan Hệ Thống
 + # Hướng Dẫn Triển Khai & Báo Cáo Hoàn Tất Po
 - 📐 **Added session cookies authentication — evolves the database schema to support... — confirmed 3x** — - # Task Breakdown: Netlify PoC for 'My Customers'
@@ -239,9 +244,6 @@ CLAUDE.md
 - 📐 **Always add loading states for async operations (skeleton, spinner)** — Always add loading states for async operations (skeleton, spinner)
 - 📐 **Test edge cases: empty input, null, boundary values, error scenarios** — Test edge cases: empty input, null, boundary values, error scenarios
 - 📐 **Each test should be independent — no shared mutable state between tests** — Each test should be independent — no shared mutable state between tests
-- 📐 **Write tests for business logic — test behavior/output, not implementation details** — Write tests for business logic — test behavior/output, not implementation details
-- 📐 **Close resources (streams, connections, handles) when done** — Close resources (streams, connections, handles) when done
-- 📐 **Debounce user input handlers (search, resize, scroll)** — Debounce user input handlers (search, resize, scroll)
-- 📐 **Use pagination for lists over 100 items** — Use pagination for lists over 100
+- 📐 **Write tests for business logic — test behavior/output, not implementation details** — Write tests for business logic — test behavior/output, not im
 
 ... [Truncated — see individual observations for full content]

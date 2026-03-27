@@ -1,7 +1,7 @@
 
 
 # Project Memory — HoKinhDoanh
-> 211 notes | Score threshold: >40
+> 226 notes | Score threshold: >40
 
 ## Safety — Never Run Destructive Commands
 
@@ -23,30 +23,23 @@
 - **⚠️ GOTCHA: Replaced auth Walkthrough — prevents XSS injection attacks** — - # Walkthrough:### Summary of Definitive Fix: Full ES5 Sanitization
 +
 
-## Active: `netlify-app`
-
-- **Fixed null crash in NONE — adds runtime type validation before use — confirmed 5x**
-- **Fixed null crash in HACK — hardens HTTP security headers — confirmed 3x**
-- **Replaced auth Inter — adds runtime type validation before use — confirmed 3x**
-- **Strengthened types Scripts — adds runtime type validation before use**
-- **Strengthened types Module — adds runtime type validation before use**
-
 ## Project Standards
 
+- Updated API endpoint Engine — confirmed 3x
+- Fixed null crash in CONFIG — adds runtime type validation before use — confirmed 3x
+- what-changed in app.js — confirmed 3x
+- Strengthened types Khai
 - Fixed null crash in NONE — adds runtime type validation before use — confirmed 5x
-- Fixed null crash in HACK — hardens HTTP security headers — confirmed 3x
 - Replaced auth Inter — adds runtime type validation before use — confirmed 3x
 - Strengthened types Scripts — adds runtime type validation before use
 - Strengthened types Module — adds runtime type validation before use
-- Strengthened types Khai
-- Added session cookies authentication — evolves the database schema to support... — confirmed 3x
-- Fixed null crash in HtmlService — confirmed 3x
 
 ## Known Fixes
 
 - ❌ +     Logger.log("doGet Error: " + e.message); → ✅ Fixed null crash in TDND — wraps unsafe operation in error boundary
 - ❌ -     Logger.log("doGet Error: " + e.message); → ✅ Fixed null crash in HtmlService
 - ❌ -     return { status: "error", message: "Lỗi lấy dữ liệu Admin: " + e.message }; → ✅ Fixed null crash in HACK — adds runtime type validation before use
+- ❌ -         status: "error", → ✅ Fixed null crash in CONFIG — adds runtime type validation before use
 
 ## Recent Decisions
 

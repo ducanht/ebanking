@@ -518,30 +518,218 @@ function renderAdminCharts(s) {
 }
 
 function renderAdminTable(allData, allStaffs) {
+    window._adminAllData = allData.sort((a,b) => (new Date(b['Thời điểm nhập']) || 0) - (new Date(a['Thời điểm nhập']) || 0));
+    window._adminRawStaffs = allStaffs;
+
     const staffMap = {};
     allStaffs.forEach(st => staffMap[st.email] = st.name);
     
-    const html = allData.map(d => `
+    const html = window._adminAllData.map(d => `
         <tr onclick="openEditCustomerModal('${d.ID}')" class="cursor-pointer">
-            <td><small>${utils_formatVN(d['Thời điểm nhập'], 'datetime')}</small></td>
-            <td class="fw-bold">${d['Tên khách hàng']}</td>
-            <td><small>${d['Số CCCD']}</small></td>
-            <td><span class="badge bg-light text-dark border">${d['Loại hình dịch vụ']}</span></td>
-            <td><small class="text-secondary">${staffMap[d['Cán bộ thực hiện']] || d['Cán bộ thực hiện']}</small></td>
+            <td><small class="text-muted">${utils_formatVN(d['Thời điểm nhập'], 'datetime')}</small></td>
+            <td class="fw-bold text-dark">${d['Tên khách hàng'] || ''}</td>
+            <td><small>${(d['Số CCCD'] || '').toString().replace(/^'/, '')}</small></td>
+            <td><small>${(d['Số ĐKKD'] || d['Số GP ĐKKD'] || '').toString().replace(/^'/, '')}</small></td>
+            <td><span class="badge bg-light text-dark border">${d['Loại hình dịch vụ'] || 'Cá nhân'}</span></td>
+            <td class="text-truncate" style="max-width: 150px;" title="${staffMap[d['Cán bộ thực hiện']] || d['Cán bộ thực hiện']}"><small class="text-secondary">${staffMap[d['Cán bộ thực hiện']] || d['Cán bộ thực hiện']}</small></td>
             <td><span class="badge ${d['Trạng thái'] === 'Đã xác minh' ? 'bg-success' : 'bg-warning'}">${d['Trạng thái']}</span></td>
-            <td class="text-end"><button class="btn btn-sm btn-outline-primary"><i class="bx bx-info-circle"></i></button></td>
+            <td class="text-end"><button class="btn btn-sm btn-outline-primary" onclick="openEditCustomerModal('${d.ID}')"><i class="bx bx-info-circle"></i></button></td>
         </tr>
     `).join('');
 
     $('#tblKH tbody').html(html);
     if ($.fn.DataTable.isDataTable('#tblKH')) $('#tblKH').DataTable().destroy();
-    $('#tblKH').DataTable({
+    
+    const dtAdmin = $('#tblKH').DataTable({
         responsive: true,
-        dom: 'Bfrtip',
-        buttons: ['excelHtml5', 'pdfHtml5', 'print'],
-        language: { url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json" }
+        dom: "<'row mb-2'<'col-sm-12 col-md-4 d-flex align-items-center justify-content-start'l><'col-sm-12 col-md-4 d-flex align-items-center justify-content-center'B><'col-sm-12 col-md-4 d-flex align-items-center justify-content-end'f>>" +
+             "<'row'<'col-sm-12'tr>>" +
+             "<'row mt-2'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+        buttons: [{
+            extend: 'excelHtml5',
+            text: '<i class="bx bxs-file-export"></i> Xuất Excel',
+            className: 'btn btn-sm btn-success shadow-sm',
+            exportOptions: { columns: [0, 1, 2, 3, 4, 5, 6] },
+            title: 'Lich_Su_Giao_Dich_Admin'
+        }],
+        language: { url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json" },
+        search: { caseInsensitive: true },
+        columnDefs: [{ targets: [3], visible: false }]
+    });
+
+    $('#filterStaffAdmin').off('change').on('change', function() {
+        const val = $(this).val();
+        if (val === '') {
+            dtAdmin.column(5).search('').draw();
+        } else {
+            const filterText = $(this).find('option:selected').text();
+            dtAdmin.column(5).search(filterText, false, false, true).draw();
+        }
     });
 }
+// --- MONTHLY CHARTS ---
+let monthlyChart = null;
+function renderMonthlyChart(allData) {
+    try {
+        const yearSet = {};
+        allData.forEach(d => {
+            const raw = d['Thời điểm nhập'];
+            if (!raw) return;
+            const yr = new Date(raw).getFullYear();
+            if (!isNaN(yr)) yearSet[yr] = true;
+        });
+        let years = Object.keys(yearSet).sort((a,b) => b-a);
+        if (years.length === 0) years = [new Date().getFullYear().toString()];
+
+        const selYear = $('#filterYearChart');
+        if (selYear.find('option').length === 0) {
+            years.forEach(y => selYear.append(`<option value="${y}">${y}</option>`));
+            selYear.off('change').on('change', function() {
+                renderMonthlyChartForYear(allData, parseInt($(this).val()));
+            });
+        }
+        renderMonthlyChartForYear(allData, parseInt(years[0]));
+    } catch(e) { console.error('renderMonthlyChart error:', e); }
+}
+
+function renderMonthlyChartForYear(allData, year) {
+    const months = ['Th1','Th2','Th3','Th4','Th5','Th6','Th7','Th8','Th9','Th10','Th11','Th12'];
+    const countsCaNhan = new Array(12).fill(0);
+    const countsHKD = new Array(12).fill(0);
+    
+    allData.forEach(d => {
+        const raw = d['Thời điểm nhập'];
+        if (!raw) return;
+        const dt = new Date(raw);
+        if (isNaN(dt) || dt.getFullYear() !== year) return;
+        const m = dt.getMonth();
+        if (d['Loại hình dịch vụ'] === 'Hộ kinh doanh') countsHKD[m]++;
+        else countsCaNhan[m]++;
+    });
+
+    const ctxEl = document.getElementById('chartMonthly');
+    if (!ctxEl) return;
+    if (monthlyChart) try { monthlyChart.destroy(); } catch(e){}
+    monthlyChart = new Chart(ctxEl.getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: months,
+            datasets: [
+                { label: 'Cá nhân', data: countsCaNhan, backgroundColor: 'rgba(16, 185, 129, 0.75)', borderRadius: 4 },
+                { label: 'Hộ KD', data: countsHKD, backgroundColor: 'rgba(245, 158, 11, 0.75)', borderRadius: 4 }
+            ]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { position: 'top' } },
+            scales: {
+                x: { stacked: false, grid: { display: false } },
+                y: { beginAtZero: true, ticks: { stepSize: 1 } }
+            }
+        }
+    });
+}
+
+// --- ALL STAFF MODAL ---
+let dtAllStaffs = null;
+function showAllStaffModal() {
+    try {
+        const arr = window._adminRawStaffs || [];
+        let html = '';
+        arr.forEach((st, idx) => {
+            html += `<tr><td>${idx+1}</td><td class="fw-bold">${st.name}</td><td>${st.department}</td><td>${st.email}</td><td>${st.total}</td><td>${st.caNhan||0}</td><td>${st.hkd||0}</td></tr>`;
+        });
+        $('#tblAllStaffs tbody').html(html);
+        if(dtAllStaffs) try { dtAllStaffs.destroy(); } catch(e){}
+        dtAllStaffs = $('#tblAllStaffs').DataTable({
+            responsive: true,
+            dom: "<'row mb-2'<'col-sm-12 col-md-4 d-flex align-items-center justify-content-start'l><'col-sm-12 col-md-4 d-flex align-items-center justify-content-center'B><'col-sm-12 col-md-4 d-flex align-items-center justify-content-end'f>>" +
+                 "<'row'<'col-sm-12'tr>>" +
+                 "<'row mt-2'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+            buttons: [{ extend: 'excelHtml5', text: '<i class="bx bxs-file-export"></i> Xuất Excel', className: 'btn btn-sm btn-success shadow-sm' }],
+            language: { url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json" }
+        });
+        $('#modalAllStaff').modal('show');
+    } catch(e) { console.error(e); }
+}
+
+// --- CUSTOMER & IMAGE MODAL ---
+function openEditCustomerModal(id) {
+    try {
+        if (!id) return;
+        let row = null;
+        let sourceData = (AppState.user && AppState.user.role === 'Admin') ? (window._adminAllData || []) : (AppCache.get('myCustomers') || []);
+        
+        for (let i = 0; i < sourceData.length; i++) {
+            if (String(sourceData[i]['ID'] || sourceData[i]['Mã GD']).trim() === String(id).trim()) {
+                row = sourceData[i];
+                break;
+            }
+        }
+        if (!row) return;
+
+        $('#edit_id').val(id);
+        $('#edit_ten_kh').val(row['Tên khách hàng'] || '');
+        $('#edit_sdt').val((row['Số điện thoại'] || '').toString().replace(/^'/, ''));
+        
+        let dDate = row['Ngày mở TK'] || row['Thời điểm nhập'] || '';
+        if (dDate) {
+            const rawD = new Date(dDate);
+            if (!isNaN(rawD)) {
+                dDate = String(rawD.getDate()).padStart(2, '0') + '/' + String(rawD.getMonth() + 1).padStart(2, '0') + '/' + rawD.getFullYear();
+            }
+        }
+        $('#edit_ngay_mo').val(dDate);
+        
+        let stk = (row['Số TK'] || row['Số tài khoản'] || '').toString().replace(/^'/, '');
+        if (stk.length > 7 && stk.startsWith('3800200')) stk = stk.substring(7);
+        $('#edit_so_tk').val(stk);
+
+        if (AppState.user && AppState.user.role === 'Admin') {
+            $('#btnSaveEdit').hide();
+            $('#frmEditCustomer input').prop('readonly', true);
+        } else {
+            $('#btnSaveEdit').show();
+            $('#frmEditCustomer input').prop('readonly', false);
+            $('#edit_id').prop('readonly', true);
+        }
+
+        const loaiHinh = row['Loại hình dịch vụ'] || 'Cá nhân';
+        const cccdVal = (row['Số CCCD'] || '').toString().replace(/^'/, '');
+        const infoHtml = `<div class="col-12 mb-2"><div class="p-2 bg-white rounded border d-flex gap-2 shadow-sm">
+                           <span class="badge bg-primary">${loaiHinh}</span>
+                           <span>CCCD: <b>${cccdVal}</b></span></div></div>`;
+                           
+        const getImgHtml = (url, label) => {
+            if (!url || url.trim() === '') return '';
+            let safeUrl = url.trim();
+            if (safeUrl.indexOf('drive.google.com/file/d/') > -1) {
+                const fileId = safeUrl.split('/d/')[1].split('/')[0];
+                safeUrl = 'https://drive.google.com/thumbnail?id=' + fileId + '&sz=w800';
+            }
+            return `<div class="col-4">
+                        <a href="${url}" target="_blank" title="Xem ảnh">
+                            <div class="img-detail-box">
+                                <img src="${safeUrl}" class="img-detail-inner" alt="${label}" onerror="this.parentElement.innerHTML='<span class=\\'text-muted small\\'>Không hỗ trợ</span>'">
+                            </div>
+                            <small class="d-block text-center mt-1 text-secondary">${label}</small>
+                        </a>
+                    </div>`;
+        };
+        
+        const imgs = getImgHtml(row['URL CCCD Trước'] || '', 'Mặt trước')
+                   + getImgHtml(row['URL CCCD Sau'] || '', 'Mặt sau')
+                   + (loaiHinh !== 'Cá nhân' ? getImgHtml(row['URL GP DKKD'] || row['URL DKKD'] || '', 'GP ĐKKD') : '')
+                   + getImgHtml(row['URL QR'] || row['URL Mã QR'] || '', 'QR TK')
+                   + getImgHtml(row['URL Ảnh Thực Hiện'] || row['URL Thực Hiện'] || '', 'Ảnh GD');
+                   
+        const imgsBlock = imgs ? `<div class="col-12"><p class="text-muted small fw-semibold mb-1"><i class="bx bx-image"></i> Hình ảnh đính kèm</p><div class="row g-2">${imgs}</div></div>` : '<div class="col-12 text-center text-muted"><p class="small">Chưa có ảnh đính kèm</p></div>';
+        
+        $('#edit_images_container').html(infoHtml + imgsBlock);
+        $('#modalEditCustomer').modal('show');
+    } catch(err) { console.error(err); }
+}
+
 
 /**
  * APP INITIALIZATION
@@ -574,7 +762,11 @@ function handleLogin(e) {
 
 function handleLoginSuccess(silent) {
     hideLoading();
-    if (!silent) showAlert('Thành công', `Chào mừng ${AppState.user.fullName}!`, 'success');
+    const userName = AppState.user.fullName || AppState.user.name || AppState.user.email;
+    if (!silent) showAlert('Thành công', `Chào mừng ${userName}!`, 'success');
+    
+    $('#user-name-display-admin').text(userName);
+    $('#user-name-display-user').text(userName);
     
     if (AppState.user.role === 'Admin') {
         $('#staffBottomNav').addClass('d-none');
@@ -589,7 +781,10 @@ function handleLoginSuccess(silent) {
 
 function logout() {
     localStorage.removeItem('HOKINHDOANH_SESSION');
+    sessionStorage.removeItem('HOKINHDOANH_SESSION');
+    AppCache.clearAll();
     AppState.user = null;
+    $('#frm-login')[0].reset();
     window.location.reload();
 }
 

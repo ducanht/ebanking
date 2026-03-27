@@ -10,7 +10,7 @@ enabled: true
 
 # Html
 
-Auto-compiled from **88 real patterns** in **ebanking**. This skill is auto-routed to agents when working on html files.
+Auto-compiled from **91 real patterns** in **ebanking**. This skill is auto-routed to agents when working on html files.
 
 ## 🔧 Problem Playbooks
 

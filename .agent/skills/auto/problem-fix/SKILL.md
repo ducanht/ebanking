@@ -1,6 +1,6 @@
 ---
 name: problem-fix
-description: "Problem Fix for ebanking. 3 error→fix pairs."
+description: "Problem Fix for ebanking. 4 error→fix pairs."
 domain: problem-fix
 composesFrom:
   - fix
@@ -23,6 +23,7 @@ Auto-compiled from **1 real patterns** in **ebanking**. This skill is auto-route
 | `+     Logger.log("doGet Error: " + e.message);` | Fixed null crash in TDND — wraps unsafe operation in error b | 3x |
 | `-     Logger.log("doGet Error: " + e.message);` | Fixed null crash in HtmlService | 2x |
 | `-     return { status: "error", message: "Lỗi lấy ` | Fixed null crash in HACK — adds runtime type validation befo | 2x |
+| `-         status: "error",` | Fixed null crash in CONFIG — adds runtime type validation be | 2x |
 
 ## 📐 Conventions & Best Practices
 

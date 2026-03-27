@@ -11,6 +11,7 @@
     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
     <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet">
     <link href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.bootstrap5.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet">
@@ -51,11 +52,12 @@
         <section id="view-login" class="view-section">
             <div class="container d-flex justify-content-center align-items-center min-vh-80">
                 <div class="col-12 col-md-6 col-lg-4">
-                    <div class="card p-4 p-md-5 border-0 shadow-lg rounded-4 login-card-layout glass-card">
-                        <div class="text-center mb-4">
-                            <i class='bx bxs-bank text-primary' style="font-size: 3.5rem;"></i>
-                            <h3 class="fw-bold mt-2 text-dark">Quỹ TDND Yên Thọ</h3>
-                            <p class="text-secondary small">Hệ thống QL Chỉ tiêu Mở Tài khoản</p>
+                    <div id="login-box" class="glass-card p-4 mx-auto w-100 shadow-lg" style="max-width: 400px; border-top: 4px solid var(--bs-primary);">
+                <div class="text-center mb-4">
+                    <img src="logo.png" class="app-logo mb-3" alt="Logo" style="height: 64px; object-fit: contain;">
+                    <h3 class="fw-bold text-primary">HỆ THỐNG QUẢN LÝ</h3>
+                    <p class="text-muted small">Quỹ Tín Dụng Nhân Dân Yên Thọ</p>
+                </div>            <p class="text-secondary small">Hệ thống QL Chỉ tiêu Mở Tài khoản</p>
                         </div>
                         <form id="frm-login">
                             <div class="mb-3">
@@ -95,6 +97,14 @@
                         <i class='bx bxs-dashboard text-warning'></i> Bảng Điều Khiển Quản Trị
                     </h4>
                     <p class="text-muted mb-0 small">Theo dõi tiến độ KPIs toàn hệ thống theo thời gian thực.</p>
+                </div>
+            <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+                <div>
+                    <h4 class="fw-bold text-primary mb-0 d-flex align-items-center gap-2">
+                        <img src="logo.png" class="app-logo" alt="Logo" style="height: 32px; width: 32px; object-fit: contain;">
+                        <i class='bx bxs-dashboard text-warning app-icon'></i> Bảng Điều Khiển Quản Trị
+                    </h4>
+                    <p class="text-muted mb-0 small mt-1">Xin chào, <span id="user-name-display-admin" class="fw-bold text-dark"></span>! Theo dõi tiến độ KPIs toàn hệ thống theo thời gian thực.</p>
                 </div>
                 <div class="d-flex gap-2">
                     <button class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1 shadow-sm px-3" onclick="openChangePasswordModal()">
@@ -189,10 +199,18 @@
         <!-- VIEW: MO TAI KHOAN -->
         <section id="view-mo-tai-khoan" class="view-section d-none">
             <!-- Content form ported from frmMoTaiKhoan.html -->
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h4 class="fw-bold text-primary mb-0 d-flex align-items-center gap-2"><i class='bx bx-user-plus'></i> Khai Báo Hồ Sơ Mới</h4>
+            <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+                <div>
+                    <h4 class="fw-bold text-primary mb-0 d-flex align-items-center gap-2">
+                        <img src="logo.png" class="app-logo" alt="Logo" style="height: 32px; width: 32px; object-fit: contain;">
+                        <i class='bx bx-user-plus app-icon'></i> Khai Báo Hồ Sơ Mới
+                    </h4>
+                    <p class="text-muted mb-0 small mt-1">Xin chào, <span id="user-name-display-user" class="fw-bold text-dark"></span>!</p>
+                </div>
                 <div class="d-flex gap-2">
-                    <button class="btn btn-outline-danger btn-sm" onclick="logout()"><i class='bx bx-log-out'></i> Đăng xuất</button>
+                    <button class="btn btn-outline-danger btn-sm d-flex align-items-center gap-1 shadow-sm" onclick="logout()">
+                        <i class='bx bx-log-out fs-5'></i> <span class="d-none d-sm-inline">Thoát</span>
+                    </button>
                 </div>
             </div>
             <div class="glass-card p-3 p-md-4 mb-4">
@@ -389,6 +407,28 @@
         </div>
     </div>
 
+    <!-- Modal Xem Danh sách Cán bộ (Admin) -->
+    <div class="modal fade" id="modalAllStaff" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content border-0 shadow-lg rounded-4">
+                <div class="modal-header bg-primary text-white border-0 py-3">
+                    <h5 class="modal-title fw-bold"><i class='bx bx-group'></i> Thống kê toàn bộ Cán bộ</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body bg-light">
+                    <div class="table-responsive bg-white p-3 rounded shadow-sm border">
+                        <table class="table table-hover align-middle mb-0" id="tblAllStaffs" style="width:100%">
+                            <thead class="table-light text-secondary">
+                                <tr><th>STT</th><th>Họ và Tên</th><th>Phòng ban</th><th>Email</th><th>Tổng</th><th>Cá nhân</th><th>Hộ KD</th></tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Bottom Nav (Staff) -->
     <nav class="navbar fixed-bottom bg-white border-top shadow-sm d-none" id="staffBottomNav">
       <div class="container-fluid d-flex justify-content-around p-1">
@@ -404,6 +444,12 @@
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
     <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pdfmake@0.1.53/build/pdfmake.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/MrSaints/pdfmake-vietnamese-vfs/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.bootstrap5.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
