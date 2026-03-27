@@ -1051,6 +1051,62 @@ function handleChangePassword(e) {
     });
 }
 
+/**
+ * Xử lý Lưu thay đổi Hồ sơ Khách hàng
+ */
+function handleEditCustomer(e) {
+    e.preventDefault(); // Ngăn reload trang khi submit form
+
+    const id = $('#edit_id').val();
+    if (!id) {
+        showAlert('Lỗi', 'Không tìm thấy mã hồ sơ để cập nhật.', 'error');
+        return;
+    }
+
+    const btn = $('#btnSaveEdit');
+    const oldHtml = btn.html();
+    btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Đang lưu...');
+
+    const sdtVal = $('#edit_sdt').val().trim();
+    if (sdtVal && !/^0\d{9}$/.test(sdtVal)) {
+        showAlert('Lỗi', 'Số điện thoại phải bắt đầu bằng 0 và đủ 10 chữ số.', 'warning');
+        btn.prop('disabled', false).html(oldHtml);
+        return;
+    }
+
+    const payload = {
+        id: id,
+        email: AppState.user ? AppState.user.email : '',
+        ten_kh:    $('#edit_ten_kh').val().trim().toUpperCase(),
+        sdt:       sdtVal,
+        ngay_mo:   $('#edit_ngay_mo').val(),
+        so_tk:     ($('#edit_so_tk').val().trim() ? '3800200' + $('#edit_so_tk').val().trim() : '')
+    };
+
+    runAPI('api_updatecustomer', payload, (res) => {
+        btn.prop('disabled', false).html(oldHtml);
+        if (res && res.status === 'success') {
+            AppCache.clear('myCustomers'); // Xoa cache để load lai du lieu moi
+            Swal.fire({
+                title: 'Lưu thành công!',
+                text: 'Hồ sơ đã được cập nhật.',
+                icon: 'success',
+                confirmButtonColor: '#10b981',
+                confirmButtonText: 'Đóng'
+            }).then(() => {
+                $('#modalEditCustomer').modal('hide');
+                if (AppState.user && AppState.user.role !== 'Admin') {
+                    initMyCustomersList(); // Reload lại danh sách sau khi lưu thành công
+                }
+            });
+        } else {
+            showAlert('Lỗi', (res && res.message) ? res.message : 'Không thể cập nhật hồ sơ. Vui lòng thử lại.', 'error');
+        }
+    }, () => {
+        btn.prop('disabled', false).html(oldHtml);
+    }, 'Đang lưu hồ sơ...');
+}
+
 function handleLoginSuccess(silent) {
     hideLoading();
     const userName = AppState.user.fullName || AppState.user.name || AppState.user.email;

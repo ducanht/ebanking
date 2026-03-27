@@ -1,7 +1,7 @@
 
 
 # Project Memory — ebanking
-> 69 notes | Score threshold: >40
+> 75 notes | Score threshold: >40
 
 ## Safety — Never Run Destructive Commands
 
