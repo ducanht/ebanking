@@ -88,7 +88,7 @@
         </section>
 
         <!-- VIEW: DASHBOARD (ADMIN) -->
-        <section id="view-dashboard" class="view-section initially-hidden">
+        <section id="view-dashboard" class="view-section d-none">
             <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
                 <div>
                     <h4 class="fw-bold text-primary mb-0 d-flex align-items-center gap-2">
@@ -187,7 +187,7 @@
         </section>
 
         <!-- VIEW: MO TAI KHOAN -->
-        <section id="view-mo-tai-khoan" class="view-section initially-hidden">
+        <section id="view-mo-tai-khoan" class="view-section d-none">
             <!-- Content form ported from frmMoTaiKhoan.html -->
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h4 class="fw-bold text-primary mb-0 d-flex align-items-center gap-2"><i class='bx bx-user-plus'></i> Khai Báo Hồ Sơ Mới</h4>
@@ -285,7 +285,7 @@
         </section>
 
         <!-- VIEW: HỒ SƠ CỦA TÔI (STAFF) -->
-        <section id="view-my-customers" class="view-section initially-hidden">
+        <section id="view-my-customers" class="view-section d-none">
              <div class="d-flex justify-content-between align-items-center mb-4">
                 <h4 class="fw-bold text-primary mb-0"><i class='bx bx-list-ul'></i> Hồ Sơ Của Tôi</h4>
                 <button class="btn btn-outline-primary btn-sm" onclick="initMyCustomersList()"><i class='bx bx-refresh'></i> Làm mới</button>
@@ -390,7 +390,7 @@
     </div>
 
     <!-- Bottom Nav (Staff) -->
-    <nav class="navbar fixed-bottom bg-white border-top shadow-sm initially-hidden" id="staffBottomNav">
+    <nav class="navbar fixed-bottom bg-white border-top shadow-sm d-none" id="staffBottomNav">
       <div class="container-fluid d-flex justify-content-around p-1">
         <a href="#" class="nav-link text-center px-4" onclick="showView('view-mo-tai-khoan')"><i class='bx bx-user-plus fs-2 d-block'></i><small>Mở TK</small></a>
         <a href="#" class="nav-link text-center px-4" onclick="loadStaffMyCustomersView()"><i class='bx bx-list-ul fs-2 d-block'></i><small>Hồ sơ</small></a>

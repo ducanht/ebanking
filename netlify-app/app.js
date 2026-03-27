@@ -89,8 +89,8 @@ function hideLoading() {
 }
 
 function showView(viewId) {
-    $('.view-item').addClass('view-item-hidden');
-    $(`#${viewId}`).removeClass('view-item-hidden');
+    $('.view-section').addClass('d-none');
+    $(`#${viewId}`).removeClass('d-none');
 }
 
 function showAlert(title, text, icon) {
