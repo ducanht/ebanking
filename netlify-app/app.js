@@ -436,7 +436,7 @@ async function initMyCustomersList() {
 }
 
 function renderMyCustomersTable(data) {
-    const html = data.slice().reverse().map(d => {
+    const html = data.sort((a,b) => (new Date(b['Thời điểm nhập']) || 0) - (new Date(a['Thời điểm nhập']) || 0)).map(d => {
         const statusColor = d['Trạng thái'] === 'Đã xác minh' ? 'text-success' : 'text-warning';
         return `
             <tr onclick="openEditCustomerModal('${d.ID || d['Mã GD']}')" class="cursor-pointer">
@@ -446,24 +446,36 @@ function renderMyCustomersTable(data) {
                 <td><small>${d['Số GP ĐKKD'] || ''}</small></td>
                 <td><span class="badge bg-light text-dark border">${d['Loại hình dịch vụ']}</span></td>
                 <td><span class="${statusColor} fw-bold"><i class="bx bxs-circle"></i> ${d['Trạng thái']}</span></td>
+                <td>${AppState.user ? AppState.user.name : (d['Cán bộ thực hiện'] || '')}</td>
                 <td><button class="btn btn-sm btn-outline-primary shadow-sm"><i class="bx bx-search-alt"></i> Chi tiết</button></td>
             </tr>
         `;
     }).join('');
 
-    $('#tbMyCustomersBody').html(html || '<tr><td colspan="7" class="text-center text-muted py-4">Chưa có hồ sơ nào.</td></tr>');
+    $('#tbMyCustomersBody').html(html || '<tr><td colspan="8" class="text-center text-muted py-4">Chưa có hồ sơ nào.</td></tr>');
     
     if ($.fn.DataTable.isDataTable('#tblMyCustomers')) $('#tblMyCustomers').DataTable().destroy();
     
     if (data.length > 0) {
         $('#tblMyCustomers').DataTable({
             responsive: true,
+            order: [[0, 'desc']],
             dom: 'Bfrtip',
             buttons: [
-                { extend: 'excelHtml5', text: '<i class="bx bxs-file-export"></i> Xuất Excel', className: 'btn btn-sm btn-success shadow-sm' }
+                { 
+                    extend: 'excelHtml5', 
+                    text: '<i class="bx bxs-file-export"></i> Xuất Excel', 
+                    className: 'btn btn-sm btn-success shadow-sm',
+                    exportOptions: { columns: [0, 1, 2, 3, 4, 5, 6] },
+                    title: 'Ho_So_Ca_Nhan_' + new Date().toISOString().slice(0,10)
+                }
             ],
             language: { url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json" },
-            columnDefs: [{ targets: [3], visible: false }]
+            search: { smart: true },
+            columnDefs: [
+                { targets: [3, 6], visible: false },
+                { targets: [7], orderable: false, searchable: false }
+            ]
         });
     }
 }
@@ -567,25 +579,35 @@ function renderAdminTable(allData, allStaffs) {
     const staffMap = {};
     allStaffs.forEach(st => staffMap[st.email] = st.name);
     
-    const html = window._adminAllData.map(d => `
-        <tr onclick="openEditCustomerModal('${d.ID}')" class="cursor-pointer">
-            <td><small class="text-muted">${utils_formatVN(d['Thời điểm nhập'], 'date')}</small></td>
-            <td class="fw-bold text-dark">${d['Tên khách hàng'] || ''}</td>
-            <td><span class="badge bg-light text-dark border">${d['Loại hình dịch vụ'] || 'Cá nhân'}</span></td>
-            <td>${d['Số tài khoản'] || ''}</td>
-            <td>${(d['Số ĐKKD'] || d['Số GP ĐKKD'] || '').toString().replace(/^'/, '')}</td>
-            <td>${(d['Số CCCD'] || '').toString().replace(/^'/, '')}</td>
-            <td>${d['Tên đăng nhập'] || ''}</td>
-            <td>${d['Mật khẩu'] || ''}</td>
-            <td class="text-truncate" style="max-width: 150px;" title="${staffMap[d['Cán bộ thực hiện']] || d['Cán bộ thực hiện']}"><small class="text-secondary">${staffMap[d['Cán bộ thực hiện']] || d['Cán bộ thực hiện']}</small></td>
-            <td><span class="badge ${d['Trạng thái'] === 'Đã xác minh' ? 'bg-success' : 'bg-warning'}">${d['Trạng thái']}</span></td>
-            <td class="text-end"><button class="btn btn-sm btn-outline-primary" onclick="openEditCustomerModal('${d.ID}')"><i class="bx bx-info-circle"></i></button></td>
-        </tr>
-    `).join('');
+    const html = window._adminAllData.map(d => {
+        const staffName = staffMap[d['Cán bộ thực hiện']] || d['Cán bộ thực hiện'];
+        return `
+            <tr onclick="openEditCustomerModal('${d.ID}')" class="cursor-pointer">
+                <td><small class="text-muted">${utils_formatVN(d['Thời điểm nhập'], 'date')}</small></td>
+                <td class="fw-bold text-dark">${d['Tên khách hàng'] || ''}</td>
+                <td><span class="badge bg-light text-dark border">${d['Loại hình dịch vụ'] || 'Cá nhân'}</span></td>
+                <td>${d['Số tài khoản'] || ''}</td>
+                <td>${(d['Số ĐKKD'] || d['Số GP ĐKKD'] || '').toString().replace(/^'/, '')}</td>
+                <td>${(d['Số CCCD'] || '').toString().replace(/^'/, '')}</td>
+                <td>${d['Tên đăng nhập'] || ''}</td>
+                <td>${d['Mật khẩu'] || ''}</td>
+                <td>${staffName}</td>
+                <td class="text-truncate" style="max-width: 150px;" title="${staffName}"><small class="text-secondary">${staffName}</small></td>
+                <td><span class="badge ${d['Trạng thái'] === 'Đã xác minh' ? 'bg-success' : 'bg-warning'}">${d['Trạng thái']}</span></td>
+                <td class="text-end"><button class="btn btn-sm btn-outline-primary" onclick="openEditCustomerModal('${d.ID}')"><i class="bx bx-info-circle"></i></button></td>
+            </tr>
+        `;
+    }).join('');
 
     $('#tblKH tbody').html(html);
-    if ($.fn.DataTable.isDataTable('#tblKH')) $('#tblKH').DataTable().destroy();
     
+    // Populate Staff Filter if empty
+    const selStaff = $('#filterStaffAdmin');
+    if (selStaff.find('option').length <= 1) {
+        allStaffs.forEach(st => {
+            selStaff.append(`<option value="${st.email}">${st.name}</option>`);
+        });
+    }
     const dtAdmin = $('#tblKH').DataTable({
         responsive: true,
         order: [[0, 'desc']],
@@ -596,14 +618,14 @@ function renderAdminTable(allData, allStaffs) {
             extend: 'excelHtml5',
             text: '<i class="bx bxs-file-export"></i> Xuất Excel',
             className: 'btn btn-sm btn-success shadow-sm',
-            exportOptions: { columns: [0, 1, 2, 3, 4, 5, 6, 7] },
+            exportOptions: { columns: [0, 1, 2, 3, 4, 5, 6, 7, 8] },
             title: 'Bao_Cao_KH_YenTho_' + new Date().toISOString().slice(0,10)
         }],
         language: { url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json" },
-        search: { caseInsensitive: true },
+        search: { caseInsensitive: true, smart: true },
         columnDefs: [
-            { targets: [3, 4, 5, 6, 7], visible: false },
-            { targets: [10], orderable: false, searchable: false }
+            { targets: [3, 4, 5, 6, 7, 8], visible: false },
+            { targets: [11], orderable: false, searchable: false }
         ]
     });
 
@@ -624,7 +646,7 @@ function renderAdminTable(allData, allStaffs) {
     });
 
     $('#filterStaffAdmin').off('change').on('change', function() {
-        dtAdmin.column(8).search($(this).val()).draw();
+        dtAdmin.column(9).search($(this).val()).draw();
     });
 
     $('#filterFromDate, #filterToDate').on('change', function() {
