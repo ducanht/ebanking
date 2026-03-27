@@ -592,7 +592,10 @@ function renderAdminTable(allData, allStaffs) {
                 <td>${d['Tên đăng nhập'] || ''}</td>
                 <td>${d['Mật khẩu'] || ''}</td>
                 <td>${staffName}</td>
-                <td class="text-truncate" style="max-width: 150px;" title="${staffName}"><small class="text-secondary">${staffName}</small></td>
+                <td class="text-truncate" style="max-width: 150px;" title="${staffName}">
+                    <small class="text-secondary">${staffName}</small>
+                    <span class="d-none">${d['Cán bộ thực hiện']}</span>
+                </td>
                 <td><span class="badge ${d['Trạng thái'] === 'Đã xác minh' ? 'bg-success' : 'bg-warning'}">${d['Trạng thái']}</span></td>
                 <td class="text-end"><button class="btn btn-sm btn-outline-primary" onclick="openEditCustomerModal('${d.ID}')"><i class="bx bx-info-circle"></i></button></td>
             </tr>
