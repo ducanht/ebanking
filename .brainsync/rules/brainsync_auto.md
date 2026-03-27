@@ -1,7 +1,7 @@
 
 
 # Project Memory — ebanking
-> 68 notes | Score threshold: >40
+> 69 notes | Score threshold: >40
 
 ## Safety — Never Run Destructive Commands
 
@@ -20,6 +20,7 @@
 
 ## 📝 NOTE: 1 uncommitted file(s) in working tree.\n\n## Project Standards
 
+- Fixed null crash in AppState — confirmed 4x
 - Strengthened types Kinh — adds runtime type validation before use
 - Strengthened types Implementation
 - Version your API from day 1 (/api/v1/)
@@ -27,7 +28,6 @@
 - Implement soft delete for important data — don't hard delete without confirmation
 - Handle timezone correctly — store UTC, display in user's timezone
 - Make layouts responsive from the start — mobile-first approach
-- Disable submit button during form submission — prevent double-submit
 
 ## Recent Decisions
 

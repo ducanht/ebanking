@@ -600,7 +600,10 @@ function renderMyCustomersTable(data) {
                 <td><span class="badge bg-light text-dark border">${d['Loại hình dịch vụ']}</span></td>
                 <td><small>${d['Số điện thoại']}</small></td>
                 <td>${AppState.user ? AppState.user.name : (d['Cán bộ thực hiện'] || '')}</td>
-                <td><button class="btn btn-sm btn-outline-primary shadow-sm"><i class="bx bx-search-alt"></i> Chi tiết</button></td>
+                <td><small>${d['Ngày mở TK'] || d['Ngày mở'] || ''}</small></td>
+                <td><small>${d['Số TK'] || d['Số tài khoản'] || ''}</small></td>
+                <td><small>${d['Trạng thái'] || ''}</small></td>
+                <td class="text-end"><button class="btn btn-sm btn-outline-primary shadow-sm"><i class="bx bx-search-alt"></i> Chi tiết</button></td>
             </tr>
         `;
     }).join('');
@@ -613,21 +616,25 @@ function renderMyCustomersTable(data) {
         $('#tblMyCustomers').DataTable({
             responsive: true,
             order: [[0, 'desc']],
-            dom: 'Bfrtip',
+            lengthMenu: [10, 25, 50, 100],
+            pageLength: 25,
+            dom: "<'row mb-2'<'col-sm-12 col-md-4'l><'col-sm-12 col-md-4 text-center'B><'col-sm-12 col-md-4'f>>" +
+                 "<'row'<'col-sm-12'tr>>" +
+                 "<'row mt-2'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
             buttons: [
                 { 
                     extend: 'excelHtml5', 
                     text: '<i class="bx bxs-file-export"></i> Xuất Excel', 
                     className: 'btn btn-sm btn-success shadow-sm',
-                    exportOptions: { columns: [0, 1, 2, 3, 4, 5, 6] },
+                    exportOptions: { columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] },
                     title: 'Ho_So_Ca_Nhan_' + new Date().toISOString().slice(0,10)
                 }
             ],
             language: { url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json" },
             search: { smart: true },
             columnDefs: [
-                { targets: [3, 6], visible: false },
-                { targets: [7], orderable: false, searchable: false }
+                { targets: [3, 6, 7, 8, 9], visible: false },
+                { targets: [10], orderable: false, searchable: false }
             ]
         });
     }
@@ -742,6 +749,7 @@ function renderAdminTable(allData, allStaffs) {
                 <td>${d['Số tài khoản'] || ''}</td>
                 <td>${(d['Số ĐKKD'] || d['Số GP ĐKKD'] || '').toString().replace(/^'/, '')}</td>
                 <td>${(d['Số CCCD'] || '').toString().replace(/^'/, '')}</td>
+                <td>${d['Số điện thoại'] || ''}</td>
                 <td>${d['Tên đăng nhập'] || ''}</td>
                 <td>${d['Mật khẩu'] || ''}</td>
                 <td>${staffName}</td>
@@ -774,14 +782,14 @@ function renderAdminTable(allData, allStaffs) {
             extend: 'excelHtml5',
             text: '<i class="bx bxs-file-export"></i> Xuất Excel',
             className: 'btn btn-sm btn-success shadow-sm',
-            exportOptions: { columns: [0, 1, 2, 3, 4, 5, 6, 7, 8] },
+            exportOptions: { columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 11] },
             title: 'Bao_Cao_KH_YenTho_' + new Date().toISOString().slice(0,10)
         }],
         language: { url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json" },
         search: { caseInsensitive: true, smart: true },
         columnDefs: [
-            { targets: [3, 4, 5, 6, 7, 8], visible: false },
-            { targets: [11], orderable: false, searchable: false }
+            { targets: [3, 4, 5, 6, 7, 8, 9], visible: false },
+            { targets: [12], orderable: false, searchable: false }
         ]
     });
 
