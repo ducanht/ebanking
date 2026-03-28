@@ -865,7 +865,7 @@ async function initMyCustomersList() {
             renderStaffDashboardLocal(res.data || []);
             
             // Fetch rankings silently
-            runAPI('api_getadmindashboarddata', {}, (adminRes) => {
+            runAPI('api_getAdminDashboardData', {}, (adminRes) => {
                 if (adminRes.status === 'success') {
                     updateStaffRankings(adminRes.data, AppState.user.email);
                 }
@@ -899,20 +899,24 @@ function renderStaffDashboardLocal(data) {
 }
 
 function updateStaffRankings(adminData, email) {
-    if(!adminData || !adminData.allStaffs) return;
+    if(!adminData || !adminData.allStaffs) {
+        $('#staffDash-rank').text('Chưa có dữ liệu');
+        return;
+    }
     
     let staffs = adminData.allStaffs;
-    let rank = staffs.findIndex(s => s.email === email) + 1;
+    let rankIndex = staffs.findIndex(s => s.email === email);
     let me = staffs.find(s => s.email === email);
     
-    if (rank > 0) {
+    if (rankIndex >= 0 && me) {
+        let rank = rankIndex + 1;
         $('#staffDash-rank').text(`#${rank} / ${staffs.length}`);
         
         // Find person immediately above
         if (rank > 1) {
-            const aboveMe = staffs[rank - 2];
+            const aboveMe = staffs[rankIndex - 1];
             const diff = (aboveMe.total || 0) - (me.total || 0);
-            $('#staffDash-aboveRankInfo').html(`<i class='bx bx-trending-up'></i> Người xếp trên: <b>${aboveMe.total}</b> hồ sơ (cần thêm ${diff})`);
+            $('#staffDash-aboveRankInfo').html(`<i class='bx bx-trending-up'></i> Người xếp trên: <b>${aboveMe.total || 0}</b> hồ sơ (cần thêm ${diff})`);
         } else {
             $('#staffDash-aboveRankInfo').html(`<i class='bx bxs-check-circle text-success'></i> Đang dẫn đầu hệ thống!`);
         }
@@ -924,7 +928,9 @@ function updateStaffRankings(adminData, email) {
     if (staffs.length > 0) {
         let top1 = staffs[0];
         $('#staffDash-top1Name').text(top1.name || top1.email);
-        $('#staffDash-top1Count').text(`${top1.total} hồ sơ`);
+        $('#staffDash-top1Count').text(`${top1.total || 0} hồ sơ`);
+    } else {
+        $('#staffDash-rank').text('--');
     }
 }
 
@@ -975,7 +981,6 @@ function renderStaffLineChart(timeline) {
 
 function renderMyCustomersTable(data) {
     const html = data.sort((a,b) => (new Date(b['Thời điểm nhập']) || 0) - (new Date(a['Thời điểm nhập']) || 0)).map(d => {
-        const statusColor = d['Trạng thái'] === 'Đã xác minh' ? 'text-success' : 'text-warning';
         return `
             <tr onclick="openEditCustomerModal('${d.ID || d['Mã GD']}')" class="cursor-pointer">
                 <td><small class="text-muted">${utils_formatVN(d['Thời điểm nhập'], 'date')}</small></td>
@@ -987,13 +992,12 @@ function renderMyCustomersTable(data) {
                 <td>${AppState.user ? AppState.user.name : (d['Cán bộ thực hiện'] || '')}</td>
                 <td><small>${d['Ngày mở TK'] || d['Ngày mở'] || ''}</small></td>
                 <td><small>${d['Số TK'] || d['Số tài khoản'] || ''}</small></td>
-                <td><small>${d['Trạng thái'] || ''}</small></td>
                 <td class="text-end"><button class="btn btn-sm btn-outline-primary shadow-sm"><i class="bx bx-search-alt"></i> Chi tiết</button></td>
             </tr>
         `;
     }).join('');
 
-    $('#tbMyCustomersBody').html(html || '<tr><td colspan="8" class="text-center text-muted py-4">Chưa có hồ sơ nào.</td></tr>');
+    $('#tbMyCustomersBody').html(html || '<tr><td colspan="7" class="text-center text-muted py-4">Chưa có hồ sơ nào.</td></tr>');
     
     if ($.fn.DataTable.isDataTable('#tblMyCustomers')) $('#tblMyCustomers').DataTable().destroy();
     
@@ -1011,15 +1015,15 @@ function renderMyCustomersTable(data) {
                     extend: 'excelHtml5', 
                     text: '<i class="bx bxs-file-export"></i> Xuất Excel', 
                     className: 'btn btn-sm btn-success shadow-sm',
-                    exportOptions: { columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] },
+                    exportOptions: { columns: [0, 1, 2, 3, 4, 5, 6, 7, 8] },
                     title: 'Ho_So_Ca_Nhan_' + new Date().toISOString().slice(0,10)
                 }
             ],
             language: { url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json" },
             search: { smart: true },
             columnDefs: [
-                { targets: [3, 6, 7, 8, 9], visible: false },
-                { targets: [10], orderable: false, searchable: false }
+                { targets: [3, 6, 7, 8], visible: false },
+                { targets: [9], orderable: false, searchable: false }
             ]
         });
     }
@@ -1144,7 +1148,6 @@ function renderAdminTable(allData, allStaffs) {
                     <small class="text-secondary">${staffName}</small>
                     <span class="d-none">${d['Cán bộ thực hiện']}</span>
                 </td>
-                <td><span class="badge ${d['Trạng thái'] === 'Đã xác minh' ? 'bg-success' : 'bg-warning'}">${d['Trạng thái']}</span></td>
                 <td class="text-end"><button class="btn btn-sm btn-outline-primary" onclick="openEditCustomerModal('${d.ID}')"><i class="bx bx-info-circle"></i></button></td>
             </tr>
         `;
@@ -1169,14 +1172,14 @@ function renderAdminTable(allData, allStaffs) {
             extend: 'excelHtml5',
             text: '<i class="bx bxs-file-export"></i> Xuất Excel',
             className: 'btn btn-sm btn-success shadow-sm',
-            exportOptions: { columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 11] },
+            exportOptions: { columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10] },
             title: 'Bao_Cao_KH_YenTho_' + new Date().toISOString().slice(0,10)
         }],
         language: { url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json" },
         search: { caseInsensitive: true, smart: true },
         columnDefs: [
             { targets: [3, 4, 5, 6, 7, 8, 9], visible: false },
-            { targets: [12], orderable: false, searchable: false }
+            { targets: [11], orderable: false, searchable: false }
         ]
     });
 
@@ -1277,7 +1280,7 @@ function showAllStaffModal() {
         const arr = window._adminRawStaffs || [];
         let html = '';
         arr.forEach((st, idx) => {
-            html += `<tr><td>${idx+1}</td><td class="fw-bold">${st.name}</td><td>${st.department}</td><td>${st.email}</td><td>${st.total}</td><td>${st.caNhan||0}</td><td>${st.hkd||0}</td></tr>`;
+            html += `<tr><td>${idx+1}</td><td class="fw-bold">${st.name}</td><td>${st.department}</td><td>${st.total}</td><td>${st.caNhan||0}</td><td>${st.hkd||0}</td></tr>`;
         });
         $('#tblAllStaffs tbody').html(html);
         if(dtAllStaffs) try { dtAllStaffs.destroy(); } catch(e){}
@@ -1297,14 +1300,20 @@ function showAllStaffModal() {
 function openEditCustomerModal(id) {
     try {
         if (!id) return;
+        let row = null;
         let sourceData = (AppState.user && AppState.user.role === 'Admin') ? (window._adminAllData || []) : ((AppCache.get('myCustomers') || {}).data || []);
+        
         for (let i = 0; i < sourceData.length; i++) {
-            if (String(sourceData[i]['ID'] || sourceData[i]['Mã GD']).trim() === String(id).trim()) {
+            const rowId = String(sourceData[i]['ID'] || sourceData[i]['Mã GD'] || '').trim();
+            if (rowId === String(id).trim()) {
                 row = sourceData[i];
                 break;
             }
         }
-        if (!row) return;
+        if (!row) {
+            console.warn("No row found with ID:", id);
+            return;
+        }
 
         $('#edit_id').val(id);
         $('#edit_ten_kh').val(row['Tên khách hàng'] || '');
@@ -1534,3 +1543,4 @@ window.loadStaffMyCustomersView = () => { showView('view-my-customers'); initMyC
 window.logout = logout;
 window.finishCropping = finishCropping;
 window.skipCropping = skipCropping;
+window.openEditCustomerModal = openEditCustomerModal;

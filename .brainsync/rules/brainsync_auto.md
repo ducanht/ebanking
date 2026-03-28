@@ -1,7 +1,7 @@
 
 
 # Project Memory — ebanking
-> 114 notes | Score threshold: >40
+> 119 notes | Score threshold: >40
 
 ## Safety — Never Run Destructive Commands
 
@@ -18,24 +18,24 @@
 
 **Stack:** Unknown stack
 
-## 📝 NOTE: 1 uncommitted file(s) in working tree.\n\n## Active: `.`
+## 📝 NOTE: 1 uncommitted file(s) in working tree.\n\n## Active: `netlify-app`
 
-- **Patched security issue CONFIG — adds runtime type validation before use**
-- **Fixed null crash in Action — hardens HTTP security headers**
-- **what-changed in index.html — confirmed 3x**
 - **Patched security issue VERSION — offloads heavy computation off the main thread — confirmed 3x**
-- **convention in index.html**
+- **Fixed null crash in Last — wraps unsafe operation in error boundary — confirmed 3x**
+- **Fixed null crash in OPENCV — offloads heavy computation off the main thread — confirmed 3x**
+- **Added session cookies authentication — confirmed 3x**
+- **what-changed in app.js — confirmed 3x**
 
 ## Project Standards
 
-- what-changed in index.html — confirmed 3x
 - Patched security issue VERSION — offloads heavy computation off the main thread — confirmed 3x
-- convention in index.html
-- Replaced auth CCCD — adds runtime type validation before use — confirmed 3x
-- Replaced auth Phase — confirmed 3x
-- Strengthened types Kinh — adds runtime type validation before use
 - Fixed null crash in Last — wraps unsafe operation in error boundary — confirmed 3x
-- Strengthened types GIAN — adds runtime type validation before use
+- Fixed null crash in OPENCV — offloads heavy computation off the main thread — confirmed 3x
+- Added session cookies authentication — confirmed 3x
+- what-changed in app.js — confirmed 3x
+- Fixed null crash in AppState — confirmed 4x
+- what-changed in index.html — confirmed 3x
+- convention in index.html
 
 ## Known Fixes
 
