@@ -33,7 +33,7 @@ setInterval(checkInactivity, 5 * 60 * 1000);
 const AppCache = {
     data: {},
     timestamp: {},
-    TTL: 180000, 
+    TTL: 300000, // 5 phút (tăng từ 3 phút để giảm request lên Vercel)
     isFresh(key) {
         if (!this.timestamp[key]) return false;
         return (Date.now() - this.timestamp[key]) < this.TTL;
@@ -853,6 +853,19 @@ async function initMyCustomersList() {
     const cached = AppCache.get('myCustomers');
     if (cached) {
         renderMyCustomersTable(cached.data);
+        renderStaffDashboardLocal(cached.data || []);
+        // Dùng cache admin nếu có, không thì mới fetch
+        const cachedAdmin = AppCache.get('adminDashboard');
+        if (cachedAdmin) {
+            updateStaffRankings(cachedAdmin, AppState.user.email);
+        } else {
+            runAPI('api_getAdminDashboardData', {}, (adminRes) => {
+                if (adminRes.status === 'success') {
+                    AppCache.set('adminDashboard', adminRes.data);
+                    updateStaffRankings(adminRes.data, AppState.user.email);
+                }
+            }, null, 'NONE');
+        }
         return;
     }
 
@@ -864,12 +877,18 @@ async function initMyCustomersList() {
             renderMyCustomersTable(res.data || []);
             renderStaffDashboardLocal(res.data || []);
             
-            // Fetch rankings silently
-            runAPI('api_getAdminDashboardData', {}, (adminRes) => {
-                if (adminRes.status === 'success') {
-                    updateStaffRankings(adminRes.data, AppState.user.email);
-                }
-            }, null, 'NONE');
+            // Fetch rankings: dùng cache nếu có
+            const cachedAdmin = AppCache.get('adminDashboard');
+            if (cachedAdmin) {
+                updateStaffRankings(cachedAdmin, AppState.user.email);
+            } else {
+                runAPI('api_getAdminDashboardData', {}, (adminRes) => {
+                    if (adminRes.status === 'success') {
+                        AppCache.set('adminDashboard', adminRes.data);
+                        updateStaffRankings(adminRes.data, AppState.user.email);
+                    }
+                }, null, 'NONE');
+            }
         } else {
             $('#tbMyCustomersBody').html(`<tr><td colspan="7" class="text-center text-danger py-4">Lỗi: ${res.message}</td></tr>`);
         }
@@ -1034,32 +1053,42 @@ function renderMyCustomersTable(data) {
 let charts = {};
 
 async function initDashboard() {
+    // Parse stats từ response
+    function _parseStats(res) {
+        let s = null;
+        if (res.statsStr) {
+            try { s = JSON.parse(res.statsStr); } catch(e) { console.error("Parse statsStr error", e); }
+        } else {
+            s = res.stats || res.data;
+        }
+        return s;
+    }
+
+    function _renderAll(s) {
+        if (!s) { console.error("Dashboard stats is null"); return; }
+        renderAdminStats(s);
+        renderAdminCharts(s);
+        renderMonthlyChart(s.allData || []);
+        renderAdminTable(s.allData || [], s.allStaffs || []);
+        renderAdminTopStaff(s.allStaffs || []);
+        if (typeof flatpickr !== 'undefined') {
+            flatpickr('#filterFromDate', { altInput: true, altFormat: 'd/m/Y', dateFormat: 'Y-m-d' });
+            flatpickr('#filterToDate', { altInput: true, altFormat: 'd/m/Y', dateFormat: 'Y-m-d' });
+        }
+    }
+
+    // Dùng cache nếu còn hợp lệ — tránh gọi API thừa
+    const cachedDash = AppCache.get('adminDashboard');
+    if (cachedDash) {
+        _renderAll(cachedDash);
+        return;
+    }
+
     runAPI('api_getAdminDashboardData', {}, (res) => {
         if (res.status === 'success') {
-            let s = null;
-            if (res.statsStr) {
-                try { s = JSON.parse(res.statsStr); } catch(e) { console.error("Parse statsStr error", e); }
-            } else {
-                s = res.stats;
-            }
-
-            if (!s) {
-                console.error("Dashboard stats is null", res);
-                return;
-            }
-
-            renderAdminStats(s);
-            renderAdminCharts(s);
-            renderMonthlyChart(s.allData || []); // Fix: Call monthly chart rendering
-            renderAdminTable(s.allData || [], s.allStaffs || []);
-            renderAdminTopStaff(s.allStaffs || []);
-
-
-            // Initialize Flatpickr for date filters
-            if (typeof flatpickr !== 'undefined') {
-                flatpickr('#filterFromDate', { altInput: true, altFormat: 'd/m/Y', dateFormat: 'Y-m-d' });
-                flatpickr('#filterToDate', { altInput: true, altFormat: 'd/m/Y', dateFormat: 'Y-m-d' });
-            }
+            const s = _parseStats(res);
+            AppCache.set('adminDashboard', s);
+            _renderAll(s);
         }
     });
 }
@@ -1424,12 +1453,25 @@ function handleChangePassword(e) {
     const oldP = $('#pwdOld').val();
     const newP = $('#pwdNew').val();
     const newPc = $('#pwdNewConfirm').val();
+
+    if (!oldP || !newP) {
+        showAlert('Lỗi', 'Vui lòng nhập đầy đủ mật khẩu cũ và mới.', 'warning');
+        return;
+    }
     
     if (newP !== newPc) {
         showAlert('Lỗi', 'Mật khẩu mới không khớp!', 'warning');
         return;
     }
-    
+
+    if (newP.length < 6) {
+        showAlert('Lỗi', 'Mật khẩu mới phải có ít nhất 6 ký tự.', 'warning');
+        return;
+    }
+
+    // Khai báo btn và oldHtml đúng chỗ
+    const btn = $('#btnSubmitChangePwd');
+    const oldHtml = btn.html();
     btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Đang xử lý...');
     
     // Hash passwords for security
