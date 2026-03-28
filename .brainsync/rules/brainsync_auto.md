@@ -1,7 +1,7 @@
 
 
 # Project Memory — ebanking
-> 119 notes | Score threshold: >40
+> 155 notes | Score threshold: >40
 
 ## Safety — Never Run Destructive Commands
 
@@ -18,31 +18,25 @@
 
 **Stack:** Unknown stack
 
-## 📝 NOTE: 1 uncommitted file(s) in working tree.\n\n## Active: `netlify-app`
+## 📝 NOTE: 1 uncommitted file(s) in working tree.\n\n## Project Standards
 
-- **Patched security issue VERSION — offloads heavy computation off the main thread — confirmed 3x**
-- **Fixed null crash in Last — wraps unsafe operation in error boundary — confirmed 3x**
-- **Fixed null crash in OPENCV — offloads heavy computation off the main thread — confirmed 3x**
-- **Added session cookies authentication — confirmed 3x**
-- **what-changed in app.js — confirmed 3x**
-
-## Project Standards
-
-- Patched security issue VERSION — offloads heavy computation off the main thread — confirmed 3x
-- Fixed null crash in Last — wraps unsafe operation in error boundary — confirmed 3x
-- Fixed null crash in OPENCV — offloads heavy computation off the main thread — confirmed 3x
-- Added session cookies authentication — confirmed 3x
-- what-changed in app.js — confirmed 3x
-- Fixed null crash in AppState — confirmed 4x
+- Added session cookies authentication — prevents XSS injection attacks — confirmed 3x
+- Fixed null crash in Excel — wraps unsafe operation in error boundary — confirmed 5x
 - what-changed in index.html — confirmed 3x
+- what-changed in vercel.json — confirmed 3x
+- Fixed null crash in Find — wraps unsafe operation in error boundary — confirmed 3x
+- what-changed in index.html — confirmed 3x
+- Patched security issue VERSION — offloads heavy computation off the main thread — confirmed 3x
 - convention in index.html
 
 ## Known Fixes
 
+- ❌ -     result.message = "GAS Backend Error: " + err.toString(); → ✅ Fixed null crash in Truy — hardens HTTP security headers
 - ❌ - async function runAPI(action, data = {}, successHandler, errorHandler, loadingMsg = 'Đang xử lý... → ✅ Patched security issue VERSION — offloads heavy computation off the main thread
 
 ## Recent Decisions
 
+- decision in app.js
 - decision in style.css
 - decision in style.css
 

@@ -777,12 +777,12 @@ async function handleRegistration(e) {
     };
 
     const filesToProcess = fileSlots.filter(s => document.getElementById(s.id).files[0]);
-    const totalSteps = filesToProcess.length + 1; // +1 for final API upload step
+    const totalSteps = filesToProcess.length + 2; // +1 for prep, +1 for network
     let currentStep = 0;
 
     const updateUIProgress = (msg, pct) => {
         progressLabel.text(msg);
-        progressBar.css('width', `${pct}%`);
+        progressBar.css('width', `${pct}%`).attr('aria-valuenow', pct);
         progressPct.text(`${pct}%`);
     };
 
@@ -795,10 +795,20 @@ async function handleRegistration(e) {
         ]);
     };
 
+    updateUIProgress('Bắt đầu quy trình xử lý hồ sơ...', 5);
+
     for (const slot of filesToProcess) {
         currentStep++;
-        const file = document.getElementById(slot.id).files[0];
-        updateUIProgress(`Đang nén ${slot.label} (${currentStep}/${filesToProcess.length})...`, Math.round((currentStep / totalSteps) * 100));
+        // Đảm bảo lấy đúng file từ inputId
+        const fileInput = document.getElementById(slot.inputId);
+        const file = fileInput ? fileInput.files[0] : null;
+
+        updateUIProgress(`Đang tối ưu ${slot.label} (${currentStep}/${filesToProcess.length})...`, Math.round((currentStep / totalSteps) * 100));
+
+        if (!file) {
+            console.warn(`Không tìm thấy file cho ${slot.label}`);
+            continue;
+        }
 
         try {
             const compressed = await compressWithTimeout(file, slot.label);
@@ -806,7 +816,6 @@ async function handleRegistration(e) {
         } catch (err) {
             if (err.message === "TIMEOUT") {
                 console.warn(`Nén ${slot.label} quá 10s, dùng ảnh gốc.`);
-                // Thong bao nho cho user biet
                 progressLabel.text(`Bỏ qua nén ${slot.label} (quá 10s)...`);
             } else {
                 console.error(`Lỗi nén ${slot.label}:`, err);
@@ -821,25 +830,43 @@ async function handleRegistration(e) {
     }
 
     // Buoc cuoi: Gui du lieu len Server
-    updateUIProgress('Đang gửi dữ liệu & đồng bộ hồ sơ...', 95);
+    updateUIProgress('Đang mã hóa & chuẩn bị gửi máy chủ...', 90);
     btn.html('<span class="spinner-border spinner-border-sm"></span> Đang lưu hồ sơ...');
     
+    // Thêm một độ trễ nhỏ để người dùng thấy 90%
+    await new Promise(r => setTimeout(r, 400));
+    updateUIProgress('Đang gửi dữ liệu & đồng bộ cơ sở dữ liệu...', 95);
+
     runAPI('api_submitregistration', data, (res) => {
         btn.prop('disabled', false).html(oldBtn);
         if (res.status === 'success') {
-            updateUIProgress('Đã hoàn thành!', 100);
-            setTimeout(() => progressWrapper.fadeOut(), 2000);
-            showAlert('Thành công!', 'Hồ sơ đã được lưu và đồng bộ.', 'success');
+            updateUIProgress('Hồ sơ đã được gửi thành công!', 100);
+            progressBar.addClass('bg-success');
+            setTimeout(() => {
+                progressWrapper.fadeOut();
+                progressBar.removeClass('bg-success');
+            }, 3000);
+            showAlert('Thành công!', 'Hồ sơ đã được lưu và đồng bộ truyền tin thành công.', 'success');
             document.getElementById('frm-mo-tk').reset();
             $('.img-preview-box').hide();
             AppCache.clear('myCustomers');
         } else {
-            progressWrapper.hide();
+            updateUIProgress('Lỗi gửi hồ sơ!', 0);
+            progressBar.addClass('bg-danger');
+            setTimeout(() => {
+                progressWrapper.hide();
+                progressBar.removeClass('bg-danger');
+            }, 5000);
             showAlert('Lỗi', res.message, 'error');
         }
     }, () => {
         btn.prop('disabled', false).html(oldBtn);
-        progressWrapper.hide();
+        updateUIProgress('Lỗi kết nối máy chủ!', 0);
+        progressBar.addClass('bg-danger');
+        setTimeout(() => {
+            progressWrapper.hide();
+            progressBar.removeClass('bg-danger');
+        }, 5000);
     }, 'NONE');
 }
 
@@ -861,8 +888,9 @@ async function initMyCustomersList() {
         } else {
             runAPI('api_getAdminDashboardData', {}, (adminRes) => {
                 if (adminRes.status === 'success') {
-                    AppCache.set('adminDashboard', adminRes.data);
-                    updateStaffRankings(adminRes.data, AppState.user.email);
+                    const s = _parseStats(adminRes);
+                    AppCache.set('adminDashboard', s);
+                    updateStaffRankings(s, AppState.user.email);
                 }
             }, null, 'NONE');
         }
@@ -884,8 +912,9 @@ async function initMyCustomersList() {
             } else {
                 runAPI('api_getAdminDashboardData', {}, (adminRes) => {
                     if (adminRes.status === 'success') {
-                        AppCache.set('adminDashboard', adminRes.data);
-                        updateStaffRankings(adminRes.data, AppState.user.email);
+                        const s = _parseStats(adminRes);
+                        AppCache.set('adminDashboard', s);
+                        updateStaffRankings(s, AppState.user.email);
                     }
                 }, null, 'NONE');
             }
@@ -935,7 +964,7 @@ function updateStaffRankings(adminData, email) {
         if (rank > 1) {
             const aboveMe = staffs[rankIndex - 1];
             const diff = (aboveMe.total || 0) - (me.total || 0);
-            $('#staffDash-aboveRankInfo').html(`<i class='bx bx-trending-up'></i> Người xếp trên: <b>${aboveMe.total || 0}</b> hồ sơ (cần thêm ${diff})`);
+            $('#staffDash-aboveRankInfo').html(`<i class='bx bx-trending-up'></i> Người xếp trên: <b>${(aboveMe.total || 0)}</b> hồ sơ (cần thêm ${diff})`);
         } else {
             $('#staffDash-aboveRankInfo').html(`<i class='bx bxs-check-circle text-success'></i> Đang dẫn đầu hệ thống!`);
         }
@@ -1003,14 +1032,14 @@ function renderMyCustomersTable(data) {
         return `
             <tr onclick="openEditCustomerModal('${d.ID || d['Mã GD']}')" class="cursor-pointer">
                 <td><small class="text-muted">${utils_formatVN(d['Thời điểm nhập'], 'date')}</small></td>
-                <td class="fw-bold">${d['Tên khách hàng']}</td>
-                <td><small>${d['Số CCCD']}</small></td>
-                <td><small>${d['Số GP ĐKKD'] || ''}</small></td>
-                <td><span class="badge bg-light text-dark border">${d['Loại hình dịch vụ']}</span></td>
-                <td><small>${d['Số điện thoại']}</small></td>
-                <td>${AppState.user ? AppState.user.name : (d['Cán bộ thực hiện'] || '')}</td>
-                <td><small>${d['Ngày mở TK'] || d['Ngày mở'] || ''}</small></td>
-                <td><small>${d['Số TK'] || d['Số tài khoản'] || ''}</small></td>
+                <td class="fw-bold">${utils_escapeHTML(d['Tên khách hàng'])}</td>
+                <td><small>${utils_escapeHTML(d['Số CCCD'])}</small></td>
+                <td><small>${utils_escapeHTML(d['Số GP ĐKKD'] || '')}</small></td>
+                <td><span class="badge bg-light text-dark border">${utils_escapeHTML(d['Loại hình dịch vụ'])}</span></td>
+                <td><small>${utils_escapeHTML(d['Số điện thoại'])}</small></td>
+                <td>${AppState.user ? utils_escapeHTML(AppState.user.name) : utils_escapeHTML(d['Cán bộ thực hiện'] || '')}</td>
+                <td><small>${utils_escapeHTML(d['Ngày mở TK'] || d['Ngày mở'] || '')}</small></td>
+                <td><small>${utils_escapeHTML(d['Số TK'] || d['Số tài khoản'] || '')}</small></td>
                 <td class="text-end"><button class="btn btn-sm btn-outline-primary shadow-sm"><i class="bx bx-search-alt"></i> Chi tiết</button></td>
             </tr>
         `;
@@ -1083,7 +1112,7 @@ async function initDashboard() {
         return;
     }
 
-    runAPI('api_getAdminDashboardData', {}, (res) => {
+    runAPI('api_getAdminDashboardData', { email: AppState.user.email }, (res) => {
         if (res.status === 'success') {
             const s = _parseStats(res);
             AppCache.set('adminDashboard', s);
@@ -1172,11 +1201,11 @@ function renderAdminTable(allData, allStaffs) {
         return `
             <tr onclick="openEditCustomerModal('${rowId}')" class="cursor-pointer" style="cursor:pointer">
                 <td><small class="text-muted">${utils_formatVN(d['Thời điểm nhập'], 'date')}</small></td>
-                <td class="fw-bold text-dark">${d['Tên khách hàng'] || ''}</td>
-                <td><span class="badge bg-light text-dark border">${d['Loại hình dịch vụ'] || 'Cá nhân'}</span></td>
-                <td class="text-secondary"><small>${(d['Số tài khoản'] || '').toString().replace(/^'/, '')}</small></td>
-                <td class="d-none">${staffEmail}</td>
-                <td><small>${staffName}</small></td>
+                <td class="fw-bold text-dark">${utils_escapeHTML(d['Tên khách hàng'] || '')}</td>
+                <td><span class="badge bg-light text-dark border">${utils_escapeHTML(d['Loại hình dịch vụ'] || 'Cá nhân')}</span></td>
+                <td class="text-secondary"><small>${utils_escapeHTML((d['Số tài khoản'] || '').toString().replace(/^'/, ''))}</small></td>
+                <td class="d-none">${utils_escapeHTML(staffEmail)}</td>
+                <td><small>${utils_escapeHTML(staffName)}</small></td>
                 <td class="text-end"><button class="btn btn-sm btn-outline-primary px-2" onclick="event.stopPropagation();openEditCustomerModal('${rowId}')"><i class="bx bx-info-circle"></i></button></td>
             </tr>`;
     }).join('');
@@ -1194,6 +1223,8 @@ function renderAdminTable(allData, allStaffs) {
     const dtAdmin = $('#tblKH').DataTable({
         responsive: true,
         order: [[0, 'desc']],
+        lengthMenu: [10, 25, 50, 100],
+        pageLength: 25,
         dom: "<'row mb-2'<'col-sm-12 col-md-3'l><'col-sm-12 col-md-5'f><'col-sm-12 col-md-4 text-end'B>>" +
              "<'row'<'col-sm-12'tr>>" +
              "<'row mt-2'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
@@ -1344,11 +1375,12 @@ function openEditCustomerModal(id) {
     try {
         if (!id) return;
         let row = null;
-        let sourceData = (AppState.user && AppState.user.role === 'Admin') ? (window._adminAllData || []) : ((AppCache.get('myCustomers') || {}).data || []);
+        const sourceData = (AppState.user && AppState.user.role === 'Admin') ? (window._adminAllData || []) : ((AppCache.get('myCustomers') || {}).data || []);
         
+        const rowIdStr = String(id).trim();
         for (let i = 0; i < sourceData.length; i++) {
-            const rowId = String(sourceData[i]['ID'] || sourceData[i]['Mã GD'] || '').trim();
-            if (rowId === String(id).trim()) {
+            const currentId = String(sourceData[i]['ID'] || sourceData[i]['Mã GD'] || '').trim();
+            if (currentId === rowIdStr) {
                 row = sourceData[i];
                 break;
             }
@@ -1415,7 +1447,12 @@ function openEditCustomerModal(id) {
                    
         const imgsBlock = imgs ? `<div class="col-12"><p class="text-muted small fw-semibold mb-1"><i class="bx bx-image"></i> Hình ảnh đính kèm</p><div class="row g-2">${imgs}</div></div>` : '<div class="col-12 text-center text-muted"><p class="small">Chưa có ảnh đính kèm</p></div>';
         
-        $('#edit_images_container').html(infoHtml + imgsBlock);
+        // Sanitize data before injection
+        const safeInfoHtml = `<div class="col-12 mb-2"><div class="p-2 bg-white rounded border d-flex gap-2 shadow-sm">
+                           <span class="badge bg-primary">${utils_escapeHTML(loaiHinh)}</span>
+                           <span>CCCD: <b>${utils_escapeHTML(cccdVal)}</b></span></div></div>`;
+
+        $('#edit_images_container').html(safeInfoHtml + imgsBlock);
         $('#modalEditCustomer').modal('show');
     } catch(err) { console.error(err); }
 }
@@ -1593,10 +1630,31 @@ function logout() {
     window.location.reload();
 }
 
+function utils_escapeHTML(str) {
+    if (!str) return '';
+    return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
 window.onOpenCvReady = onOpenCvReady;
 window.loadStaffOpenAccountView = () => showView('view-mo-tai-khoan');
 window.loadStaffMyCustomersView = () => { showView('view-my-customers'); initMyCustomersList(); };
 window.logout = logout;
 window.finishCropping = finishCropping;
+window.openChangePasswordModal = () => {
+    $('#pwdAlertForce').hide();
+    $('#modalChangePassword .btn-close').show();
+    $('#modalChangePassword').attr('data-bs-keyboard', 'true');
+    $('#frmChangePassword')[0].reset();
+    $('#modalChangePassword').modal('show');
+};
+window.loadAdminData = () => {
+    AppCache.clear('adminDashboard');
+    initDashboard();
+};
 window.skipCropping = skipCropping;
 window.openEditCustomerModal = openEditCustomerModal;

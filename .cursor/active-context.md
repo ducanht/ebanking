@@ -2,7 +2,123 @@
 > Dynamically loaded for active file: `netlify-app\app.js` (Domain: **Generic Logic**)
 
 ### 📐 Generic Logic Conventions & Fixes
-- **[problem-fix] Fixed null crash in Find — wraps unsafe operation in error boundary**: -     if(!adminData || !adminData.allStaffs) return;
+- **[decision] decision in app.js**: -             $('#staffDash-aboveRankInfo').html(`<i class='bx bx-trending-up'></i> Người xếp trên: <b>${aboveMe.total || 0}</b> hồ sơ (cần thêm ${diff})`);
++             $('#staffDash-aboveRankInfo').html(`<i class='bx bx-trending-up'></i> Người xếp trên: <b>${(aboveMe.total || 0)}</b> hồ sơ (cần thêm ${diff})`);
+
+📌 IDE AST Context: Modified symbols likely include [GAS_API_URL, AppState, INACTIVITY_LIMIT, checkInactivity, on('click keydown scroll mousedown touchstart') callback]
+- **[discovery] discovery in app.js**: -                 <td class="fw-bold">${d['Tên khách hàng']}</td>
++                 <td class="fw-bold">${utils_escapeHTML(d['Tên khách hàng'])}</td>
+-                 <td><small>${d['Số CCCD']}</small></td>
++                 <td><small>${utils_escapeHTML(d['Số CCCD'])}</small></td>
+-                 <td><small>${d['Số GP ĐKKD'] || ''}</small></td>
++                 <td><small>${utils_escapeHTML(d['Số GP ĐKKD'] || '')}</small></td>
+-                 <td><span class="badge bg-light text-dark border">${d['Loại hình dịch vụ']}</span></td>
++                 <td><span class="badge bg-light text-dark border">${utils_escapeHTML(d['Loại hình dịch vụ'])}</span></td>
+-                 <td><small>${d['Số điện thoại']}</small></td>
++                 <td><small>${utils_escapeHTML(d['Số điện thoại'])}</small></td>
+-                 <td>${AppState.user ? AppState.user.name : (d['Cán bộ thực hiện'] || '')}</td>
++                 <td>${AppState.user ? utils_escapeHTML(AppState.user.name) : utils_escapeHTML(d['Cán bộ thực hiện'] || '')}</td>
+-                 <td><small>${d['Ngày mở TK'] || d['Ngày mở'] || ''}</small></td>
++                 <td><small>${utils_escapeHTML(d['Ngày mở TK'] || d['Ngày mở'] || '')}</small></td>
+-                 <td><small>${d['Số TK'] || d['Số tài khoản'] || ''}</small></td>
++                 <td><small>${utils_escapeHTML(d['Số TK'] || d['Số tài khoản'] || '')}</small></td>
+
+📌 IDE AST Context: Modified symbols likely include [GAS_API_URL, AppState, INACTIVITY_LIMIT, checkInactivity, on('click keydown scroll mousedown touchstart') callback]
+- **[problem-fix] Patched security issue AppState — prevents XSS injection attacks**: -     runAPI('api_getAdminDashboardData', {}, (res) => {
++     runAPI('api_getAdminDashboardData', { email: AppState.user.email }, (res) => {
+-                 <td class="fw-bold text-dark">${d['Tên khách hàng'] || ''}</td>
++                 <td class="fw-bold text-dark">${utils_escapeHTML(d['Tên khách hàng'] || '')}</td>
+-                 <td><span class="badge bg-light text-dark border">${d['Loại hình dịch vụ'] || 'Cá nhân'}</span></td>
++                 <td><span class="badge bg-light text-dark border">${utils_escapeHTML(d['Loại hình dịch vụ'] || 'Cá nhân')}</span></td>
+-                 <td class="text-secondary"><small>${(d['Số tài khoản'] || '').toString().replace(/^'/, '')}</small></td>
++                 <td class="text-secondary"><small>${utils_escapeHTML((d['Số tài khoản'] || '').toString().replace(/^'/, ''))}</small></td>
+-                 <td class="d-none">${staffEmail}</td>
++                 <td class="d-none">${utils_escapeHTML(staffEmail)}</td>
+-                 <td><small>${staffName}</small></td>
++                 <td><small>${utils_escapeHTML(staffName)}</small></td>
+-         $('#edit_images_container').html(infoHtml + imgsBlock);
++         // Sanitize data before injection
+-         $('#modalEditCustomer').modal('show');
++         const safeInfoHtml = `<div class="col-12 mb-2"><div class="p-2 bg-white rounded border d-flex gap-2 shadow-sm">
+-     } catch(err) { console.error(err); }
++                            <span class="badge bg-primary">${utils_escapeHTML(loaiHinh)}</span>
+- }
++                            <span>CCCD: <b>${utils_escapeHTML(cccdVal)}</b></span></div></div>`;
+- 
++         $('#edit_images_container').html(safeInfoHtml + imgsBlock);
+- /**
++         $('#modalEditCustomer').modal('show');
+-  * APP INITIALIZATION
++     } catch(err) { console.error(err); }
+-  */
++ }
+- $(document).ready(() => {
++ 
+-     if (!AppState.user) {
++ 
+-         showView('view-login');
++ /**
+-         hideLoading();
++  * APP INITIALIZATION
+-     } else {
++  *
+… [diff truncated]
+
+📌 IDE AST Context: Modified symbols likely include [GAS_API_URL, AppState, INACTIVITY_LIMIT, checkInactivity, on('click keydown scroll mousedown touchstart') callback]
+- **[convention] Fixed null crash in Excel — wraps unsafe operation in error boundary — confirmed 5x**: -         dom: "<'row mb-2'<'col-sm-12 col-md-3'l><'col-sm-12 col-md-5'f><'col-sm-12 col-md-4 text-end'B>>" +
++         lengthMenu: [10, 25, 50, 100],
+-              "<'row'<'col-sm-12'tr>>" +
++         pageLength: 25,
+-              "<'row mt-2'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
++         dom: "<'row mb-2'<'col-sm-12 col-md-3'l><'col-sm-12 col-md-5'f><'col-sm-12 col-md-4 text-end'B>>" +
+-         buttons: [{
++              "<'row'<'col-sm-12'tr>>" +
+-             extend: 'excelHtml5',
++              "<'row mt-2'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+-             text: '<i class="bx bxs-file-export"></i> Xuất Excel',
++         buttons: [{
+-             className: 'btn btn-sm btn-success shadow-sm',
++             extend: 'excelHtml5',
+-             exportOptions: {
++             text: '<i class="bx bxs-file-export"></i> Xuất Excel',
+-                 // Xuất tất cả cột bao gồm cột ẩn (email, STK, CCCD, ...)
++             className: 'btn btn-sm btn-success shadow-sm',
+-                 columns: ':all',
++             exportOptions: {
+-                 format: {
++                 // Xuất tất cả cột bao gồm cột ẩn (email, STK, CCCD, ...)
+-                     header: function(data, col) {
++                 columns: ':all',
+-                         // Ẩn cột email khỏi header xuất
++                 format: {
+-                         const hdrs = ['Thời gian', 'Họ Tên', 'Loại Hình', 'Số TK', 'Email CB', 'Cán Bộ', 'Thao tác'];
++                     header: function(data, col) {
+-                         return hdrs[col] || data;
++                         // Ẩn cột email khỏi header xuất
+-                     }
++                         const hdrs = ['Thời gian', 'Họ Tên', 'Loại Hình', 'Số TK', 'Email CB', 'Cán Bộ', 'Thao tác'];
+-                 }
++                         return hdrs[col] || data;
+-             },
++                     }
+-             title: 'Bao_Cao_KH_YenTho_' + new Date().toISOString().slice(0,10)
++                 }
+-      
+… [diff truncated]
+
+📌 IDE AST Context: Modified symbols likely include [GAS_API_URL, AppState, INACTIVITY_LIMIT, checkInactivity, on('click keydown scroll mousedown touchstart') callback]
+- **[what-changed] what-changed in app.js**: -     const btn = $('#btnSaveChangePwd');
++     const btn = $('#btnSubmitChangePwd');
+
+📌 IDE AST Context: Modified symbols likely include [GAS_API_URL, AppState, INACTIVITY_LIMIT, checkInactivity, on('click keydown scroll mousedown touchstart') callback]
+- **[what-changed] what-changed in app.js**: -             runAPI('api_getadmindashboarddata', {}, (adminRes) => {
++             runAPI('api_getAdminDashboardData', {}, (adminRes) => {
+- 
++ window.openEditCustomerModal = openEditCustomerModal;
++ 
+
+📌 IDE AST Context: Modified symbols likely include [GAS_API_URL, AppState, INACTIVITY_LIMIT, checkInactivity, on('click keydown scroll mousedown touchstart') callback]
+- **[convention] Fixed null crash in Find — wraps unsafe operation in error boundary — confirmed 3x**: -     if(!adminData || !adminData.allStaffs) return;
 +     if(!adminData || !adminData.allStaffs) {
 -     
 +         $('#staffDash-rank').text('Chưa có dữ liệu');
@@ -129,183 +245,6 @@
 … [diff truncated]
 
 📌 IDE AST Context: Modified symbols likely include [GAS_API_URL, AppState, INACTIVITY_LIMIT, checkInactivity, on('click keydown scroll mousedown touchstart') callback]
-- **[what-changed] Added session cookies authentication**: -     const btn = $('#btnSubmitChangePwd');
-+     btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Đang xử lý...');
--     const oldHtml = btn.html();
-+     
--     btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Đang xử lý...');
-+     // Hash passwords for security
--     
-+     const oldH = CryptoJS.SHA256(oldP).toString();
--     runAPI('api_changepassword', {
-+     const newH = CryptoJS.SHA256(newP).toString();
--         email: AppState.user.email,
-+ 
--         oldHashed: CryptoJS.SHA256(oldP).toString(),
-+     runAPI('api_changepassword', {
--         newHashed: CryptoJS.SHA256(newP).toString()
-+         email: AppState.user.email,
--     }, (res) => {
-+         oldHashed: oldH,
--         btn.prop('disabled', false).html(oldHtml);
-+         newHashed: newH
--         if (res.status === 'success') {
-+     }, (res) => {
--             showAlert('Thành công', 'Đổi mật khẩu thành công! Vui lòng truy cập hệ thống.', 'success');
-+         btn.prop('disabled', false).html(oldHtml);
--             $('#modalChangePassword').modal('hide');
-+ 
--             handleLoginSuccess(false);
-+         if (res.status === 'success') {
--         } else {
-+             showAlert('Thành công', 'Đổi mật khẩu thành công! Vui lòng truy cập hệ thống.', 'success');
--             showAlert('Lỗi', res.message, 'error');
-+             $('#modalChangePassword').modal('hide');
--         }
-+             handleLoginSuccess(false);
--     });
-+         } else {
-- }
-+             showAlert('Lỗi', res.message, 'error');
-- 
-+         }
-- /**
-+     });
--  * Xử lý Lưu thay đổi Hồ sơ Khách hàng
-+ }
--  */
-+ 
-- function handleEditCustomer(e) {
-+ /**
--     e.preventDefault(); // Ngăn reload trang khi submit form
-+  * Xử lý Lưu thay đổi Hồ sơ Khách hàng
-- 
-+  */
--     const id = $('#edit_id').val();
-+ function handleEditCustomer(e) {
--     if (!id) {
-+     e.preventDefault(); // Ngăn reload trang khi submit form
--         showAlert('Lỗi', 
-… [diff truncated]
-
-📌 IDE AST Context: Modified symbols likely include [GAS_API_URL, AppState, AppCache, runAPI, showLoading]
-- **[problem-fix] Fixed null crash in Elements — offloads heavy computation off the main thread**: -     btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Đang nén ảnh...');
-+     
-- 
-+     // UI Elements
--     progressWrapper.show();
-+     const progressLabel = $('#compress-progress-label');
-- 
-+     const progressPct = $('#compress-progress-pct');
--     const fileSlots = [
-+ 
--         { id: 'img_truoc', label: 'CCCD Trước' },
-+     btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Đang xử lý...');
--         { id: 'img_sau', label: 'CCCD Sau' },
-+     progressWrapper.show();
--         { id: 'img_dkkd', label: 'Giấy phép' },
-+     progressBar.css('width', '0%');
--         { id: 'img_qr', label: 'Mã QR' },
-+     progressPct.text('0%');
--         { id: 'img_thuchien', label: 'Ảnh thực hiện' }
-+ 
--     ];
-+     const fileSlots = [
-- 
-+         { id: 'img_truoc', label: 'CCCD Trước' },
--     const data = {
-+         { id: 'img_sau',   label: 'CCCD Sau' },
--         action: "api_submitregistration",
-+         { id: 'img_dkkd',  label: 'Giấy phép' },
--         email: AppState.user.email,
-+         { id: 'img_qr',    label: 'Mã QR' },
--         loai_hinh: $('#loai_hinh').val(),
-+         { id: 'img_thuchien', label: 'Ảnh thực hiện' }
--         ten_kh: $('#ten_kh').val().trim(),
-+     ];
--         cccd: $('#cccd').val().trim(),
-+ 
--         dkkd: $('#dkkd').val().trim(),
-+     const data = {
--         sdt: $('#sdt').val().trim(),
-+         action: "api_submitregistration",
--         so_tk: '3800200' + $('#so_tk').val().trim(),
-+         email: AppState.user.email,
--         ten_dang_nhap: $('#ten_dang_nhap').val().trim(),
-+         loai_hinh: $('#loai_hinh').val(),
--         ngay_mo: $('#ngay_mo').val(),
-+         ten_kh: $('#ten_kh').val().trim(),
--         mat_khau: $('#mat_khau').val() || ""
-+         cccd: $('#cccd').val().trim(),
--     };
-+         dkkd: $('#dkkd').val().trim(),
-- 
-+         sdt: $('#sdt').val().trim(),
--     let done = 0;
-+         so_tk: '3800200' + $('#so_tk').val().trim
-… [diff truncated]
-
-📌 IDE AST Context: Modified symbols likely include [GAS_API_URL, AppState, AppCache, runAPI, showLoading]
-- **[problem-fix] Fixed null crash in Find — wraps unsafe operation in error boundary**: -     } else {
-+         
--         $('#staffDash-rank').text('Chưa xếp hạng');
-+         // Find person immediately above
--     }
-+         if (rank > 1) {
-- 
-+             const aboveMe = staffs[rank - 2];
--     if (staffs.length > 0) {
-+             const diff = (aboveMe.total || 0) - (me.total || 0);
--         let top1 = staffs[0];
-+             $('#staffDash-aboveRankInfo').html(`<i class='bx bx-trending-up'></i> Người xếp trên: <b>${aboveMe.total}</b> hồ sơ (cần thêm ${diff})`);
--         $('#staffDash-top1Name').text(top1.name || top1.email);
-+         } else {
--         $('#staffDash-top1Count').text(`${top1.total} hồ sơ`);
-+             $('#staffDash-aboveRankInfo').html(`<i class='bx bxs-check-circle text-success'></i> Đang dẫn đầu hệ thống!`);
--     }
-+         }
-- }
-+     } else {
-- 
-+         $('#staffDash-rank').text('Chưa xếp hạng');
-- let staffChartInstance = null;
-+         $('#staffDash-aboveRankInfo').text('Cần tối thiểu 1 hồ sơ để xếp hạng.');
-- function renderStaffLineChart(timeline) {
-+     }
--     const ctx = document.getElementById('chartStaffMonthly');
-+ 
--     if (!ctx) return;
-+     if (staffs.length > 0) {
--     
-+         let top1 = staffs[0];
--     // Last 30 days calculation
-+         $('#staffDash-top1Name').text(top1.name || top1.email);
--     let labels = [];
-+         $('#staffDash-top1Count').text(`${top1.total} hồ sơ`);
--     let counts = [];
-+     }
--     let d = new Date();
-+ }
--     for (let i = 29; i >= 0; i--) {
-+ 
--         let tmp = new Date(d);
-+ 
--         tmp.setDate(tmp.getDate() - i);
-+ let staffChartInstance = null;
--         let sDate = `${String(tmp.getDate()).padStart(2,"0")}/${String(tmp.getMonth()+1).padStart(2,"0")}`;
-+ function renderStaffLineChart(timeline) {
--         labels.push(sDate);
-+     const ctx = document.getElementById('chartStaffMonthly');
--         counts.push(timeline[sDate] || 0);
-+     if (!ctx) return;
--     }
-+     
-- 
-+     // Last 30 days calculation
--     if (staffChartInstance) staffChar
-… [diff truncated]
-
-📌 IDE AST Context: Modified symbols likely include [GAS_API_URL, AppState, AppCache, runAPI, showLoading]
 - **[convention] Fixed null crash in Last — wraps unsafe operation in error boundary — confirmed 3x**: -     // Sap xep giam dan theo tong ho so, giong voi thu tu xep hang that su
 +     let staffs = adminData.allStaffs;
 -     const staffs = [...adminData.allStaffs].sort((a, b) => (b.total || 0) - (a.total || 0));
@@ -533,53 +472,9 @@
 … [diff truncated]
 
 📌 IDE AST Context: Modified symbols likely include [GAS_API_URL, AppState, AppCache, runAPI, showLoading]
-- **[what-changed] what-changed in index.html**: -                         <thead><tr><th>THỜI GIAN</th><th>Họ TÊN</th><th>CCCD</th><th>SỐ ĐKKD</th><th>LOẠI HÌNH</th><th>SỐ ĐIỆN THOẠI</th><th>TÊN CÁN BỘ</th><th>NGÀY MỞ TK</th><th>SỐ TÀI KHOẢN</th><th>TRẠNG THÁI</th><th class="text-end">XEM</th></tr></thead>
-+                         <thead><tr><th>THỜI GIAN</th><th>Họ TÊN</th><th>CCCD</th><th>SỐ ĐKKD</th><th>LOẠI HÌNH</th><th>SỐ ĐIỆN THOẠI</th><th>TÊN CÁN BỘ</th><th>NGÀY MỞ TK</th><th>SỐ TÀI KHOẢN</th><th class="text-end">XEM</th></tr></thead>
--                                 <tr><th>STT</th><th>Họ và Tên</th><th>Phòng ban</th><th>Email</th><th>Tổng</th><th>Cá nhân</th><th>Hộ KD</th></tr>
-+                                 <tr><th>STT</th><th>Họ và Tên</th><th>Phòng ban</th><th>Tổng</th><th>Cá nhân</th><th>Hộ KD</th></tr>
+- **[convention] what-changed in index.html — confirmed 3x**: -                     <button class="btn btn-outline-secondary btn-sm d-none d-sm-flex align-items-center gap-1 shadow-sm" onclick="$('#modalChangePassword').modal('show')">
++                     <button class="btn btn-outline-secondary btn-sm d-none d-sm-flex align-items-center gap-1 shadow-sm" onclick="openChangePasswordModal()">
+-                     <button class="btn btn-outline-secondary btn-sm d-none d-sm-flex align-items-center gap-1 bg-white shadow-sm" onclick="$('#modalChangePassword').modal('show')">
++                     <button class="btn btn-outline-secondary btn-sm d-none d-sm-flex align-items-center gap-1 bg-white shadow-sm" onclick="openChangePasswordModal()">
 
 📌 IDE AST Context: Modified symbols likely include [html]
-- **[convention] what-changed in index.html — confirmed 3x**: -                                 <div class="input-group input-group-sm" style="width: auto;">
-+                                 <div class="input-group input-group-sm w-auto">
--                                 <div class="input-group input-group-sm" style="width: auto;">
-+                                 <div class="input-group input-group-sm w-auto">
-
-📌 IDE AST Context: Modified symbols likely include [html]
-- **[what-changed] Replaced auth Logo**: -                     <div id="login-box" class="glass-card p-4 mx-auto w-100 shadow-lg" style="max-width: 400px; border-top: 4px solid var(--bs-primary);">
-+                     <div id="login-box" class="glass-card p-4 mx-auto w-100 shadow-lg">
--                     <img src="logo.png" class="app-logo mb-3" alt="Logo" style="height: 64px; object-fit: contain;">
-+                     <img src="logo.png" class="app-logo-large mb-3" alt="Logo Quỹ Yên Thọ" title="Logo Quỹ Yên Thọ">
--                         <img src="logo.png" class="app-logo" alt="Logo" style="height: 32px; width: 32px; object-fit: contain;">
-+                         <img src="logo.png" class="app-logo" alt="Logo Quỹ Yên Thọ" title="Logo Quỹ Yên Thọ">
--                             <select id="filterYearChart" class="form-select form-select-sm" style="width: auto;"></select>
-+                             <select id="filterYearChart" class="form-select form-select-sm w-auto" title="Chọn năm xem biểu đồ"></select>
--                         <div class="chart-container-monthly" style="height: 240px; position: relative;">
-+                         <div class="chart-container-monthly-dashboard">
--                                     <input type="text" id="filterFromDate" class="form-control border-start-0 ps-0" placeholder="Từ ngày" style="width: 100px;">
-+                                     <input type="text" id="filterFromDate" class="form-control border-start-0 ps-0 w-100px" placeholder="Từ ngày" title="Lọc từ ngày">
--                                     <input type="text" id="filterToDate" class="form-control border-start-0 ps-0" placeholder="Đến ngày" style="width: 100px;">
-+                                     <input type="text" id="filterToDate" class="form-control border-start-0 ps-0 w-100px" placeholder="Đến ngày" title="Lọc đến ngày">
--                                 <select id="filterStaffAdmin" class="form-select form-select-sm" style="width: auto;"><option value="">Tất cả cán bộ</option></se
-… [diff truncated]
-
-📌 IDE AST Context: Modified symbols likely include [html]
-- **[what-changed] Replaced auth AUDIT**: - 
-+ /* --- AUDIT & HARDENING UTILITIES --- */
-+ #login-box { max-width: 400px; border-top: 4px solid var(--emerald); }
-+ .app-logo-large { height: 64px; object-fit: contain; }
-+ .w-auto { width: auto !important; }
-+ .w-100px { width: 100px !important; }
-+ .chart-container-monthly-dashboard { height: 240px; position: relative; }
-+ .max-h-90vh { max-height: 90vh !important; }
-+ .min-h-300px { min-height: 300px !important; }
-+ .canvas-quad { max-width: 100%; height: auto; max-height: 60vh; object-fit: contain; }
-+ .svg-overlay { pointer-events: none; z-index: 5; }
-+ .pointer-events-auto { pointer-events: auto !important; }
-+ .modal-footer-z { position: relative; z-index: 10; }
-+ .text-truncate-max { max-width: 100%; }
-+ .table-full-width { width: 100% !important; }
-+ 
-+ 
-+ 
-
-📌 IDE AST Context: Modified symbols likely include [:root, body, .glass-card, .glass-card:hover, #global-spinner]

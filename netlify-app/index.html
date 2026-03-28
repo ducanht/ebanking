@@ -190,7 +190,7 @@
                     <p class="text-muted mb-0 small mt-1">Xin chào, <span id="user-name-display-user" class="fw-bold text-dark"></span>!</p>
                 </div>
                 <div class="d-flex gap-2">
-                    <button class="btn btn-outline-secondary btn-sm d-none d-sm-flex align-items-center gap-1 shadow-sm" onclick="$('#modalChangePassword').modal('show')">
+                    <button class="btn btn-outline-secondary btn-sm d-none d-sm-flex align-items-center gap-1 shadow-sm" onclick="openChangePasswordModal()">
                         <i class='bx bx-lock-open-alt fs-5'></i> <span class="d-none d-sm-inline">Đổi Pass</span>
                     </button>
                     <button class="btn btn-outline-danger btn-sm d-flex align-items-center gap-1 shadow-sm" onclick="logout()">
@@ -324,7 +324,7 @@
                     <button class="btn btn-outline-primary btn-sm d-flex align-items-center gap-1 bg-white shadow-sm" onclick="initMyCustomersList()">
                         <i class='bx bx-refresh fs-5'></i> <span class="d-none d-sm-inline">Làm mới</span>
                     </button>
-                    <button class="btn btn-outline-secondary btn-sm d-none d-sm-flex align-items-center gap-1 bg-white shadow-sm" onclick="$('#modalChangePassword').modal('show')">
+                    <button class="btn btn-outline-secondary btn-sm d-none d-sm-flex align-items-center gap-1 bg-white shadow-sm" onclick="openChangePasswordModal()">
                         <i class='bx bx-lock-open-alt fs-5'></i> <span class="d-none d-sm-inline">Đổi Pass</span>
                     </button>
                     <button class="btn btn-outline-danger btn-sm d-flex align-items-center gap-1 bg-white shadow-sm" onclick="logout()">
