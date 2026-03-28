@@ -1,5 +1,6 @@
 {
   "version": 2,
+  "name": "qtd-coopbank",
   "cleanUrls": true,
   "rewrites": [
     { "source": "/(.*)", "destination": "/index.html" }
