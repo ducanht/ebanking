@@ -13,3 +13,13 @@ appsscript.json
 .claspignore
 node_modules/
 package-lock.json
+
+# Legacy / POC (Local only)
+frm*.html
+jsApp.html
+index.html
+netlify-poc/
+.agent/
+.agents/
+.brainsync/
+.cursor/
