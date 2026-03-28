@@ -1,7 +1,7 @@
 
 
 # Project Memory — ebanking
-> 155 notes | Score threshold: >40
+> 161 notes | Score threshold: >40
 
 ## Safety — Never Run Destructive Commands
 
@@ -18,16 +18,24 @@
 
 **Stack:** Unknown stack
 
-## 📝 NOTE: 1 uncommitted file(s) in working tree.\n\n## Project Standards
+## 📝 NOTE: 1 uncommitted file(s) in working tree.\n\n## Active: `netlify-app`
 
-- Added session cookies authentication — prevents XSS injection attacks — confirmed 3x
+- **Fixed null crash in Excel — wraps unsafe operation in error boundary — confirmed 5x**
+- **Fixed null crash in Find — wraps unsafe operation in error boundary — confirmed 3x**
+- **Patched security issue VERSION — offloads heavy computation off the main thread — confirmed 3x**
+- **Fixed null crash in Last — wraps unsafe operation in error boundary — confirmed 3x**
+- **Fixed null crash in OPENCV — offloads heavy computation off the main thread — confirmed 3x**
+
+## Project Standards
+
 - Fixed null crash in Excel — wraps unsafe operation in error boundary — confirmed 5x
-- what-changed in index.html — confirmed 3x
-- what-changed in vercel.json — confirmed 3x
 - Fixed null crash in Find — wraps unsafe operation in error boundary — confirmed 3x
-- what-changed in index.html — confirmed 3x
 - Patched security issue VERSION — offloads heavy computation off the main thread — confirmed 3x
-- convention in index.html
+- Fixed null crash in Last — wraps unsafe operation in error boundary — confirmed 3x
+- Fixed null crash in OPENCV — offloads heavy computation off the main thread — confirmed 3x
+- Added session cookies authentication — confirmed 3x
+- what-changed in app.js — confirmed 3x
+- Fixed null crash in AppState — confirmed 4x
 
 ## Known Fixes
 

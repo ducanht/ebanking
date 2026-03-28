@@ -8,7 +8,7 @@ const GAS_API_URL = "https://script.google.com/macros/s/AKfycbyXBMdJO2JmoaarxW9l
 
 const AppState = {
     user: JSON.parse(localStorage.getItem('HOKINHDOANH_SESSION')) || null,
-    VERSION: "2.1.0-AUDITED",
+    VERSION: "2.1.1-PATCHED",
     apiBase: "",
     lastActive: Date.now()
 };
@@ -685,6 +685,7 @@ function initMoTaiKhoanForm() {
     
     $('#frm-mo-tk').off('submit').on('submit', handleRegistration);
     $('#loai_hinh').on('change', toggleFormFields);
+    toggleFormFields(); // Initialize field visibility on load
 
     // Map camera inputs -> corresponding file inputs
     const camMap = {
@@ -799,8 +800,8 @@ async function handleRegistration(e) {
 
     for (const slot of filesToProcess) {
         currentStep++;
-        // Đảm bảo lấy đúng file từ inputId
-        const fileInput = document.getElementById(slot.inputId);
+        // FIX: Dung slot.id thay vi slot.inputId
+        const fileInput = document.getElementById(slot.id);
         const file = fileInput ? fileInput.files[0] : null;
 
         updateUIProgress(`Đang tối ưu ${slot.label} (${currentStep}/${filesToProcess.length})...`, Math.round((currentStep / totalSteps) * 100));
@@ -886,7 +887,7 @@ async function initMyCustomersList() {
         if (cachedAdmin) {
             updateStaffRankings(cachedAdmin, AppState.user.email);
         } else {
-            runAPI('api_getAdminDashboardData', {}, (adminRes) => {
+            runAPI('api_getAdminDashboardData', { email: AppState.user.email }, (adminRes) => {
                 if (adminRes.status === 'success') {
                     const s = _parseStats(adminRes);
                     AppCache.set('adminDashboard', s);
@@ -899,7 +900,7 @@ async function initMyCustomersList() {
 
     $('#tbMyCustomersBody').html('<tr><td colspan="7" class="text-center py-4"><span class="spinner-border text-primary"></span><br>Đang đồng bộ...</td></tr>');
     
-    runAPI('api_getmycustomers', { email: AppState.user.email }, (res) => {
+        runAPI('api_getmycustomers', { email: AppState.user.email }, (res) => {
         if (res.status === 'success') {
             AppCache.set('myCustomers', res);
             renderMyCustomersTable(res.data || []);
@@ -910,7 +911,7 @@ async function initMyCustomersList() {
             if (cachedAdmin) {
                 updateStaffRankings(cachedAdmin, AppState.user.email);
             } else {
-                runAPI('api_getAdminDashboardData', {}, (adminRes) => {
+                runAPI('api_getAdminDashboardData', { email: AppState.user.email }, (adminRes) => {
                     if (adminRes.status === 'success') {
                         const s = _parseStats(adminRes);
                         AppCache.set('adminDashboard', s);
@@ -1081,17 +1082,18 @@ function renderMyCustomersTable(data) {
  */
 let charts = {};
 
-async function initDashboard() {
-    // Parse stats từ response (statsStr là chuẩn, fallback sang stats)
-    function _parseStats(res) {
-        let s = null;
-        if (res.statsStr) {
-            try { s = JSON.parse(res.statsStr); } catch(e) { console.error('Parse statsStr error', e); }
-        }
-        if (!s) s = res.stats || null;
-        return s;
+// GLOBAL UTILITY: Parse stats từ response (statsStr là chuẩn, fallback sang stats)
+function _parseStats(res) {
+    if (!res) return null;
+    let s = null;
+    if (res.statsStr) {
+        try { s = JSON.parse(res.statsStr); } catch(e) { console.error('Parse statsStr error', e); }
     }
+    if (!s) s = res.stats || null;
+    return s;
+}
 
+async function initDashboard() {
     function _renderAll(s) {
         if (!s) { console.error("Dashboard stats is null"); return; }
         renderAdminStats(s);
@@ -1377,9 +1379,9 @@ function openEditCustomerModal(id) {
         let row = null;
         const sourceData = (AppState.user && AppState.user.role === 'Admin') ? (window._adminAllData || []) : ((AppCache.get('myCustomers') || {}).data || []);
         
-        const rowIdStr = String(id).trim();
+        const rowIdStr = String(id).trim().replace(/^'/, '');
         for (let i = 0; i < sourceData.length; i++) {
-            const currentId = String(sourceData[i]['ID'] || sourceData[i]['Mã GD'] || '').trim();
+            const currentId = String(sourceData[i]['ID'] || sourceData[i]['Mã GD'] || '').trim().replace(/^'/, '');
             if (currentId === rowIdStr) {
                 row = sourceData[i];
                 break;

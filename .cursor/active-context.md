@@ -2,6 +2,67 @@
 > Dynamically loaded for active file: `netlify-app\app.js` (Domain: **Generic Logic**)
 
 ### 📐 Generic Logic Conventions & Fixes
+- **[problem-fix] Patched security issue Initialize — prevents XSS injection attacks**: - 
++     toggleFormFields(); // Initialize field visibility on load
+-     // Map camera inputs -> corresponding file inputs
++ 
+-     const camMap = {
++     // Map camera inputs -> corresponding file inputs
+-         'cam_truoc': 'img_truoc',
++     const camMap = {
+-         'cam_sau':   'img_sau',
++         'cam_truoc': 'img_truoc',
+-         'cam_dkkd':  'img_dkkd',
++         'cam_sau':   'img_sau',
+-         'cam_qr':    'img_qr',
++         'cam_dkkd':  'img_dkkd',
+-         'cam_thuchien': 'img_thuchien'
++         'cam_qr':    'img_qr',
+-     };
++         'cam_thuchien': 'img_thuchien'
+- 
++     };
+-     const triggerProcessing = async (file, targetId) => {
++ 
+-         if (!file) return;
++     const triggerProcessing = async (file, targetId) => {
+-         showLoading('Phan tich anh...');
++         if (!file) return;
+-         try {
++         showLoading('Phan tich anh...');
+-             const processed = await processImageWithAI(file);
++         try {
+-             startCroppingFlow(processed, targetId);
++             const processed = await processImageWithAI(file);
+-         } catch(e) {
++             startCroppingFlow(processed, targetId);
+-             startCroppingFlow(file, targetId);
++         } catch(e) {
+-         } finally {
++             startCroppingFlow(file, targetId);
+-             hideLoading();
++         } finally {
+-         }
++             hideLoading();
+-     };
++         }
+- 
++     };
+-     // File (gallery) inputs
++ 
+-     const uploadIds = ['img_truoc', 'img_sau', 'img_dkkd', 'img_qr', 'img_thuchien'];
++     // File (gallery) inputs
+-     uploadIds.forEach(id => {
++     const uploadIds = ['img_truoc', 'img_sau', 'img_dkkd', 'img_qr', 'img_thuchien'];
+-         $(`#${id}`).off('change').on('change', async function() {
++     uploadIds.forEach(id => {
+-             if (this.files && this.files[0]) {
++         $(`#${id}`).off('change').on('change', async function() {
+-                 await triggerProcessing(this.files[0], id);
++             
+… [diff truncated]
+
+📌 IDE AST Context: Modified symbols likely include [GAS_API_URL, AppState, INACTIVITY_LIMIT, checkInactivity, on('click keydown scroll mousedown touchstart') callback]
 - **[decision] decision in app.js**: -             $('#staffDash-aboveRankInfo').html(`<i class='bx bx-trending-up'></i> Người xếp trên: <b>${aboveMe.total || 0}</b> hồ sơ (cần thêm ${diff})`);
 +             $('#staffDash-aboveRankInfo').html(`<i class='bx bx-trending-up'></i> Người xếp trên: <b>${(aboveMe.total || 0)}</b> hồ sơ (cần thêm ${diff})`);
 
@@ -472,9 +533,3 @@
 … [diff truncated]
 
 📌 IDE AST Context: Modified symbols likely include [GAS_API_URL, AppState, AppCache, runAPI, showLoading]
-- **[convention] what-changed in index.html — confirmed 3x**: -                     <button class="btn btn-outline-secondary btn-sm d-none d-sm-flex align-items-center gap-1 shadow-sm" onclick="$('#modalChangePassword').modal('show')">
-+                     <button class="btn btn-outline-secondary btn-sm d-none d-sm-flex align-items-center gap-1 shadow-sm" onclick="openChangePasswordModal()">
--                     <button class="btn btn-outline-secondary btn-sm d-none d-sm-flex align-items-center gap-1 bg-white shadow-sm" onclick="$('#modalChangePassword').modal('show')">
-+                     <button class="btn btn-outline-secondary btn-sm d-none d-sm-flex align-items-center gap-1 bg-white shadow-sm" onclick="openChangePasswordModal()">
-
-📌 IDE AST Context: Modified symbols likely include [html]
