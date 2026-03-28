@@ -1053,14 +1053,13 @@ function renderMyCustomersTable(data) {
 let charts = {};
 
 async function initDashboard() {
-    // Parse stats từ response
+    // Parse stats từ response (statsStr là chuẩn, fallback sang stats)
     function _parseStats(res) {
         let s = null;
         if (res.statsStr) {
-            try { s = JSON.parse(res.statsStr); } catch(e) { console.error("Parse statsStr error", e); }
-        } else {
-            s = res.stats || res.data;
+            try { s = JSON.parse(res.statsStr); } catch(e) { console.error('Parse statsStr error', e); }
         }
+        if (!s) s = res.stats || null;
         return s;
     }
 
@@ -1153,92 +1152,107 @@ function renderAdminCharts(s) {
 }
 
 function renderAdminTable(allData, allStaffs) {
-    window._adminAllData = allData.sort((a,b) => (new Date(b['Thời điểm nhập']) || 0) - (new Date(a['Thời điểm nhập']) || 0));
+    // Hủy DataTable cũ nếu đã tồn tại để tránh double-init
+    if ($.fn.DataTable.isDataTable('#tblKH')) {
+        $('#tblKH').DataTable().destroy();
+    }
+
+    window._adminAllData = allData.sort((a,b) => (new Date(b['Thời điểm nhập'])||0) - (new Date(a['Thời điểm nhập'])||0));
     window._adminRawStaffs = allStaffs;
 
     const staffMap = {};
     allStaffs.forEach(st => staffMap[st.email] = st.name);
-    
+
+    // Các cột trong tbody (7 cột, khớp với thead):
+    // 0=Thời gian | 1=Họ Tên | 2=Loại hình | 3=Số TK | 4=Email (hidden, filter) | 5=Cán bộ | 6=Thao tác
     const html = window._adminAllData.map(d => {
-        const staffName = staffMap[d['Cán bộ thực hiện']] || d['Cán bộ thực hiện'];
+        const staffEmail = (d['Cán bộ thực hiện'] || '').toString().trim();
+        const staffName  = staffMap[staffEmail] || staffEmail;
+        const rowId      = (d['ID'] || d['Mã GD'] || '').toString().trim();
         return `
-            <tr onclick="openEditCustomerModal('${d.ID}')" class="cursor-pointer">
+            <tr onclick="openEditCustomerModal('${rowId}')" class="cursor-pointer" style="cursor:pointer">
                 <td><small class="text-muted">${utils_formatVN(d['Thời điểm nhập'], 'date')}</small></td>
                 <td class="fw-bold text-dark">${d['Tên khách hàng'] || ''}</td>
                 <td><span class="badge bg-light text-dark border">${d['Loại hình dịch vụ'] || 'Cá nhân'}</span></td>
-                <td>${d['Số tài khoản'] || ''}</td>
-                <td>${(d['Số ĐKKD'] || d['Số GP ĐKKD'] || '').toString().replace(/^'/, '')}</td>
-                <td>${(d['Số CCCD'] || '').toString().replace(/^'/, '')}</td>
-                <td>${d['Số điện thoại'] || ''}</td>
-                <td>${d['Tên đăng nhập'] || ''}</td>
-                <td>${d['Mật khẩu'] || ''}</td>
-                <td>${staffName}</td>
-                <td class="text-truncate" style="max-width: 150px;" title="${staffName}">
-                    <small class="text-secondary">${staffName}</small>
-                    <span class="d-none">${d['Cán bộ thực hiện']}</span>
-                </td>
-                <td class="text-end"><button class="btn btn-sm btn-outline-primary" onclick="openEditCustomerModal('${d.ID}')"><i class="bx bx-info-circle"></i></button></td>
-            </tr>
-        `;
+                <td class="text-secondary"><small>${(d['Số tài khoản'] || '').toString().replace(/^'/, '')}</small></td>
+                <td class="d-none">${staffEmail}</td>
+                <td><small>${staffName}</small></td>
+                <td class="text-end"><button class="btn btn-sm btn-outline-primary px-2" onclick="event.stopPropagation();openEditCustomerModal('${rowId}')"><i class="bx bx-info-circle"></i></button></td>
+            </tr>`;
     }).join('');
 
     $('#tblKH tbody').html(html);
-    
-    // Populate Staff Filter if empty
+
+    // Populate Staff Filter (chỉ điền 1 lần)
     const selStaff = $('#filterStaffAdmin');
-    if (selStaff.find('option').length <= 1) {
-        allStaffs.forEach(st => {
+    if (selStaff.find('option').length <= 1 && allStaffs.length > 0) {
+        allStaffs.sort((a,b) => (a.name||'').localeCompare(b.name||'')).forEach(st => {
             selStaff.append(`<option value="${st.email}">${st.name}</option>`);
         });
     }
+
     const dtAdmin = $('#tblKH').DataTable({
         responsive: true,
         order: [[0, 'desc']],
-        dom: "<'row mb-2'<'col-sm-12 col-md-4 d-flex align-items-center justify-content-start'l><'col-sm-12 col-md-4 d-flex align-items-center justify-content-center'B><'col-sm-12 col-md-4 d-flex align-items-center justify-content-end'f>>" +
+        dom: "<'row mb-2'<'col-sm-12 col-md-3'l><'col-sm-12 col-md-5'f><'col-sm-12 col-md-4 text-end'B>>" +
              "<'row'<'col-sm-12'tr>>" +
              "<'row mt-2'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
         buttons: [{
             extend: 'excelHtml5',
             text: '<i class="bx bxs-file-export"></i> Xuất Excel',
             className: 'btn btn-sm btn-success shadow-sm',
-            exportOptions: { columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10] },
+            exportOptions: {
+                // Xuất tất cả cột bao gồm cột ẩn (email, STK, CCCD, ...)
+                columns: ':all',
+                format: {
+                    header: function(data, col) {
+                        // Ẩn cột email khỏi header xuất
+                        const hdrs = ['Thời gian', 'Họ Tên', 'Loại Hình', 'Số TK', 'Email CB', 'Cán Bộ', 'Thao tác'];
+                        return hdrs[col] || data;
+                    }
+                }
+            },
             title: 'Bao_Cao_KH_YenTho_' + new Date().toISOString().slice(0,10)
         }],
         language: { url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json" },
         search: { caseInsensitive: true, smart: true },
         columnDefs: [
-            { targets: [3, 4, 5, 6, 7, 8, 9], visible: false },
-            { targets: [11], orderable: false, searchable: false }
+            { targets: [4], visible: false, searchable: true },   // Email CB (dùng để lọc)
+            { targets: [6], orderable: false, searchable: false }  // Nút thao tác
         ]
     });
 
-    // Custom filtering function which will search data in column 0 (Thời gian)
-    $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+    // Ngăn DataTable search tìm cột 6 (nút bấm)
+    window._dtAdmin = dtAdmin;
+
+    // ==> Lọc theo ngày (cấy vào custom search)
+    // Xóa lọc cũ nếu có để tránh cộng dồn khi render lại
+    $.fn.dataTable.ext.search = $.fn.dataTable.ext.search.filter(fn => fn._tblKH !== true);
+    const dateFilter = function(settings, data, dataIndex) {
         if (settings.nTable.id !== 'tblKH') return true;
-        
-        const minVal = $('#filterFromDate').val(); // YYYY-MM-DD
-        const maxVal = $('#filterToDate').val(); // YYYY-MM-DD
-        const dateStr = window._adminAllData[dataIndex]['Thời điểm nhập']; // Original data
-        if (!dateStr) return true;
-        
-        const rowDate = new Date(dateStr).toISOString().slice(0, 10);
-        
+        const minVal = $('#filterFromDate').val();
+        const maxVal = $('#filterToDate').val();
+        const raw = window._adminAllData[dataIndex]?.['Thời điểm nhập'];
+        if (!raw) return true;
+        const rowDate = new Date(raw).toISOString().slice(0,10);
         if (minVal && rowDate < minVal) return false;
         if (maxVal && rowDate > maxVal) return false;
         return true;
+    };
+    dateFilter._tblKH = true;
+    $.fn.dataTable.ext.search.push(dateFilter);
+
+    // ==> Lọc theo Cán bộ (search cột email ẩn - index 4)
+    $('#filterStaffAdmin').off('change.tblKH').on('change.tblKH', function() {
+        dtAdmin.column(4).search($(this).val()).draw();
     });
 
-    $('#filterStaffAdmin').off('change').on('change', function() {
-        const val = $(this).val();
-        // Index 10 is the hidden column containing the email address
-        dtAdmin.column(10).search(val ? val : '').draw();
-    });
-
-
-    $('#filterFromDate, #filterToDate').on('change', function() {
+    // ==> Lọc theo Ngày
+    $('#filterFromDate, #filterToDate').off('change.tblKH').on('change.tblKH', function() {
         dtAdmin.draw();
     });
 }
+
 // --- MONTHLY CHARTS ---
 let monthlyChart = null;
 function renderMonthlyChart(allData) {
