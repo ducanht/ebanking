@@ -1,7 +1,7 @@
 
 
 # Project Memory — ebanking
-> 112 notes | Score threshold: >40
+> 114 notes | Score threshold: >40
 
 ## Safety — Never Run Destructive Commands
 
@@ -20,22 +20,22 @@
 
 ## 📝 NOTE: 1 uncommitted file(s) in working tree.\n\n## Active: `.`
 
+- **Patched security issue CONFIG — adds runtime type validation before use**
+- **Fixed null crash in Action — hardens HTTP security headers**
 - **what-changed in index.html — confirmed 3x**
+- **Patched security issue VERSION — offloads heavy computation off the main thread — confirmed 3x**
 - **convention in index.html**
-- **Replaced auth CCCD — adds runtime type validation before use — confirmed 3x**
-- **Strengthened types Kinh — adds runtime type validation before use**
-- **Strengthened types GIAN — adds runtime type validation before use**
 
 ## Project Standards
 
 - what-changed in index.html — confirmed 3x
+- Patched security issue VERSION — offloads heavy computation off the main thread — confirmed 3x
 - convention in index.html
 - Replaced auth CCCD — adds runtime type validation before use — confirmed 3x
+- Replaced auth Phase — confirmed 3x
 - Strengthened types Kinh — adds runtime type validation before use
+- Fixed null crash in Last — wraps unsafe operation in error boundary — confirmed 3x
 - Strengthened types GIAN — adds runtime type validation before use
-- Strengthened types Nguoi — adds runtime type validation before use
-- Strengthened types Modal — adds runtime type validation before use
-- Strengthened types Kinh — adds runtime type validation before use
 
 ## Known Fixes
 
