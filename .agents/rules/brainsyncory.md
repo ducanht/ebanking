@@ -1,7 +1,7 @@
 
 
 # Project Memory — ebanking
-> 232 notes | Score threshold: >40
+> 237 notes | Score threshold: >40
 
 ## Safety — Never Run Destructive Commands
 
@@ -18,16 +18,30 @@
 
 **Stack:** Unknown stack
 
-## 📝 NOTE: 1 uncommitted file(s) in working tree.\n\n## Project Standards
+## 📝 NOTE: 1 uncommitted file(s) in working tree.\n\n## Important Warnings
 
-- Patched security issue CCCD — adds runtime type validation before use — confirmed 4x
+- **⚠️ GOTCHA: Patched security issue EVENT — prevents XSS injection attacks** — - 
++ // --- CẤU HÌNH EVENT DELEGATION: XỬ LÝ CLICK XEM CHI TIẾT ---
+- 
+
+## Active: `netlify-app`
+
+- **⚠️ GOTCHA: Patched security issue EVENT — prevents XSS injection attacks**
+- **Strengthened types Admin — adds runtime type validation before use**
+- **what-changed in index.html — confirmed 3x**
+- **what-changed in index.html — confirmed 3x**
+- **convention in index.html**
+
+## Project Standards
+
 - Strengthened types Admin — adds runtime type validation before use
-- what-changed in app.js — confirmed 7x
-- what-changed in index.html — confirmed 6x
-- problem-fix in task.md.resolved — confirmed 4x
-- Patched security issue DataTable — prevents XSS injection attacks — confirmed 3x
-- Strengthened types Walkthrough
-- Patched security issue Date — prevents XSS injection attacks — confirmed 3x
+- what-changed in index.html — confirmed 3x
+- what-changed in index.html — confirmed 3x
+- convention in index.html
+- Replaced auth CCCD — adds runtime type validation before use — confirmed 3x
+- Strengthened types Kinh — adds runtime type validation before use
+- Strengthened types GIAN — adds runtime type validation before use
+- Strengthened types Nguoi — adds runtime type validation before use
 
 ## Known Fixes
 
@@ -37,10 +51,10 @@
 
 ## Recent Decisions
 
-- Optimized Danh — ensures atomic multi-step database operations
 - decision in app.js
 - decision in style.css
 - decision in style.css
+- Optimized Danh — ensures atomic multi-step database operations
 
 ## Verified Best Practices
 

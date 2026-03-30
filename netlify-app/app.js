@@ -8,7 +8,7 @@ const GAS_API_URL = "https://script.google.com/macros/s/AKfycbyXBMdJO2JmoaarxW9l
 
 const AppState = {
     user: JSON.parse(localStorage.getItem('HOKINHDOANH_SESSION')) || null,
-    VERSION: "2.1.1-PATCHED",
+    VERSION: "2.1.2-STABLE",
     apiBase: "",
     lastActive: Date.now()
 };
@@ -1730,12 +1730,13 @@ function handleLoginSuccess(silent) {
 }
 
 function logout() {
-    localStorage.removeItem('HOKINHDOANH_SESSION');
-    sessionStorage.removeItem('HOKINHDOANH_SESSION');
+    localStorage.clear();
+    sessionStorage.clear();
     AppCache.clearAll();
     AppState.user = null;
-    $('#frm-login')[0].reset();
-    window.location.reload();
+    
+    // Ép trình duyệt tải lại trang và bỏ qua cache bằng cách thêm tham số timestamp ngẫu nhiên
+    window.location.href = window.location.origin + window.location.pathname + '?v=' + Date.now();
 }
 
 function utils_escapeHTML(str) {
