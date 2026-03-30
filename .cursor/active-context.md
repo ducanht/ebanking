@@ -1,5 +1,5 @@
 > **BrainSync Context Pumper** 🧠
-> Dynamically loaded for active file: `netlify-app\js\customer.js` (Domain: **Generic Logic**)
+> Dynamically loaded for active file: `netlify-app\js\api.js` (Domain: **Generic Logic**)
 
 ### 🔴 Generic Logic Gotchas
 - **⚠️ GOTCHA: Added session cookies authentication — adds runtime type validation before use**: -  * NETLIFY HIGH-FIDELITY APP ENGINE (app.js)
@@ -199,24 +199,172 @@
 📌 IDE AST Context: Modified symbols likely include [GAS_API_URL, AppState, INACTIVITY_LIMIT, checkInactivity, on('click keydown scroll mousedown touchstart') callback]
 
 ### 📐 Generic Logic Conventions & Fixes
-- **[problem-fix] Fixed null crash in Must**: -                 progressWrapper.fadeOut();
-+                 progressWrapper.addClass('initially-hidden').addClass('d-none').hide();
--         // Must use $.fn.DataTable (capital D) for extending type search properly
-+         const dtExt = $.fn.dataTable.ext;
--         const dtExt = $.fn.DataTable.ext;
-+         if (dtExt && dtExt.type && dtExt.type.search) {
--         if (dtExt && dtExt.type && dtExt.type.search) {
-+             dtExt.type.search.string = function(data) {
--             dtExt.type.search.string = function(data) {
-+                 if (data === null || data === undefined) return '';
--                 if (!data) return '';
-+                 let searchData = data;
--                 if (typeof data !== 'string') return data.toString();
-+                 if (typeof data !== 'string') searchData = data.toString();
--                 return data
-+                 return searchData
+- **[convention] Fixed null crash in Object — offloads heavy computation off the main thread — confirmed 4x**: -     flatpickr(".js-datepicker", { dateFormat: "Y-m-d", altInput: true, altFormat: "d/m/Y", defaultDate: "today" });
++     const fpEls = document.querySelectorAll('.js-datepicker');
+-     
++     fpEls.forEach(el => {
+-     $('#frm-mo-tk').off('submit').on('submit', handleRegistration);
++         if (!el._flatpickr) {
+-     $('#loai_hinh').on('change', toggleFormFields);
++             flatpickr(el, { dateFormat: "Y-m-d", altInput: true, altFormat: "d/m/Y", defaultDate: "today" });
+-     toggleFormFields(); 
++         }
+- 
++     });
+-     const camMap = {
++     
+-         'cam_truoc': 'img_truoc',
++     $('#frm-mo-tk').off('submit').on('submit', handleRegistration);
+-         'cam_sau':   'img_sau',
++     $('#loai_hinh').on('change', toggleFormFields);
+-         'cam_dkkd':  'img_dkkd',
++     toggleFormFields(); 
+-         'cam_qr':    'img_qr',
++ 
+-         'cam_thuchien': 'img_thuchien'
++     const camMap = {
+-     };
++         'cam_truoc': 'img_truoc',
+- 
++         'cam_sau':   'img_sau',
+-     const triggerProcessing = async (file, targetId) => {
++         'cam_dkkd':  'img_dkkd',
+-         if (!file) return;
++         'cam_qr':    'img_qr',
+-         showLoading('Phân tích ảnh...');
++         'cam_thuchien': 'img_thuchien'
+-         try {
++     };
+-             const processed = await processImageWithAI(file);
++ 
+-             startCroppingFlow(processed, targetId);
++     const triggerProcessing = async (file, targetId) => {
+-         } catch(e) {
++         if (!file) return;
+-             startCroppingFlow(file, targetId);
++         showLoading('Phân tích ảnh...');
+-         } finally {
++         try {
+-             hideLoading();
++             const processed = await processImageWithAI(file);
+-         }
++             startCroppingFlow(processed, targetId);
+-     };
++         } catch(e) {
+- 
++             startCroppingFlow(file, targetId);
+-     const uploadIds = ['img_truoc', 'img_sau', 'img_dkkd', 'img_qr', 'img_thuchien'];
++         } finally {
+-     upload
+… [diff truncated]
 
-📌 IDE AST Context: Modified symbols likely include [GAS_API_URL, AppState, INACTIVITY_LIMIT, checkInactivity, on('click keydown scroll mousedown touchstart') callback]
+📌 IDE AST Context: Modified symbols likely include [initMoTaiKhoanForm, toggleFormFields, handleRegistration, checkDuplicate, loadStaffOpenAccountView]
+- **[what-changed] Replaced auth Prevent**: -     $('#frmLogin').on('submit', handleLogin);
++     $('#frm-login').on('submit', handleLogin);
+-     $('#btnChangePwd').on('click', openChangePasswordModal);
++     $('#frmChangePassword').on('submit', handleChangePassword);
+-     $('#frmChangePassword').on('submit', handleChangePassword);
++ 
+-     $('#btnLogoutDetail, #btnLogoutMobile, #btnLogoutAdmin').on('click', logout);
++     // 3. Prevent form submits default behaviour for dynamically generated forms
+- 
++     $(document).on('submit', 'form', function(e) {
+-     // 3. Prevent form submits default behaviour for dynamically generated forms
++         if (!this.id && !this.className) e.preventDefault();
+-     $(document).on('submit', 'form', function(e) {
++     });
+-         if (!this.id && !this.className) e.preventDefault();
++ 
+-     });
++     // 4. Modal Event Listeners
+- 
++     $(document).on('show.bs.modal', '.modal', function() {
+-     // 4. Modal Event Listeners
++         $('body').addClass('modal-open');
+-     $(document).on('show.bs.modal', '.modal', function() {
++     });
+-         $('body').addClass('modal-open');
++     
+-     });
++     $(document).on('hidden.bs.modal', '.modal', function() {
+-     
++         if ($('.modal.show').length === 0) $('body').removeClass('modal-open');
+-     $(document).on('hidden.bs.modal', '.modal', function() {
++     });
+-         if ($('.modal.show').length === 0) $('body').removeClass('modal-open');
++ 
+-     });
++     // 5. Cấp lại quyền loading off khi có phím bấm cứng (esc) xử lý bị treo form bootstrap
+- 
++     window.addEventListener('keydown', function(event) {
+-     // 5. Cấp lại quyền loading off khi có phím bấm cứng (esc) xử lý bị treo form bootstrap
++         if(event.key === 'Escape') {
+-     window.addEventListener('keydown', function(event) {
++             $('.modal').modal('hide');
+-         if(event.key === 'Escape') {
++         }
+-             $('.modal').modal('hide');
++     });
+-         }
++ });
+-     });
++ 
+- });
+- 
+
+📌 IDE AST Context: Modified symbols likely include [ready() callback]
+- **[what-changed] Replaced auth Prevent — adds runtime type validation before use**: -         showView('view-login');
++         hideLoading(); // Ẩn spinner khi đã tải xong và ở dạng đăng xuất
+-         if (typeof onOpenCvReady === 'function') setTimeout(onOpenCvReady, 500);
++         showView('view-login');
+-     }
++         if (typeof onOpenCvReady === 'function') setTimeout(onOpenCvReady, 500);
+- 
++     }
+-     // 2. Gán sự kiện cơ bản UI
++ 
+-     $('#frmLogin').on('submit', handleLogin);
++     // 2. Gán sự kiện cơ bản UI
+-     $('#btnChangePwd').on('click', openChangePasswordModal);
++     $('#frmLogin').on('submit', handleLogin);
+-     $('#frmChangePassword').on('submit', handleChangePassword);
++     $('#btnChangePwd').on('click', openChangePasswordModal);
+-     $('#btnLogoutDetail, #btnLogoutMobile, #btnLogoutAdmin').on('click', logout);
++     $('#frmChangePassword').on('submit', handleChangePassword);
+- 
++     $('#btnLogoutDetail, #btnLogoutMobile, #btnLogoutAdmin').on('click', logout);
+-     // 3. Prevent form submits default behaviour for dynamically generated forms
++ 
+-     $(document).on('submit', 'form', function(e) {
++     // 3. Prevent form submits default behaviour for dynamically generated forms
+-         if (!this.id && !this.className) e.preventDefault();
++     $(document).on('submit', 'form', function(e) {
+-     });
++         if (!this.id && !this.className) e.preventDefault();
+- 
++     });
+-     // 4. Modal Event Listeners
++ 
+-     $(document).on('show.bs.modal', '.modal', function() {
++     // 4. Modal Event Listeners
+-         $('body').addClass('modal-open');
++     $(document).on('show.bs.modal', '.modal', function() {
+-     });
++         $('body').addClass('modal-open');
+-     
++     });
+-     $(document).on('hidden.bs.modal', '.modal', function() {
++     
+-         if ($('.modal.show').length === 0) $('body').removeClass('modal-open');
++     $(document).on('hidden.bs.modal', '.modal', function() {
+-     });
++         if ($('.modal.show').length === 0) $('body').removeClass('modal-open');
+- 
++     });
+-     // 5. Cấp lại quyề
+… [diff truncated]
+
+📌 IDE AST Context: Modified symbols likely include [ready() callback]
 - **[convention] 🟢 Edited netlify-app/app.js (5 changes, 29min) — confirmed 3x**: Active editing session on netlify-app/app.js.
 5 content changes over 29 minutes.
 - **[problem-fix] Patched security issue NONE — prevents XSS injection attacks**: -     progressWrapper.show();
@@ -470,71 +618,6 @@
 +         if (dDate) {
 -         } else {
 +             const rawD = new Date(dDate);
-… [diff truncated]
-
-📌 IDE AST Context: Modified symbols likely include [GAS_API_URL, AppState, INACTIVITY_LIMIT, checkInactivity, on('click keydown scroll mousedown touchstart') callback]
-- **[convention] what-changed in app.js — confirmed 4x**: -     VERSION: "2.1.0-AUDITED",
-+     VERSION: "2.1.1-PATCHED",
-
-📌 IDE AST Context: Modified symbols likely include [GAS_API_URL, AppState, INACTIVITY_LIMIT, checkInactivity, on('click keydown scroll mousedown touchstart') callback]
-- **[convention] Patched security issue Initialize — prevents XSS injection attacks — confirmed 3x**: - 
-+     toggleFormFields(); // Initialize field visibility on load
--     // Map camera inputs -> corresponding file inputs
-+ 
--     const camMap = {
-+     // Map camera inputs -> corresponding file inputs
--         'cam_truoc': 'img_truoc',
-+     const camMap = {
--         'cam_sau':   'img_sau',
-+         'cam_truoc': 'img_truoc',
--         'cam_dkkd':  'img_dkkd',
-+         'cam_sau':   'img_sau',
--         'cam_qr':    'img_qr',
-+         'cam_dkkd':  'img_dkkd',
--         'cam_thuchien': 'img_thuchien'
-+         'cam_qr':    'img_qr',
--     };
-+         'cam_thuchien': 'img_thuchien'
-- 
-+     };
--     const triggerProcessing = async (file, targetId) => {
-+ 
--         if (!file) return;
-+     const triggerProcessing = async (file, targetId) => {
--         showLoading('Phan tich anh...');
-+         if (!file) return;
--         try {
-+         showLoading('Phan tich anh...');
--             const processed = await processImageWithAI(file);
-+         try {
--             startCroppingFlow(processed, targetId);
-+             const processed = await processImageWithAI(file);
--         } catch(e) {
-+             startCroppingFlow(processed, targetId);
--             startCroppingFlow(file, targetId);
-+         } catch(e) {
--         } finally {
-+             startCroppingFlow(file, targetId);
--             hideLoading();
-+         } finally {
--         }
-+             hideLoading();
--     };
-+         }
-- 
-+     };
--     // File (gallery) inputs
-+ 
--     const uploadIds = ['img_truoc', 'img_sau', 'img_dkkd', 'img_qr', 'img_thuchien'];
-+     // File (gallery) inputs
--     uploadIds.forEach(id => {
-+     const uploadIds = ['img_truoc', 'img_sau', 'img_dkkd', 'img_qr', 'img_thuchien'];
--         $(`#${id}`).off('change').on('change', async function() {
-+     uploadIds.forEach(id => {
--             if (this.files && this.files[0]) {
-+         $(`#${id}`).off('change').on('change', async function() {
--                 await triggerProcessing(this.files[0], id);
-+             
 … [diff truncated]
 
 📌 IDE AST Context: Modified symbols likely include [GAS_API_URL, AppState, INACTIVITY_LIMIT, checkInactivity, on('click keydown scroll mousedown touchstart') callback]

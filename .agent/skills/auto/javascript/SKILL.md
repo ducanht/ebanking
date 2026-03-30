@@ -1,6 +1,6 @@
 ---
 name: javascript
-description: "Javascript for ebanking. 3 gotchas, 15 conventions, 23 fixes."
+description: "Javascript for ebanking. 3 gotchas, 16 conventions, 25 fixes."
 domain: javascript
 triggers:
   - glob: "**/*.js"
@@ -11,7 +11,7 @@ enabled: true
 
 # Javascript
 
-Auto-compiled from **62 real patterns** in **ebanking**. This skill is auto-routed to agents when working on javascript files.
+Auto-compiled from **68 real patterns** in **ebanking**. This skill is auto-routed to agents when working on javascript files.
 
 ## ⚠️ Anti-Patterns & Gotchas
 
@@ -24,6 +24,48 @@ Auto-compiled from **62 real patterns** in **ebanking**. This skill is auto-rout
 | ⚠️ GOTCHA: Patched security issue EVENT — prevents | -  + // --- CẤU HÌNH EVENT DELEGATION: XỬ LÝ CLICK XEM CHI TIẾT --- - /** + $(document).on('click',  |
 
 ## 🔧 Problem Playbooks
+
+### Fixed null crash in JSON
+- const AppState = {
++ let parsedUser = null;
+-     user: JSON.parse(localStorage.getItem('HOKINHDOANH_SESSION')) || null,
++ try {
+-     VERSION: "2.1.2-STABLE",
++     const rawUser = localStorage.getItem('HOKINHDOANH_SESSION');
+-     apiBase: "",
++     if (rawUser && rawUser !== 'undefined' && rawUser !== 'null') {
+-     lastActive: Date.now()
++         parsedUser = JSON.parse(rawUser);
+- };
++   
+
+**Actionable Steps:**
+1. Modified 1 files
+2. identifier: JSON
+3. identifier: AppState
+4. identifier: VERSION
+5. identifier: STABLE
+
+### Fixed null crash in JSON — wraps unsafe operation in error boundary
+-         const result = await response.json();
++         let result;
+-         
++         const textRes = await response.text();
+-         if (loadingMsg !== 'NONE') hideLoading();
++         try {
+-         if (successHandler) successHandler(result);
++             result = JSON.parse(textRes);
+-         return result;
++         } catch (e) {
+- 
++             console.error("Lỗi phân tích JSON từ S
+
+**Actionable Steps:**
+1. Modified 1 files
+2. identifier: JSON
+3. identifier: Server
+4. identifier: Error
+5. identifier: Vui
 
 ### Fixed null crash in Must
 -                 progressWrapper.fadeOut();
@@ -303,44 +345,6 @@ Auto-compiled from **62 real patterns** in **ebanking**. This skill is auto-rout
 -     } else {
 +         
 -         $('#staffDash-rank').text('Chưa xếp hạng');
-+         // Find person immediately above
--     }
-+         if (rank > 1) {
-- 
-+             const aboveMe = staffs[rank - 2];
--     if (staffs.length > 0) {
-+             const diff = (aboveMe.total || 0) - (me.total || 0);
--         let top1 = staffs[0];
-+             $('#staffDash-aboveRankInfo').html(`<i class='bx
-
-**Actionable Steps:**
-1. Modified 1 files
-2. identifier: Find
-3. identifier: Last
-4. identifier: Date
-5. identifier: String
-
-### Fixed null crash in Hien — wraps unsafe operation in error boundary
--     let staffs = adminData.allStaffs;
-+     // Sap xep giam dan theo tong ho so, giong voi thu tu xep hang that su
--     let rank = staffs.findIndex(s => s.email === email) + 1;
-+     const staffs = [...adminData.allStaffs].sort((a, b) => (b.total || 0) - (a.total || 0));
--     let me = staffs.find(s => s.email === email);
-+     const rank = staffs.findIndex(s => s.email === email) + 1;
--     
-+
-
-**Actionable Steps:**
-1. Modified 1 files
-2. identifier: Sap
-3. identifier: Hien
-4. identifier: Top
-5. identifier: Ngay
-
-### Fixed null crash in CAMERA — offloads heavy computation off the main thread
--  * REGISTRATION LOGIC
-+  * CAMERA MODULE (getUserMedia Flow)
--  */
-+ 
++         // Find person immedi
 
 ... [Truncated — see individual observations for full content]

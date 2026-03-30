@@ -1,7 +1,7 @@
 
 
 # Project Memory — ebanking
-> 255 notes | Score threshold: >40
+> 266 notes | Score threshold: >40
 
 ## Safety — Never Run Destructive Commands
 
@@ -29,6 +29,7 @@
 
 ## Project Standards
 
+- Fixed null crash in Object — offloads heavy computation off the main thread — confirmed 4x
 - 🟢 Edited netlify-app/app.js (5 changes, 29min) — confirmed 3x
 - what-changed in index.html — confirmed 3x
 - Patched security issue Normalization — prevents XSS injection attacks — confirmed 3x
@@ -36,7 +37,6 @@
 - Strengthened types Admin — adds runtime type validation before use
 - what-changed in app.js — confirmed 7x
 - what-changed in index.html — confirmed 6x
-- problem-fix in task.md.resolved — confirmed 4x
 
 ## Known Fixes
 
@@ -46,9 +46,9 @@
 
 ## Recent Decisions
 
+- decision in registration.js
 - Optimized Danh — ensures atomic multi-step database operations
 - decision in app.js
-- decision in style.css
 - decision in style.css
 
 ## Verified Best Practices

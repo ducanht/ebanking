@@ -10,7 +10,7 @@ enabled: true
 
 # Project
 
-Auto-compiled from **143 real patterns** in **ebanking**. This skill is auto-routed to agents when working on project files.
+Auto-compiled from **148 real patterns** in **ebanking**. This skill is auto-routed to agents when working on project files.
 
 ## ⚠️ Anti-Patterns & Gotchas
 

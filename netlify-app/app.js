@@ -17,10 +17,8 @@ $(document).ready(() => {
     }
 
     // 2. Gán sự kiện cơ bản UI
-    $('#frmLogin').on('submit', handleLogin);
-    $('#btnChangePwd').on('click', openChangePasswordModal);
+    $('#frm-login').on('submit', handleLogin);
     $('#frmChangePassword').on('submit', handleChangePassword);
-    $('#btnLogoutDetail, #btnLogoutMobile, #btnLogoutAdmin').on('click', logout);
 
     // 3. Prevent form submits default behaviour for dynamically generated forms
     $(document).on('submit', 'form', function(e) {
