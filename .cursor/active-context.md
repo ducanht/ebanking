@@ -1,7 +1,132 @@
 > **BrainSync Context Pumper** 🧠
-> Dynamically loaded for active file: `netlify-app\app.js` (Domain: **Generic Logic**)
+> Dynamically loaded for active file: `netlify-app\js\customer.js` (Domain: **Generic Logic**)
 
 ### 🔴 Generic Logic Gotchas
+- **⚠️ GOTCHA: Added session cookies authentication — adds runtime type validation before use**: -  * NETLIFY HIGH-FIDELITY APP ENGINE (app.js)
++  * MÃ NGUỒN FRONTEND CHÍNH (Đã được Module hóa)
+-  * Phiên bản nâng cấp: Hỗ trợ OpenCV, Nén ảnh tự động, Dashboard và DataTables chuyên nghiệp.
++  * Quản lý khởi tạo trang và các hàm lắng nghe sự kiện tổng thể
+-  * Hệ thống giao tiếp với GAS Backend qua API JSON (doPost).
++  */
+-  */
++ 
+- 
++ $(document).ready(() => {
+- const GAS_API_URL = "https://script.google.com/macros/s/AKfycbyXBMdJO2JmoaarxW9l7mg-l4tyN6BF1U01jaMPQ48xmVOZM9WFWLnOTIc9Wyf1OpFr/exec";
++     // 1. Phục hồi session nếu có
+- 
++     if (AppState.user) {
+- const AppState = {
++         handleLoginSuccess(true);
+-     user: JSON.parse(localStorage.getItem('HOKINHDOANH_SESSION')) || null,
++     } else {
+-     VERSION: "2.1.2-STABLE",
++         localStorage.clear();
+-     apiBase: "",
++         sessionStorage.clear();
+-     lastActive: Date.now()
++         AppCache.clearAll();
+- };
++         showView('view-login');
+- 
++         if (typeof onOpenCvReady === 'function') setTimeout(onOpenCvReady, 500);
+- /**
++     }
+-  * AUTO-LOGOUT SECURITY
++ 
+-  */
++     // 2. Gán sự kiện cơ bản UI
+- const INACTIVITY_LIMIT = 60 * 60 * 1000; // 60 minutes
++     $('#frmLogin').on('submit', handleLogin);
+- function checkInactivity() {
++     $('#btnChangePwd').on('click', openChangePasswordModal);
+-     if (AppState.user && (Date.now() - AppState.lastActive > INACTIVITY_LIMIT)) {
++     $('#frmChangePassword').on('submit', handleChangePassword);
+-         logout();
++     $('#btnLogoutDetail, #btnLogoutMobile, #btnLogoutAdmin').on('click', logout);
+-         showAlert('Hết phiên làm việc', 'Phiên làm việc đã kết thúc do bạn không hoạt động trong 60 phút.', 'warning');
++ 
+-     }
++     // 3. Prevent form submits default behaviour for dynamically generated forms
+- }
++     $(document).on('submit', 'form', function(e) {
+- $(document).on('click keydown scroll mousedown touchstart', () => AppState.lastActive = Date.now());
++         if (!this.id && !this.className) e.preventDefault();
+- s
+… [diff truncated]
+
+📌 IDE AST Context: Modified symbols likely include [ready() callback]
+- **⚠️ GOTCHA: Patched security issue VERSION — prevents XSS injection attacks**: -     VERSION: "2.1.1-PATCHED",
++     VERSION: "2.1.2-STABLE",
+- 
++ // --- CẤU HÌNH EVENT DELEGATION: XỬ LÝ CLICK XEM CHI TIẾT ---
+- /**
++ $(document).on('click', '.clickable-row', function(e) {
+-  * CACHE SYSTEM
++     // Nếu click vào nút Chi tiết hoặc thành phần bên trong nút, dừng lại để tránh trigger 2 lần
+-  */
++     if ($(e.target).is('button') || $(e.target).closest('button').length) return;
+- const AppCache = {
++     
+-     data: {},
++     const id = $(this).attr('data-id') || $(this).data('id');
+-     timestamp: {},
++     if (id) openEditCustomerModal(id);
+-     TTL: 300000, // 5 phút (tăng từ 3 phút để giảm request lên Vercel)
++ });
+-     isFresh(key) {
++ 
+-         if (!this.timestamp[key]) return false;
++ // Xử lý riêng khi click trực tiếp vào nút Chi tiết
+-         return (Date.now() - this.timestamp[key]) < this.TTL;
++ $(document).on('click', '.btn-detail', function(e) {
+-     },
++     e.stopPropagation(); // Ngăn chặn sự kiện lan lên thẻ tr
+-     set(key, val) {
++     const id = $(this).closest('tr').attr('data-id') || $(this).closest('tr').data('id');
+-         this.data[key] = val;
++     if (id) openEditCustomerModal(id);
+-         this.timestamp[key] = Date.now();
++ });
+-     },
++ 
+-     get(key) {
++ 
+-         return this.isFresh(key) ? this.data[key] : null;
++ 
+-     },
++ /**
+-     clear(key) {
++  * CACHE SYSTEM
+-         delete this.data[key];
++  */
+-         delete this.timestamp[key];
++ const AppCache = {
+-     },
++     data: {},
+-     clearAll() {
++     timestamp: {},
+-         this.data = {};
++     TTL: 300000, // 5 phút (tăng từ 3 phút để giảm request lên Vercel)
+-         this.timestamp = {};
++     isFresh(key) {
+-     }
++         if (!this.timestamp[key]) return false;
+- };
++         return (Date.now() - this.timestamp[key]) < this.TTL;
+- 
++     },
+- /**
++     set(key, val) {
+-  * CORE API WRAPPER
++         this.data[key] = val;
+-  * Hardened with Timeout (30s) and Auto-Retry (Max 2)
++         this.timestamp[key] = Date.now();
+-  */
++    
+… [diff truncated]
+
+📌 IDE AST Context: Modified symbols likely include [GAS_API_URL, AppState, INACTIVITY_LIMIT, checkInactivity, on('click keydown scroll mousedown touchstart') callback]
 - **⚠️ GOTCHA: Patched security issue EVENT — prevents XSS injection attacks**: - 
 + // --- CẤU HÌNH EVENT DELEGATION: XỬ LÝ CLICK XEM CHI TIẾT ---
 - /**
@@ -246,6 +371,16 @@
 +         search: { caseInsensitive: true, smart: true }, // Bỏ searchDelay để đạt "tức thời"
 
 📌 IDE AST Context: Modified symbols likely include [GAS_API_URL, AppState, INACTIVITY_LIMIT, checkInactivity, on('click keydown scroll mousedown touchstart') callback]
+- **[convention] what-changed in app.js — confirmed 7x**: -     VERSION: "2.2.0-STABLE",
++     VERSION: "2.1.1-PATCHED",
+-                    + (loaiHinh !== 'Cá nhân' ? getImgHtml(row['URL GP DKKD'] || '', 'GP ĐKKD') : '')
++                    + (loaiHinh !== 'Cá nhân' ? getImgHtml(row['URL GP DKKD'] || row['URL DKKD'] || '', 'GP ĐKKD') : '')
+-                    + getImgHtml(row['URL QR'] || '', 'QR TK')
++                    + getImgHtml(row['URL QR'] || row['URL Mã QR'] || '', 'QR TK')
+-                    + getImgHtml(row['URL Ảnh Thực Hiện'] || '', 'Ảnh GD');
++                    + getImgHtml(row['URL Ảnh Thực Hiện'] || row['URL Thực Hiện'] || '', 'Ảnh GD');
+
+📌 IDE AST Context: Modified symbols likely include [GAS_API_URL, AppState, INACTIVITY_LIMIT, checkInactivity, on('click keydown scroll mousedown touchstart') callback]
 - **[convention] Patched security issue DataTable — prevents XSS injection attacks — confirmed 3x**: -         if(dtAllStaffs) try { dtAllStafffunction openEditCustomerModal(id) {
 +         if(dtAllStaffs) try { dtAllStaffs.destroy(); } catch(e){}
 -     try {
@@ -400,70 +535,6 @@
 +         $(`#${id}`).off('change').on('change', async function() {
 -                 await triggerProcessing(this.files[0], id);
 +             
-… [diff truncated]
-
-📌 IDE AST Context: Modified symbols likely include [GAS_API_URL, AppState, INACTIVITY_LIMIT, checkInactivity, on('click keydown scroll mousedown touchstart') callback]
-- **[decision] decision in app.js**: -             $('#staffDash-aboveRankInfo').html(`<i class='bx bx-trending-up'></i> Người xếp trên: <b>${aboveMe.total || 0}</b> hồ sơ (cần thêm ${diff})`);
-+             $('#staffDash-aboveRankInfo').html(`<i class='bx bx-trending-up'></i> Người xếp trên: <b>${(aboveMe.total || 0)}</b> hồ sơ (cần thêm ${diff})`);
-
-📌 IDE AST Context: Modified symbols likely include [GAS_API_URL, AppState, INACTIVITY_LIMIT, checkInactivity, on('click keydown scroll mousedown touchstart') callback]
-- **[discovery] discovery in app.js**: -                 <td class="fw-bold">${d['Tên khách hàng']}</td>
-+                 <td class="fw-bold">${utils_escapeHTML(d['Tên khách hàng'])}</td>
--                 <td><small>${d['Số CCCD']}</small></td>
-+                 <td><small>${utils_escapeHTML(d['Số CCCD'])}</small></td>
--                 <td><small>${d['Số GP ĐKKD'] || ''}</small></td>
-+                 <td><small>${utils_escapeHTML(d['Số GP ĐKKD'] || '')}</small></td>
--                 <td><span class="badge bg-light text-dark border">${d['Loại hình dịch vụ']}</span></td>
-+                 <td><span class="badge bg-light text-dark border">${utils_escapeHTML(d['Loại hình dịch vụ'])}</span></td>
--                 <td><small>${d['Số điện thoại']}</small></td>
-+                 <td><small>${utils_escapeHTML(d['Số điện thoại'])}</small></td>
--                 <td>${AppState.user ? AppState.user.name : (d['Cán bộ thực hiện'] || '')}</td>
-+                 <td>${AppState.user ? utils_escapeHTML(AppState.user.name) : utils_escapeHTML(d['Cán bộ thực hiện'] || '')}</td>
--                 <td><small>${d['Ngày mở TK'] || d['Ngày mở'] || ''}</small></td>
-+                 <td><small>${utils_escapeHTML(d['Ngày mở TK'] || d['Ngày mở'] || '')}</small></td>
--                 <td><small>${d['Số TK'] || d['Số tài khoản'] || ''}</small></td>
-+                 <td><small>${utils_escapeHTML(d['Số TK'] || d['Số tài khoản'] || '')}</small></td>
-
-📌 IDE AST Context: Modified symbols likely include [GAS_API_URL, AppState, INACTIVITY_LIMIT, checkInactivity, on('click keydown scroll mousedown touchstart') callback]
-- **[convention] Fixed null crash in Excel — wraps unsafe operation in error boundary — confirmed 5x**: -         dom: "<'row mb-2'<'col-sm-12 col-md-3'l><'col-sm-12 col-md-5'f><'col-sm-12 col-md-4 text-end'B>>" +
-+         lengthMenu: [10, 25, 50, 100],
--              "<'row'<'col-sm-12'tr>>" +
-+         pageLength: 25,
--              "<'row mt-2'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
-+         dom: "<'row mb-2'<'col-sm-12 col-md-3'l><'col-sm-12 col-md-5'f><'col-sm-12 col-md-4 text-end'B>>" +
--         buttons: [{
-+              "<'row'<'col-sm-12'tr>>" +
--             extend: 'excelHtml5',
-+              "<'row mt-2'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
--             text: '<i class="bx bxs-file-export"></i> Xuất Excel',
-+         buttons: [{
--             className: 'btn btn-sm btn-success shadow-sm',
-+             extend: 'excelHtml5',
--             exportOptions: {
-+             text: '<i class="bx bxs-file-export"></i> Xuất Excel',
--                 // Xuất tất cả cột bao gồm cột ẩn (email, STK, CCCD, ...)
-+             className: 'btn btn-sm btn-success shadow-sm',
--                 columns: ':all',
-+             exportOptions: {
--                 format: {
-+                 // Xuất tất cả cột bao gồm cột ẩn (email, STK, CCCD, ...)
--                     header: function(data, col) {
-+                 columns: ':all',
--                         // Ẩn cột email khỏi header xuất
-+                 format: {
--                         const hdrs = ['Thời gian', 'Họ Tên', 'Loại Hình', 'Số TK', 'Email CB', 'Cán Bộ', 'Thao tác'];
-+                     header: function(data, col) {
--                         return hdrs[col] || data;
-+                         // Ẩn cột email khỏi header xuất
--                     }
-+                         const hdrs = ['Thời gian', 'Họ Tên', 'Loại Hình', 'Số TK', 'Email CB', 'Cán Bộ', 'Thao tác'];
--                 }
-+                         return hdrs[col] || data;
--             },
-+                     }
--             title: 'Bao_Cao_KH_YenTho_' + new Date().toISOString().slice(0,10)
-+                 }
--      
 … [diff truncated]
 
 📌 IDE AST Context: Modified symbols likely include [GAS_API_URL, AppState, INACTIVITY_LIMIT, checkInactivity, on('click keydown scroll mousedown touchstart') callback]

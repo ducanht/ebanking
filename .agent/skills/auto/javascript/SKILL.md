@@ -1,6 +1,6 @@
 ---
 name: javascript
-description: "Javascript for ebanking. 2 gotchas, 15 conventions, 22 fixes."
+description: "Javascript for ebanking. 3 gotchas, 15 conventions, 23 fixes."
 domain: javascript
 triggers:
   - glob: "**/*.js"
@@ -11,39 +11,33 @@ enabled: true
 
 # Javascript
 
-Auto-compiled from **60 real patterns** in **ebanking**. This skill is auto-routed to agents when working on javascript files.
+Auto-compiled from **62 real patterns** in **ebanking**. This skill is auto-routed to agents when working on javascript files.
 
 ## ⚠️ Anti-Patterns & Gotchas
 
 > **CRITICAL:** These are real gotchas from this project. Ignoring them WILL cause bugs.
 
-### ❌ ⚠️ GOTCHA: Patched security issue VERSION — prevents XSS injection attacks
--     VERSION: "2.1.1-PATCHED",
-+     VERSION: "2.1.2-STABLE",
-- 
-+ // --- CẤU HÌNH EVENT DELEGATION: XỬ LÝ CLICK XEM CHI TIẾT ---
-- /**
-+ $(document).on('click', '.clickable-row', function(e) {
--  * CACHE SYSTEM
-+     // Nếu click vào nút Chi tiết h
-- Modified 1 files
-- identifier: VERSION
-- identifier: STABLE
-
-### ❌ ⚠️ GOTCHA: Patched security issue EVENT — prevents XSS injection attacks
-- 
-+ // --- CẤU HÌNH EVENT DELEGATION: XỬ LÝ CLICK XEM CHI TIẾT ---
-- /**
-+ $(document).on('click', '.clickable-row', function(e) {
--  * CACHE SYSTEM
-+     // Nếu click vào nút Chi tiết hoặc thành phần bên trong nút, dừng lại để tránh trigger 2 lần
--
-- Modified 1 files
-- identifier: EVENT
-- identifier: DELEGATION
-
+| ❌ Don't | Details |
+|----------|----------|
+| ⚠️ GOTCHA: Added session cookies authentication —  | -  * NETLIFY HIGH-FIDELITY APP ENGINE (app.js) +  * MÃ NGUỒN FRONTEND CHÍNH (Đã được Module hóa) -   |
+| ⚠️ GOTCHA: Patched security issue VERSION — preven | -     VERSION: "2.1.1-PATCHED", +     VERSION: "2.1.2-STABLE", -  + // --- CẤU HÌNH EVENT DELEGATION |
+| ⚠️ GOTCHA: Patched security issue EVENT — prevents | -  + // --- CẤU HÌNH EVENT DELEGATION: XỬ LÝ CLICK XEM CHI TIẾT --- - /** + $(document).on('click',  |
 
 ## 🔧 Problem Playbooks
+
+### Fixed null crash in Must
+-                 progressWrapper.fadeOut();
++                 progressWrapper.addClass('initially-hidden').addClass('d-none').hide();
+-         // Must use $.fn.DataTable (capital D) for extending type search properly
++         const dtExt = $.fn.dataTable.ext;
+-         const dtExt = $.fn.DataTable.ext;
++         if (dtExt && dtExt.type && dtExt.type.search) {
+-         if (dtExt && dtExt.type &
+
+**Actionable Steps:**
+1. Modified 1 files
+2. identifier: Must
+3. identifier: DataTable
 
 ### Patched security issue NONE — prevents XSS injection attacks
 -     progressWrapper.show();
@@ -347,9 +341,6 @@ Auto-compiled from **60 real patterns** in **ebanking**. This skill is auto-rout
 -  * REGISTRATION LOGIC
 +  * CAMERA MODULE (getUserMedia Flow)
 -  */
-+  * - Dung cho Netlify (HTTPS), ho tro ca mobile va desktop.
-- function initMoTaiKhoanForm() {
-+  * - Fallback an toan sang file picker neu browser khong ho tro hoac user tu choi quyen.
--     flatpickr(".js-datepicker", { dateFormat: "Y-m-d", altInpu
++ 
 
 ... [Truncated — see individual observations for full content]
