@@ -1,7 +1,7 @@
 
 
 # Project Memory — ebanking
-> 161 notes | Score threshold: >40
+> 232 notes | Score threshold: >40
 
 ## Safety — Never Run Destructive Commands
 
@@ -18,32 +18,26 @@
 
 **Stack:** Unknown stack
 
-## 📝 NOTE: 1 uncommitted file(s) in working tree.\n\n## Active: `netlify-app`
+## 📝 NOTE: 1 uncommitted file(s) in working tree.\n\n## Project Standards
 
-- **Fixed null crash in Excel — wraps unsafe operation in error boundary — confirmed 5x**
-- **Fixed null crash in Find — wraps unsafe operation in error boundary — confirmed 3x**
-- **Patched security issue VERSION — offloads heavy computation off the main thread — confirmed 3x**
-- **Fixed null crash in Last — wraps unsafe operation in error boundary — confirmed 3x**
-- **Fixed null crash in OPENCV — offloads heavy computation off the main thread — confirmed 3x**
-
-## Project Standards
-
-- Fixed null crash in Excel — wraps unsafe operation in error boundary — confirmed 5x
-- Fixed null crash in Find — wraps unsafe operation in error boundary — confirmed 3x
-- Patched security issue VERSION — offloads heavy computation off the main thread — confirmed 3x
-- Fixed null crash in Last — wraps unsafe operation in error boundary — confirmed 3x
-- Fixed null crash in OPENCV — offloads heavy computation off the main thread — confirmed 3x
-- Added session cookies authentication — confirmed 3x
-- what-changed in app.js — confirmed 3x
-- Fixed null crash in AppState — confirmed 4x
+- Patched security issue CCCD — adds runtime type validation before use — confirmed 4x
+- Strengthened types Admin — adds runtime type validation before use
+- what-changed in app.js — confirmed 7x
+- what-changed in index.html — confirmed 6x
+- problem-fix in task.md.resolved — confirmed 4x
+- Patched security issue DataTable — prevents XSS injection attacks — confirmed 3x
+- Strengthened types Walkthrough
+- Patched security issue Date — prevents XSS injection attacks — confirmed 3x
 
 ## Known Fixes
 
 - ❌ -     result.message = "GAS Backend Error: " + err.toString(); → ✅ Fixed null crash in Truy — hardens HTTP security headers
 - ❌ - async function runAPI(action, data = {}, successHandler, errorHandler, loadingMsg = 'Đang xử lý... → ✅ Patched security issue VERSION — offloads heavy computation off the main thread
+- ❌ -     - [ ] Add error feedback if a record is not found. → ✅ problem-fix in task.md
 
 ## Recent Decisions
 
+- Optimized Danh — ensures atomic multi-step database operations
 - decision in app.js
 - decision in style.css
 - decision in style.css

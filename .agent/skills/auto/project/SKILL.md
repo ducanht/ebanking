@@ -1,6 +1,6 @@
 ---
 name: project
-description: "Project for ebanking. 19 gotchas, 30 conventions, 5 fixes."
+description: "Project for ebanking. 19 gotchas, 38 conventions, 12 fixes."
 domain: project
 triggers:
   - glob: "**/*"
@@ -10,7 +10,7 @@ enabled: true
 
 # Project
 
-Auto-compiled from **93 real patterns** in **ebanking**. This skill is auto-routed to agents when working on project files.
+Auto-compiled from **136 real patterns** in **ebanking**. This skill is auto-routed to agents when working on project files.
 
 ## ⚠️ Anti-Patterns & Gotchas
 
@@ -39,6 +39,101 @@ Auto-compiled from **93 real patterns** in **ebanking**. This skill is auto-rout
 | Never force push to main, master, or production br | Never force push to main, master, or production branches |
 
 ## 🔧 Problem Playbooks
+
+### Patched security issue Netlify — prevents XSS injection attacks
+- # Walkthrough - Fixing Customer Info Display (Netlify)
++ # Báo cáo Đánh giá & Kết quả Nâng cấp Hệ thống
+- I have fixed the issue where the customer information modal would not display correctly or failed to populate data in the Netlify-hosted application.
++ Sau khi rà soát toàn diện mã nguồn và thực hiện các bước nâng cấp theo yêu cầu, dưới đây là kết quả đánh giá hệ thống Netlify-app.
+- ## Chan
+
+**Actionable Steps:**
+1. Modified 1 files
+2. identifier: Sau
+3. identifier: Netlify
+4. identifier: Hardening
+5. identifier: Staff
+
+### Fixed null crash in Email — filters out falsy/null values explicitly
+-     let allStaffStats = Object.keys(staffCount).map(k => {
++     let allStaffStats = staffs.map(s => {
+-       let tUser = staffs.find(s => s["Email"] === k);
++       let email = s["Email"];
+-       return {
++       let stats = staffCount[email] || { total: 0, caNhan: 0, hkd: 0 };
+-         email: k,
++       return {
+-         name: tUser ? tUser["Họ tên"] : k,
++         email: email,
+-         
+
+**Actionable Steps:**
+1. Modified 1 files
+2. identifier: Email
+3. identifier: Timeline
+4. identifier: Gom
+5. identifier: Date
+
+### problem-fix in task.md.resolved
+- - [x] Fix Customer Info Display in `netlify-app/app.js`
++ - [ ] Cập nhật Backend (`api_admin.gs`): Bao gồm toàn bộ cán bộ trong bảng xếp hạng.
+-     - [x] Initialize `js-datepicker-edit` for the modal.
++ - [ ] Cập nhật Frontend (`netlify-app/app.js`):
+-     - [x] Harden `openEditCustomerModal` to handle ID matching better.
++     - [ ] Thêm Huy chương/Cúp cho Top 3 trong Hạng của tôi.
+-     - [x]
+
+**Actionable Steps:**
+1. Modified 1 files
+
+### problem-fix in task.md
+- - [ ] Fix Customer Info Display in `netlify-app/app.js`
++ - [x] Fix Customer Info Display in `netlify-app/app.js`
+-     - [ ] Initialize `js-datepicker-edit` for the modal.
++     - [x] Initialize `js-datepicker-edit` for the modal.
+-     - [ ] Harden `openEditCustomerModal` to handle ID matching better.
++     - [x] Harden `openEditCustomerModal` to handle ID matching better.
+-     - [ ] Add erro
+
+**Actionable Steps:**
+1. Modified 1 files
+
+### problem-fix in task.md.resolved
+- - [ ] Fix Customer Info Display in `netlify-app/app.js`
++ - [x] Fix Customer Info Display in `netlify-app/app.js`
+-     - [ ] Initialize `js-datepicker-edit` for the modal.
++     - [x] Initialize `js-datepicker-edit` for the modal.
+-     - [ ] Harden `openEditCustomerModal` to handle ID matching better.
++     - [x] Harden `openEditCustomerModal` to handle ID matching better.
+-     - [ ] Add erro
+
+**Actionable Steps:**
+1. Modified 1 files
+
+### problem-fix in task.md.resolved
+- - [x] Hardening Search Logic in Netlify App (`netlify-app/app.js`)
++ - [ ] Fix Customer Info Display in `netlify-app/app.js`
+-     - [x] Update `renderMyCustomersTable` to include `caseInsensitive: true`.
++     - [ ] Initialize `js-datepicker-edit` for the modal.
+-     - [x] Update `renderAdminTable` to ensure `caseInsensitive` search is explicitly enabled and robust.
++     - [ ] Harden `openEdi
+
+**Actionable Steps:**
+1. Modified 1 files
+
+### Patched security issue CCCD — adds runtime type validation before use
+- function checkDuplicateAccount(cccd, dkkd, sdt) {
++ function checkDuplicateAccount(cccd, dkkd, sdt, loaiHinh) {
+-     if (cccd && cccd !== "" && row["Số CCCD"] == cccd) return { isDup: true, msg: "Trùng Số CCCD/CMND với giao dịch trước đó." };
++     // Chỉ báo trùng nếu CÙNG loại hình dịch vụ (Cá nhân vs Cá nhân, HKD vs HKD)
+-     if (dkkd && dkkd !== "" && row["Số DKKD"] == dkkd) return { isDup
+
+**Actionable Steps:**
+1. Modified 1 files
+2. identifier: HKD
+3. identifier: CCCD
+4. identifier: CMND
+5. identifier: DKKD
 
 ### Fixed null crash in Truy — hardens HTTP security headers
 -     // 3. Thực thi hàm tương ứng hoặc báo lỗi
@@ -139,6 +234,24 @@ Auto-compiled from **93 real patterns** in **ebanking**. This skill is auto-rout
 ## 📐 Conventions & Best Practices
 
 ### Project Conventions
+- 📐 **Patched security issue CCCD — adds runtime type validation before use — confirmed 4x** — - function checkDuplicateAccount(cccd, dkkd, sdt, loaiHinh) {
++ function checkDuplicateAccount(cccd,
+- 📐 **problem-fix in task.md.resolved — confirmed 4x** — - - [ ] Cập nhật Backend (`api_admin.gs`): Bao gồm toàn bộ cán bộ trong bảng xếp hạng.
++ - [x] Fix C
+- 📐 **Strengthened types Walkthrough** — - # Walkthrough - Hardening Search and Duplicate Logic
++ # Walkthrough - Fixing Customer Info Displa
+- 📐 **Strengthened types Fixing** — - # Hardening Search and Duplicate Logic
++ # Fixing Customer Information Display Regression
+- The ob
+- 📐 **Updated renderMyCustomersTable database schema — confirmed 3x** — - - [ ] Hardening Search Logic in Netlify App (`netlify-app/app.js`)
++ - [x] Hardening Search Logic 
+- 📐 **Strengthened types Hardening** — - # Implementation Plan - Account Uniqueness Logic Adjustment
++ # Hardening Search and Duplicate Log
+- 📐 **Updated Git database schema — ensures atomic multi-step database operations — confirmed 3x** — - # Task: Emergency Debugging & System Restoration
++ # Task: Security Audit & Cleanup
+- - [x] Emerge
+- 📐 **Replaced auth Walkthrough — ensures atomic multi-step database operations — confirmed 3x** — - # Walkthrough: Security Hardening & Production Deployment
++ # Walkthrough: Emergency Stabilization
 - 📐 **Added session cookies authentication — prevents XSS injection attacks — confirmed 3x** — - # Báo Cáo Đánh Giá & Tối Ưu Hóa Hệ Thống (Audit Report)
 + # BÁO CÁO KIỂM DUYỆT HỆ THỐNG (SYSTEM AU
 - 📐 **Replaced auth Phase — confirmed 3x** — - ## [ ] Verification & Testing
@@ -149,30 +262,6 @@ Auto-compiled from **93 real patterns** in **ebanking**. This skill is auto-rout
 - 📐 **Version your API from day 1 (/api/v1/)** — Version your API from day 1 (/api/v1/)
 - 📐 **Use consistent response format across all endpoints** — Use consistent response format across all endpoints
 - 📐 **Implement soft delete for important data — don't hard delete without confirmation** — Implement soft delete for important data — don't hard delete without confirmation
-- 📐 **Handle timezone correctly — store UTC, display in user's timezone** — Handle timezone correctly — store UTC, display in user's timezone
-- 📐 **Make layouts responsive from the start — mobile-first approach** — Make layouts responsive from the start — mobile-first approach
-- 📐 **Disable submit button during form submission — prevent double-submit** — Disable submit button during form submission — prevent double-submit
-- 📐 **Always add empty states ("No items yet" with call-to-action)** — Always add empty states ("No items yet" with call-to-action)
-- 📐 **Always add error states with retry button — not just blank screen** — Always add error states with retry button — not just blank screen
-- 📐 **Always add loading states for async operations (skeleton, spinner)** — Always add loading states for async operations (skeleton, spinner)
-- 📐 **Test edge cases: empty input, null, boundary values, error scenarios** — Test edge cases: empty input, null, boundary values, error scenarios
-- 📐 **Each test should be independent — no shared mutable state between tests** — Each test should be independent — no shared mutable state between tests
-- 📐 **Write tests for business logic — test behavior/output, not implementation details** — Write tests for business logic — test behavior/output, not implementation details
-- 📐 **Close resources (streams, connections, handles) when done** — Close resources (streams, connections, handles) when done
-- 📐 **Debounce user input handlers (search, resize, scroll)** — Debounce user input handlers (search, resize, scroll)
-- 📐 **Use pagination for lists over 100 items** — Use pagination for lists over 100 items
-- 📐 **Implement retry logic for transient failures with exponential backoff** — Implement retry logic for transient failures with exponential backoff
-- 📐 **Return proper HTTP status codes — not 500 for everything** — Return proper HTTP status codes — not 500 for everything
-- 📐 **Always wrap async/await in try/catch** — Always wrap async/await in try/catch
-- 📐 **Hash passwords with cost factor ≥12 (bcrypt) or memory ≥64MB (argon2)** — Hash passwords with cost factor ≥12 (bcrypt) or memory ≥64MB (argon2)
-- 📐 **Implement rate limiting on login endpoints to prevent brute force** — Implement rate limiting on login endpoints to prevent brute force
-- 📐 **Use constants for magic numbers and strings** — Use constants for magic numbers and strings
-- 📐 **Handle edge cases: empty arrays, empty strings, null, undefined, 0, NaN** — Handle edge cases: empty arrays, empty strings, null, undefined, 0, NaN
-- 📐 **Keep functions under 50 lines and single-responsibility** — Keep functions under 50 lines and single-responsibility
-- 📐 **Remove unused imports, variables, and dead code** — Remove unused imports, variables, and dead code
-- 📐 **Always pull before push to avoid conflicts** — Always pull before push to avoid conflicts
-- 📐 **Use meaningful commit messages in imperative mood: "Add feature" not "Added feature"** — Use meaningful commit messages in imperative mood: "Add feature" not "Added feature"
-- 📐 **Don't commit node_modules, __pycache__, build/, dist/ — add to .gitignore** — Don't commit node_modules, __pycache__, build/, dist/ — add to .gitignore
+- 📐 **Handle timezone correctly — store UTC, display in user's timezone** — Handle timez
 
----
-*Auto-generated by BrainSync 🧠 | 93 patterns | 2026-03-28*
+... [Truncated — see individual observations for full content]

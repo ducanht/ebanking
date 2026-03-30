@@ -23,3 +23,5 @@ netlify-poc/
 .agents/
 .brainsync/
 .cursor/
+
+.vercel

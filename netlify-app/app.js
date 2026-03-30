@@ -26,6 +26,23 @@ function checkInactivity() {
 $(document).on('click keydown scroll mousedown touchstart', () => AppState.lastActive = Date.now());
 setInterval(checkInactivity, 5 * 60 * 1000);
 
+// --- CẤU HÌNH EVENT DELEGATION: XỬ LÝ CLICK XEM CHI TIẾT ---
+$(document).on('click', '.clickable-row', function(e) {
+    // Nếu click vào nút Chi tiết hoặc thành phần bên trong nút, dừng lại để tránh trigger 2 lần
+    if ($(e.target).is('button') || $(e.target).closest('button').length) return;
+    
+    const id = $(this).attr('data-id') || $(this).data('id');
+    if (id) openEditCustomerModal(id);
+});
+
+// Xử lý riêng khi click trực tiếp vào nút Chi tiết
+$(document).on('click', '.btn-detail', function(e) {
+    e.stopPropagation(); // Ngăn chặn sự kiện lan lên thẻ tr
+    const id = $(this).closest('tr').attr('data-id') || $(this).closest('tr').data('id');
+    if (id) openEditCustomerModal(id);
+});
+
+
 
 /**
  * CACHE SYSTEM
@@ -128,6 +145,7 @@ function showAlert(title, text, icon) {
 
 function checkDuplicate(input) {
     const val = input.value.trim();
+    const lh = $('#loai_hinh').val(); // Lấy loại hình hiện tại
     if (!val) {
         $(input).removeClass('is-invalid');
         input.setCustomValidity('');
@@ -139,7 +157,7 @@ function checkDuplicate(input) {
         return;
     }
 
-    runAPI('api_validateduplicate', { field: input.id, value: val }, (res) => {
+    runAPI('api_validateduplicate', { field: input.id, value: val, loaiHinh: lh }, (res) => {
         if (res && res.isDup) {
             input.setCustomValidity(res.msg || 'Giá trị này đã tồn tại!');
             $(input).addClass('is-invalid');
@@ -949,7 +967,7 @@ function renderStaffDashboardLocal(data) {
 
 function updateStaffRankings(adminData, email) {
     if(!adminData || !adminData.allStaffs) {
-        $('#staffDash-rank').text('Chưa có dữ liệu');
+        $('#staffDash-rank').html('<small class="text-muted">Chưa có dữ liệu</small>');
         return;
     }
     
@@ -957,29 +975,53 @@ function updateStaffRankings(adminData, email) {
     let rankIndex = staffs.findIndex(s => s.email === email);
     let me = staffs.find(s => s.email === email);
     
-    if (rankIndex >= 0 && me) {
+    if (rankIndex >= 0 && me && (me.total > 0 || staffs.length > 0)) {
         let rank = rankIndex + 1;
-        $('#staffDash-rank').text(`#${rank} / ${staffs.length}`);
+        let rankHtml = `#${rank} <small class="text-muted" style="font-size:0.6em">/ ${staffs.length}</small>`;
         
-        // Find person immediately above
+        // Thêm icon vinh danh cho Top 3
+        if (rank === 1) {
+            rankHtml = `<i class='bx bxs-trophy text-warning'></i> ${rankHtml}`;
+        } else if (rank === 2) {
+            rankHtml = `<i class='bx bxs-medal text-secondary'></i> ${rankHtml}`;
+        } else if (rank === 3) {
+            rankHtml = `<i class='bx bxs-medal' style="color: #cd7f32;"></i> ${rankHtml}`;
+        }
+        
+        $('#staffDash-rank').html(rankHtml);
+        
+        // Thông tin người xếp trên
         if (rank > 1) {
             const aboveMe = staffs[rankIndex - 1];
             const diff = (aboveMe.total || 0) - (me.total || 0);
-            $('#staffDash-aboveRankInfo').html(`<i class='bx bx-trending-up'></i> Người xếp trên: <b>${(aboveMe.total || 0)}</b> hồ sơ (cần thêm ${diff})`);
+            $('#staffDash-aboveRankInfo').html(`
+                <div class="mt-1 p-1 px-2 rounded-pill bg-info-subtle text-info border border-info-subtle" style="font-size: 0.85rem;">
+                    <i class='bx bx-up-arrow-alt'></i> <b>${aboveMe.name || 'Cán bộ'}</b> (${aboveMe.total}): cần <b>+${diff}</b>
+                </div>
+            `);
         } else {
-            $('#staffDash-aboveRankInfo').html(`<i class='bx bxs-check-circle text-success'></i> Đang dẫn đầu hệ thống!`);
+            $('#staffDash-aboveRankInfo').html(`
+                <div class="mt-1 p-1 px-2 rounded-pill bg-success-subtle text-success border border-success-subtle" style="font-size: 0.85rem;">
+                    <i class='bx bxs-crown'></i> Đang dẫn đầu hệ thống!
+                </div>
+            `);
         }
     } else {
-        $('#staffDash-rank').text('Chưa xếp hạng');
-        $('#staffDash-aboveRankInfo').text('Cần tối thiểu 1 hồ sơ để xếp hạng.');
+        $('#staffDash-rank').html('<small class="text-muted" style="font-size:0.6em">Chưa xếp hạng</small>');
+        $('#staffDash-aboveRankInfo').html(`
+            <div class="mt-1 p-1 px-2 rounded-pill bg-light text-secondary border" style="font-size: 0.85rem;">
+                Hãy mở hồ sơ đầu tiên!
+            </div>
+        `);
     }
 
-    if (staffs.length > 0) {
+    if (staffs.length > 0 && staffs[0].total > 0) {
         let top1 = staffs[0];
         $('#staffDash-top1Name').text(top1.name || top1.email);
         $('#staffDash-top1Count').text(`${top1.total || 0} hồ sơ`);
     } else {
-        $('#staffDash-rank').text('--');
+        $('#staffDash-top1Name').text('--');
+        $('#staffDash-top1Count').text('0 hồ sơ');
     }
 }
 
@@ -1030,8 +1072,9 @@ function renderStaffLineChart(timeline) {
 
 function renderMyCustomersTable(data) {
     const html = data.sort((a,b) => (new Date(b['Thời điểm nhập']) || 0) - (new Date(a['Thời điểm nhập']) || 0)).map(d => {
+        const rowId = (d.ID || d['Mã GD'] || '').toString().replace(/^'/, '');
         return `
-            <tr onclick="openEditCustomerModal('${d.ID || d['Mã GD']}')" class="cursor-pointer">
+            <tr data-id="${rowId}" class="clickable-row cursor-pointer">
                 <td><small class="text-muted">${utils_formatVN(d['Thời điểm nhập'], 'date')}</small></td>
                 <td class="fw-bold">${utils_escapeHTML(d['Tên khách hàng'])}</td>
                 <td><small>${utils_escapeHTML(d['Số CCCD'])}</small></td>
@@ -1041,7 +1084,7 @@ function renderMyCustomersTable(data) {
                 <td>${AppState.user ? utils_escapeHTML(AppState.user.name) : utils_escapeHTML(d['Cán bộ thực hiện'] || '')}</td>
                 <td><small>${utils_escapeHTML(d['Ngày mở TK'] || d['Ngày mở'] || '')}</small></td>
                 <td><small>${utils_escapeHTML(d['Số TK'] || d['Số tài khoản'] || '')}</small></td>
-                <td class="text-end"><button class="btn btn-sm btn-outline-primary shadow-sm"><i class="bx bx-search-alt"></i> Chi tiết</button></td>
+                <td class="text-end"><button class="btn btn-sm btn-outline-primary shadow-sm btn-detail"><i class="bx bx-search-alt"></i> Chi tiết</button></td>
             </tr>
         `;
     }).join('');
@@ -1069,7 +1112,7 @@ function renderMyCustomersTable(data) {
                 }
             ],
             language: { url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json" },
-            search: { smart: true },
+            search: { caseInsensitive: true, smart: true },
             columnDefs: [
                 { targets: [3, 6, 7, 8], visible: false },
                 { targets: [9], orderable: false, searchable: false }
@@ -1199,16 +1242,16 @@ function renderAdminTable(allData, allStaffs) {
     const html = window._adminAllData.map(d => {
         const staffEmail = (d['Cán bộ thực hiện'] || '').toString().trim();
         const staffName  = staffMap[staffEmail] || staffEmail;
-        const rowId      = (d['ID'] || d['Mã GD'] || '').toString().trim();
+        const rowId      = (d['ID'] || d['Mã GD'] || '').toString().trim().replace(/^'/, '');
         return `
-            <tr onclick="openEditCustomerModal('${rowId}')" class="cursor-pointer" style="cursor:pointer">
+            <tr data-id="${rowId}" class="clickable-row cursor-pointer" style="cursor:pointer">
                 <td><small class="text-muted">${utils_formatVN(d['Thời điểm nhập'], 'date')}</small></td>
                 <td class="fw-bold text-dark">${utils_escapeHTML(d['Tên khách hàng'] || '')}</td>
                 <td><span class="badge bg-light text-dark border">${utils_escapeHTML(d['Loại hình dịch vụ'] || 'Cá nhân')}</span></td>
                 <td class="text-secondary"><small>${utils_escapeHTML((d['Số tài khoản'] || '').toString().replace(/^'/, ''))}</small></td>
                 <td class="d-none">${utils_escapeHTML(staffEmail)}</td>
                 <td><small>${utils_escapeHTML(staffName)}</small></td>
-                <td class="text-end"><button class="btn btn-sm btn-outline-primary px-2" onclick="event.stopPropagation();openEditCustomerModal('${rowId}')"><i class="bx bx-info-circle"></i></button></td>
+                <td class="text-end"><button class="btn btn-sm btn-outline-primary px-2 btn-detail"><i class="bx bx-info-circle"></i></button></td>
             </tr>`;
     }).join('');
 
@@ -1248,7 +1291,7 @@ function renderAdminTable(allData, allStaffs) {
             title: 'Bao_Cao_KH_YenTho_' + new Date().toISOString().slice(0,10)
         }],
         language: { url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json" },
-        search: { caseInsensitive: true, smart: true },
+        search: { caseInsensitive: true, smart: true }, // Bỏ searchDelay để đạt "tức thời"
         columnDefs: [
             { targets: [4], visible: false, searchable: true },   // Email CB (dùng để lọc)
             { targets: [6], orderable: false, searchable: false }  // Nút thao tác
@@ -1376,10 +1419,21 @@ function showAllStaffModal() {
 function openEditCustomerModal(id) {
     try {
         if (!id) return;
-        let row = null;
-        const sourceData = (AppState.user && AppState.user.role === 'Admin') ? (window._adminAllData || []) : ((AppCache.get('myCustomers') || {}).data || []);
         
+        // Làm sạch ID: Chuyển về string, trim và bỏ dấu nháy đơn prefix (') thường gặp ở Google Sheets
         const rowIdStr = String(id).trim().replace(/^'/, '');
+        
+        let row = null;
+        let sourceData = [];
+
+        if (AppState.user && AppState.user.role === 'Admin') {
+            sourceData = window._adminAllData || [];
+        } else {
+            const cache = AppCache.get('myCustomers');
+            sourceData = (cache && Array.isArray(cache.data)) ? cache.data : [];
+        }
+        
+        // Tìm kiếm dòng tương ứng
         for (let i = 0; i < sourceData.length; i++) {
             const currentId = String(sourceData[i]['ID'] || sourceData[i]['Mã GD'] || '').trim().replace(/^'/, '');
             if (currentId === rowIdStr) {
@@ -1387,74 +1441,124 @@ function openEditCustomerModal(id) {
                 break;
             }
         }
+
         if (!row) {
-            console.warn("No row found with ID:", id);
+            console.warn("Không tìm thấy khách hàng với ID:", rowIdStr, "trong nguồn dữ liệu của", AppState.user?.role);
+            showAlert('Lỗi', 'Không tìm thấy thông tin hồ sơ khách hàng. Vui lòng thử lại hoặc tải lại trang.', 'error');
             return;
         }
 
+        // Khởi tạo datepicker cho modal chỉnh sửa nếu chưa có
+        if (typeof flatpickr !== 'undefined') {
+            const fpEl = document.querySelector('.js-datepicker-edit');
+            if (fpEl && !fpEl._flatpickr) {
+                flatpickr(fpEl, {
+                    dateFormat: "d/m/Y",
+                    altInput: true,
+                    altFormat: "d/m/Y",
+                    allowInput: true
+                });
+            }
+        }
+
+        // Đổ dữ liệu vào form
         $('#edit_id').val(id);
         $('#edit_ten_kh').val(row['Tên khách hàng'] || '');
         $('#edit_sdt').val((row['Số điện thoại'] || '').toString().replace(/^'/, ''));
         
+        const loaiHinh = row['Loại hình dịch vụ'] || 'Cá nhân';
+        const cccdVal = (row['Số CCCD'] || '').toString().replace(/^'/, '');
+        const dkkdVal = (row['Số DKKD'] || '').toString().replace(/^'/, '');
+        
+        $('#edit_cccd').val(cccdVal);
+        $('#edit_dkkd').val(dkkdVal);
+        
+        if (loaiHinh === 'Hộ kinh doanh') {
+            $('#edit_dkkd_group').show();
+        } else {
+            $('#edit_dkkd_group').hide();
+        }
+
         let dDate = row['Ngày mở TK'] || row['Thời điểm nhập'] || '';
         if (dDate) {
             const rawD = new Date(dDate);
             if (!isNaN(rawD)) {
-                dDate = String(rawD.getDate()).padStart(2, '0') + '/' + String(rawD.getMonth() + 1).padStart(2, '0') + '/' + rawD.getFullYear();
+                const formatted = String(rawD.getDate()).padStart(2, '0') + '/' + String(rawD.getMonth() + 1).padStart(2, '0') + '/' + rawD.getFullYear();
+                if ($('#edit_ngay_mo')[0]._flatpickr) {
+                    $('#edit_ngay_mo')[0]._flatpickr.setDate(rawD);
+                } else {
+                    $('#edit_ngay_mo').val(formatted);
+                }
+            } else {
+                $('#edit_ngay_mo').val(dDate);
             }
         }
-        $('#edit_ngay_mo').val(dDate);
         
         let stk = (row['Số TK'] || row['Số tài khoản'] || '').toString().replace(/^'/, '');
         if (stk.length > 7 && stk.startsWith('3800200')) stk = stk.substring(7);
         $('#edit_so_tk').val(stk);
 
-        if (AppState.user && AppState.user.role === 'Admin') {
+        const trangThai = row['Trạng thái'] || 'Chưa hoàn thành';
+        const isVerified = (trangThai === 'Đã xác minh');
+
+        // Phân quyền và hiển thị tiêu đề
+        if ((AppState.user && AppState.user.role === 'Admin') || isVerified) {
             $('#btnSaveEdit').hide();
             $('#frmEditCustomer input').prop('readonly', true);
+            $('#edit_status_alert').removeClass('d-none');
+            
+            if (isVerified) {
+                $('.modal-title').html(`<i class='bx bxs-check-shield text-success'></i> Chi tiết Hồ sơ <span class="badge bg-success small ms-2">Đã xác minh</span>`);
+            } else {
+                $('.modal-title').html(`<i class='bx bx-search-alt text-white'></i> Chi tiết Hồ sơ <span class="badge bg-info small ms-2">Chế độ xem</span>`);
+            }
         } else {
             $('#btnSaveEdit').show();
             $('#frmEditCustomer input').prop('readonly', false);
-            $('#edit_id').prop('readonly', true);
+            $('#edit_status_alert').addClass('d-none');
+            $('.modal-title').html(`<i class='bx bxs-edit-alt text-white'></i> Chỉnh sửa Hồ sơ`);
         }
 
-        const loaiHinh = row['Loại hình dịch vụ'] || 'Cá nhân';
-        const cccdVal = (row['Số CCCD'] || '').toString().replace(/^'/, '');
-        const infoHtml = `<div class="col-12 mb-2"><div class="p-2 bg-white rounded border d-flex gap-2 shadow-sm">
-                           <span class="badge bg-primary">${loaiHinh}</span>
-                           <span>CCCD: <b>${cccdVal}</b></span></div></div>`;
-                           
-        const getImgHtml = (url, label) => {
-            if (!url || url.trim() === '') return '';
-            let safeUrl = url.trim();
-            if (safeUrl.indexOf('drive.google.com/file/d/') > -1) {
-                const fileId = safeUrl.split('/d/')[1].split('/')[0];
-                safeUrl = 'https://drive.google.com/thumbnail?id=' + fileId + '&sz=w800';
-            }
-            return `<div class="col-4">
-                        <a href="${url}" target="_blank" title="Xem ảnh">
-                            <div class="img-detail-box">
-                                <img src="${safeUrl}" class="img-detail-inner" alt="${label}" onerror="this.parentElement.innerHTML='<span class=\\'text-muted small\\'>Không hỗ trợ</span>'">
+        const infoHtml = `<div class="col-12 mb-2">
+                            <div class="p-2 bg-white rounded border d-flex gap-2 shadow-sm align-items-center">
+                                <span class="badge bg-primary">${utils_escapeHTML(loaiHinh)}</span>
+                                <span>CCCD: <b>${utils_escapeHTML(cccdVal)}</b></span>
+                                ${isVerified ? '<span class="ms-auto badge rounded-pill bg-success-subtle text-success border border-success-subtle"><i class="bx bxs-check-circle"></i> Đã duyệt</span>' : ''}
                             </div>
-                            <small class="d-block text-center mt-1 text-secondary">${label}</small>
+                         </div>`;
+                            
+        const getImgHtml = (url, label) => {
+            if (!url || typeof url !== 'string' || url.trim() === '') return '';
+            let safeUrl = url.trim();
+            if (safeUrl.indexOf('drive.google.com') > -1) {
+                let fileId = "";
+                if (safeUrl.indexOf('/d/') > -1) fileId = safeUrl.split('/d/')[1].split('/')[0];
+                else if (safeUrl.indexOf('id=') > -1) fileId = safeUrl.split('id=')[1].split('&')[0];
+                if (fileId) safeUrl = 'https://drive.google.com/thumbnail?id=' + fileId + '&sz=w800';
+            }
+            
+            return `<div class="col-4">
+                        <a href="${url}" target="_blank" title="Xem ảnh gốc" class="text-decoration-none">
+                            <div class="img-detail-box position-relative overflow-hidden rounded-3 border shadow-sm">
+                                <img src="${safeUrl}" class="img-detail-inner w-100 h-100" style="object-fit: cover; min-height: 100px;" alt="${label}" onerror="this.src='https://placehold.co/400x300?text=Ảnh+lỗi'">
+                                <div class="img-overlay d-flex align-items-center justify-content-center">
+                                    <i class='bx bx-zoom-in text-white fs-2'></i>
+                                </div>
+                            </div>
+                            <small class="d-block text-center mt-1 text-secondary fw-medium">${label}</small>
                         </a>
                     </div>`;
         };
         
-        const imgs = getImgHtml(row['URL CCCD Trước'] || '', 'Mặt trước')
-                   + getImgHtml(row['URL CCCD Sau'] || '', 'Mặt sau')
-                   + (loaiHinh !== 'Cá nhân' ? getImgHtml(row['URL GP DKKD'] || row['URL DKKD'] || '', 'GP ĐKKD') : '')
+        const imgs = getImgHtml(row['URL CCCD Trước'] || row['URL Ảnh Mặt Trước'] || '', 'Mặt trước')
+                   + getImgHtml(row['URL CCCD Sau'] || row['URL Ảnh Mặt Sau'] || '', 'Mặt sau')
+                   + (loaiHinh !== 'Cá nhân' ? getImgHtml(row['URL GP DKKD'] || row['URL DKKD'] || row['URL Giấy phép'] || '', 'GP ĐKKD') : '')
                    + getImgHtml(row['URL QR'] || row['URL Mã QR'] || '', 'QR TK')
                    + getImgHtml(row['URL Ảnh Thực Hiện'] || row['URL Thực Hiện'] || '', 'Ảnh GD');
                    
         const imgsBlock = imgs ? `<div class="col-12"><p class="text-muted small fw-semibold mb-1"><i class="bx bx-image"></i> Hình ảnh đính kèm</p><div class="row g-2">${imgs}</div></div>` : '<div class="col-12 text-center text-muted"><p class="small">Chưa có ảnh đính kèm</p></div>';
-        
-        // Sanitize data before injection
-        const safeInfoHtml = `<div class="col-12 mb-2"><div class="p-2 bg-white rounded border d-flex gap-2 shadow-sm">
-                           <span class="badge bg-primary">${utils_escapeHTML(loaiHinh)}</span>
-                           <span>CCCD: <b>${utils_escapeHTML(cccdVal)}</b></span></div></div>`;
 
-        $('#edit_images_container').html(safeInfoHtml + imgsBlock);
+        $('#edit_images_container').html(infoHtml + imgsBlock);
         $('#modalEditCustomer').modal('show');
     } catch(err) { console.error(err); }
 }
@@ -1576,6 +1680,8 @@ function handleEditCustomer(e) {
         email: AppState.user ? AppState.user.email : '',
         ten_kh:    $('#edit_ten_kh').val().trim().toUpperCase(),
         sdt:       sdtVal,
+        cccd:      $('#edit_cccd').val().trim(),
+        dkkd:      $('#edit_dkkd').val().trim(),
         ngay_mo:   $('#edit_ngay_mo').val(),
         so_tk:     ($('#edit_so_tk').val().trim() ? '3800200' + $('#edit_so_tk').val().trim() : '')
     };

@@ -2,7 +2,191 @@
 > Dynamically loaded for active file: `netlify-app\app.js` (Domain: **Generic Logic**)
 
 ### 📐 Generic Logic Conventions & Fixes
-- **[problem-fix] Patched security issue Initialize — prevents XSS injection attacks**: - 
+- **[problem-fix] Patched security issue CCCD — prevents XSS injection attacks**: -         let dDate = row['Ngày mở TK'] || row['Thời điểm nhập'] || '';
++         const loaiHinh = row['Loại hình dịch vụ'] || 'Cá nhân';
+-         if (dDate) {
++         const cccdVal = (row['Số CCCD'] || '').toString().replace(/^'/, '');
+-             const rawD = new Date(dDate);
++         const dkkdVal = (row['Số DKKD'] || '').toString().replace(/^'/, '');
+-             if (!isNaN(rawD)) {
++         
+-                 const formatted = String(rawD.getDate()).padStart(2, '0') + '/' + String(rawD.getMonth() + 1).padStart(2, '0') + '/' + rawD.getFullYear();
++         $('#edit_cccd').val(cccdVal);
+-                 if ($('#edit_ngay_mo')[0]._flatpickr) {
++         $('#edit_dkkd').val(dkkdVal);
+-                     $('#edit_ngay_mo')[0]._flatpickr.setDate(rawD);
++         
+-                 } else {
++         if (loaiHinh === 'Hộ kinh doanh') {
+-                     $('#edit_ngay_mo').val(formatted);
++             $('#edit_dkkd_group').show();
+-                 }
++         } else {
+-             } else {
++             $('#edit_dkkd_group').hide();
+-                 $('#edit_ngay_mo').val(dDate);
++         }
+-             }
++ 
+-         }
++         let dDate = row['Ngày mở TK'] || row['Thời điểm nhập'] || '';
+-         
++         if (dDate) {
+-         let stk = (row['Số TK'] || row['Số tài khoản'] || '').toString().replace(/^'/, '');
++             const rawD = new Date(dDate);
+-         if (stk.length > 7 && stk.startsWith('3800200')) stk = stk.substring(7);
++             if (!isNaN(rawD)) {
+-         $('#edit_so_tk').val(stk);
++                 const formatted = String(rawD.getDate()).padStart(2, '0') + '/' + String(rawD.getMonth() + 1).padStart(2, '0') + '/' + rawD.getFullYear();
+- 
++                 if ($('#edit_ngay_mo')[0]._flatpickr) {
+-         const loaiHinh = row['Loại hình dịch vụ'] || 'Cá nhân';
++                     $('#edit_ngay_mo')[0]._flatpickr.setDate(rawD);
+-         const cccdVal = (row['Số CCCD'] || '').toString().replace(/^'/, '');
++            
+… [diff truncated]
+
+📌 IDE AST Context: Modified symbols likely include [GAS_API_URL, AppState, INACTIVITY_LIMIT, checkInactivity, on('click keydown scroll mousedown touchstart') callback]
+- **[problem-fix] Patched security issue Last — prevents XSS injection attacks**: -         $('#staffDash-rank').text('Chưa có dữ liệu');
++         $('#staffDash-rank').html('<small class="text-muted">Chưa có dữ liệu</small>');
+-     if (rankIndex >= 0 && me) {
++     if (rankIndex >= 0 && me && (me.total > 0 || staffs.length > 0)) {
+-         $('#staffDash-rank').text(`#${rank} / ${staffs.length}`);
++         let rankHtml = `#${rank} <small class="text-muted" style="font-size:0.6em">/ ${staffs.length}</small>`;
+-         // Find person immediately above
++         // Thêm icon vinh danh cho Top 3
+-         if (rank > 1) {
++         if (rank === 1) {
+-             const aboveMe = staffs[rankIndex - 1];
++             rankHtml = `<i class='bx bxs-trophy text-warning'></i> ${rankHtml}`;
+-             const diff = (aboveMe.total || 0) - (me.total || 0);
++         } else if (rank === 2) {
+-             $('#staffDash-aboveRankInfo').html(`<i class='bx bx-trending-up'></i> Người xếp trên: <b>${(aboveMe.total || 0)}</b> hồ sơ (cần thêm ${diff})`);
++             rankHtml = `<i class='bx bxs-medal text-secondary'></i> ${rankHtml}`;
+-         } else {
++         } else if (rank === 3) {
+-             $('#staffDash-aboveRankInfo').html(`<i class='bx bxs-check-circle text-success'></i> Đang dẫn đầu hệ thống!`);
++             rankHtml = `<i class='bx bxs-medal' style="color: #cd7f32;"></i> ${rankHtml}`;
+-     } else {
++         
+-         $('#staffDash-rank').text('Chưa xếp hạng');
++         $('#staffDash-rank').html(rankHtml);
+-         $('#staffDash-aboveRankInfo').text('Cần tối thiểu 1 hồ sơ để xếp hạng.');
++         
+-     }
++         // Thông tin người xếp trên
+- 
++         if (rank > 1) {
+-     if (staffs.length > 0) {
++             const aboveMe = staffs[rankIndex - 1];
+-         let top1 = staffs[0];
++             const diff = (aboveMe.total || 0) - (me.total || 0);
+-         $('#staffDash-top1Name').text(top1.name || top1.email);
++             $('#staffDash-aboveRankInfo').html(`
+-         $('#staffDash-top1Count').text(`${top1.total || 0} hồ sơ`);
++    
+… [diff truncated]
+
+📌 IDE AST Context: Modified symbols likely include [GAS_API_URL, AppState, INACTIVITY_LIMIT, checkInactivity, on('click keydown scroll mousedown touchstart') callback]
+- **[convention] Patched security issue DataTable — prevents XSS injection attacks — confirmed 3x**: -         if(dtAllStaffs) try { dtAllStafffunction openEditCustomerModal(id) {
++         if(dtAllStaffs) try { dtAllStaffs.destroy(); } catch(e){}
+-     try {
++         dtAllStaffs = $('#tblAllStaffs').DataTable({
+-         if (!id) return;
++             responsive: true,
+-         let row = null;
++             dom: "<'row mb-2'<'col-sm-12 col-md-4 d-flex align-items-center justify-content-start'l><'col-sm-12 col-md-4 d-flex align-items-center justify-content-center'B><'col-sm-12 col-md-4 d-flex align-items-center justify-content-end'f>>" +
+-         const sourceData = (AppState.user && AppState.user.role === 'Admin') ? (window._adminAllData || []) : ((AppCache.get('myCustomers') || {}).data || []);
++                  "<'row'<'col-sm-12'tr>>" +
+-         
++                  "<'row mt-2'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+-         const rowIdStr = String(id).trim().replace(/^'/, '');
++             buttons: [{ extend: 'excelHtml5', text: '<i class="bx bxs-file-export"></i> Xuất Excel', className: 'btn btn-sm btn-success shadow-sm' }],
+-         for (let i = 0; i < sourceData.length; i++) {
++             language: { url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json" }
+-             const currentId = String(sourceData[i]['ID'] || sourceData[i]['Mã GD'] || '').trim().replace(/^'/, '');
++         });
+-             if (currentId === rowIdStr) {
++         $('#modalAllStaff').modal('show');
+-                 row = sourceData[i];
++     } catch(e) { console.error(e); }
+-                 break;
++ }
+-             }
++ 
+-         }
++ // --- CUSTOMER & IMAGE MODAL ---
+- 
++ function openEditCustomerModal(id) {
+-         if (!row) {
++     try {
+-             console.warn("No row found with ID:", id);
++         if (!id) return;
+-             showAlert('Lỗi', 'Không tìm thấy thông tin hồ sơ khách hàng. Vui lòng thử lại.', 'error');
++         let row = null;
+-             return;
++         const sourceData = (AppState.user && AppState.user.role === 'Admin') ? 
+… [diff truncated]
+
+📌 IDE AST Context: Modified symbols likely include [GAS_API_URL, AppState, INACTIVITY_LIMIT, checkInactivity, on('click keydown scroll mousedown touchstart') callback]
+- **[convention] Patched security issue Date — prevents XSS injection attacks — confirmed 3x**: -             return;
++             showAlert('Lỗi', 'Không tìm thấy thông tin hồ sơ khách hàng. Vui lòng thử lại.', 'error');
+-         }
++             return;
+- 
++         }
+-         $('#edit_id').val(id);
++ 
+-         $('#edit_ten_kh').val(row['Tên khách hàng'] || '');
++         // Khởi tạo datepicker cho modal chỉnh sửa nếu chưa có
+-         $('#edit_sdt').val((row['Số điện thoại'] || '').toString().replace(/^'/, ''));
++         if (typeof flatpickr !== 'undefined') {
+-         
++             const fpEl = document.querySelector('.js-datepicker-edit');
+-         let dDate = row['Ngày mở TK'] || row['Thời điểm nhập'] || '';
++             if (fpEl && !fpEl._flatpickr) {
+-         if (dDate) {
++                 flatpickr(fpEl, {
+-             const rawD = new Date(dDate);
++                     dateFormat: "d/m/Y",
+-             if (!isNaN(rawD)) {
++                     altInput: true,
+-                 dDate = String(rawD.getDate()).padStart(2, '0') + '/' + String(rawD.getMonth() + 1).padStart(2, '0') + '/' + rawD.getFullYear();
++                     altFormat: "d/m/Y",
+-             }
++                     allowInput: true
+-         }
++                 });
+-         $('#edit_ngay_mo').val(dDate);
++             }
+-         
++         }
+-         let stk = (row['Số TK'] || row['Số tài khoản'] || '').toString().replace(/^'/, '');
++ 
+-         if (stk.length > 7 && stk.startsWith('3800200')) stk = stk.substring(7);
++         $('#edit_id').val(id);
+-         $('#edit_so_tk').val(stk);
++         $('#edit_ten_kh').val(row['Tên khách hàng'] || '');
+- 
++         $('#edit_sdt').val((row['Số điện thoại'] || '').toString().replace(/^'/, ''));
+-         if (AppState.user && AppState.user.role === 'Admin') {
++         
+-             $('#btnSaveEdit').hide();
++         let dDate = row['Ngày mở TK'] || row['Thời điểm nhập'] || '';
+-             $('#frmEditCustomer input').prop('readonly', true);
++         if (dDate) {
+-         } else {
++             const rawD = new Date(dDate);
+… [diff truncated]
+
+📌 IDE AST Context: Modified symbols likely include [GAS_API_URL, AppState, INACTIVITY_LIMIT, checkInactivity, on('click keydown scroll mousedown touchstart') callback]
+- **[what-changed] 🟢 Edited netlify-app/app.js (6 changes, 1min)**: Active editing session on netlify-app/app.js.
+6 content changes over 1 minutes.
+- **[convention] what-changed in app.js — confirmed 4x**: -     VERSION: "2.1.0-AUDITED",
++     VERSION: "2.1.1-PATCHED",
+
+📌 IDE AST Context: Modified symbols likely include [GAS_API_URL, AppState, INACTIVITY_LIMIT, checkInactivity, on('click keydown scroll mousedown touchstart') callback]
+- **[convention] Patched security issue Initialize — prevents XSS injection attacks — confirmed 3x**: - 
 +     toggleFormFields(); // Initialize field visibility on load
 -     // Map camera inputs -> corresponding file inputs
 + 
@@ -85,47 +269,6 @@
 +                 <td><small>${utils_escapeHTML(d['Số TK'] || d['Số tài khoản'] || '')}</small></td>
 
 📌 IDE AST Context: Modified symbols likely include [GAS_API_URL, AppState, INACTIVITY_LIMIT, checkInactivity, on('click keydown scroll mousedown touchstart') callback]
-- **[problem-fix] Patched security issue AppState — prevents XSS injection attacks**: -     runAPI('api_getAdminDashboardData', {}, (res) => {
-+     runAPI('api_getAdminDashboardData', { email: AppState.user.email }, (res) => {
--                 <td class="fw-bold text-dark">${d['Tên khách hàng'] || ''}</td>
-+                 <td class="fw-bold text-dark">${utils_escapeHTML(d['Tên khách hàng'] || '')}</td>
--                 <td><span class="badge bg-light text-dark border">${d['Loại hình dịch vụ'] || 'Cá nhân'}</span></td>
-+                 <td><span class="badge bg-light text-dark border">${utils_escapeHTML(d['Loại hình dịch vụ'] || 'Cá nhân')}</span></td>
--                 <td class="text-secondary"><small>${(d['Số tài khoản'] || '').toString().replace(/^'/, '')}</small></td>
-+                 <td class="text-secondary"><small>${utils_escapeHTML((d['Số tài khoản'] || '').toString().replace(/^'/, ''))}</small></td>
--                 <td class="d-none">${staffEmail}</td>
-+                 <td class="d-none">${utils_escapeHTML(staffEmail)}</td>
--                 <td><small>${staffName}</small></td>
-+                 <td><small>${utils_escapeHTML(staffName)}</small></td>
--         $('#edit_images_container').html(infoHtml + imgsBlock);
-+         // Sanitize data before injection
--         $('#modalEditCustomer').modal('show');
-+         const safeInfoHtml = `<div class="col-12 mb-2"><div class="p-2 bg-white rounded border d-flex gap-2 shadow-sm">
--     } catch(err) { console.error(err); }
-+                            <span class="badge bg-primary">${utils_escapeHTML(loaiHinh)}</span>
-- }
-+                            <span>CCCD: <b>${utils_escapeHTML(cccdVal)}</b></span></div></div>`;
-- 
-+         $('#edit_images_container').html(safeInfoHtml + imgsBlock);
-- /**
-+         $('#modalEditCustomer').modal('show');
--  * APP INITIALIZATION
-+     } catch(err) { console.error(err); }
--  */
-+ }
-- $(document).ready(() => {
-+ 
--     if (!AppState.user) {
-+ 
--         showView('view-login');
-+ /**
--         hideLoading();
-+  * APP INITIALIZATION
--     } else {
-+  *
-… [diff truncated]
-
-📌 IDE AST Context: Modified symbols likely include [GAS_API_URL, AppState, INACTIVITY_LIMIT, checkInactivity, on('click keydown scroll mousedown touchstart') callback]
 - **[convention] Fixed null crash in Excel — wraps unsafe operation in error boundary — confirmed 5x**: -         dom: "<'row mb-2'<'col-sm-12 col-md-3'l><'col-sm-12 col-md-5'f><'col-sm-12 col-md-4 text-end'B>>" +
 +         lengthMenu: [10, 25, 50, 100],
 -              "<'row'<'col-sm-12'tr>>" +
@@ -166,17 +309,6 @@
 +                 }
 -      
 … [diff truncated]
-
-📌 IDE AST Context: Modified symbols likely include [GAS_API_URL, AppState, INACTIVITY_LIMIT, checkInactivity, on('click keydown scroll mousedown touchstart') callback]
-- **[what-changed] what-changed in app.js**: -     const btn = $('#btnSaveChangePwd');
-+     const btn = $('#btnSubmitChangePwd');
-
-📌 IDE AST Context: Modified symbols likely include [GAS_API_URL, AppState, INACTIVITY_LIMIT, checkInactivity, on('click keydown scroll mousedown touchstart') callback]
-- **[what-changed] what-changed in app.js**: -             runAPI('api_getadmindashboarddata', {}, (adminRes) => {
-+             runAPI('api_getAdminDashboardData', {}, (adminRes) => {
-- 
-+ window.openEditCustomerModal = openEditCustomerModal;
-+ 
 
 📌 IDE AST Context: Modified symbols likely include [GAS_API_URL, AppState, INACTIVITY_LIMIT, checkInactivity, on('click keydown scroll mousedown touchstart') callback]
 - **[convention] Fixed null crash in Find — wraps unsafe operation in error boundary — confirmed 3x**: -     if(!adminData || !adminData.allStaffs) return;
@@ -419,117 +551,6 @@
 -                 contours = new cv.MatVector();
 + function _cleanupMat(targetId) {
 
-… [diff truncated]
-
-📌 IDE AST Context: Modified symbols likely include [GAS_API_URL, AppState, AppCache, runAPI, showLoading]
-- **[convention] Added session cookies authentication — confirmed 3x**: - function handleLoginSuccess(silent) {
-+ /**
--     hideLoading();
-+  * Xử lý Lưu thay đổi Hồ sơ Khách hàng
--     const userName = AppState.user.fullName || AppState.user.name || AppState.user.email;
-+  */
--     if (!silent) showAlert('Thành công', `Chào mừng ${userName}!`, 'success');
-+ function handleEditCustomer(e) {
--     
-+     e.preventDefault(); // Ngăn reload trang khi submit form
--     $('#user-name-display-admin').text(userName);
-+ 
--     $('#user-name-display-user').text(userName);
-+     const id = $('#edit_id').val();
--     
-+     if (!id) {
--     if (AppState.user.role === 'Admin') {
-+         showAlert('Lỗi', 'Không tìm thấy mã hồ sơ để cập nhật.', 'error');
--         $('#staffBottomNav').addClass('d-none');
-+         return;
--         showView('view-dashboard');
-+     }
--         initDashboard();
-+ 
--     } else {
-+     const btn = $('#btnSaveEdit');
--         $('#staffBottomNav').removeClass('d-none');
-+     const oldHtml = btn.html();
--         showView('view-mo-tai-khoan');
-+     btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Đang lưu...');
--         initMoTaiKhoanForm();
-+ 
--     }
-+     const sdtVal = $('#edit_sdt').val().trim();
-- }
-+     if (sdtVal && !/^0\d{9}$/.test(sdtVal)) {
-- 
-+         showAlert('Lỗi', 'Số điện thoại phải bắt đầu bằng 0 và đủ 10 chữ số.', 'warning');
-- function logout() {
-+         btn.prop('disabled', false).html(oldHtml);
--     localStorage.removeItem('HOKINHDOANH_SESSION');
-+         return;
--     sessionStorage.removeItem('HOKINHDOANH_SESSION');
-+     }
--     AppCache.clearAll();
-+ 
--     AppState.user = null;
-+     const payload = {
--     $('#frm-login')[0].reset();
-+         id: id,
--     window.location.reload();
-+         email: AppState.user ? AppState.user.email : '',
-- }
-+         ten_kh:    $('#edit_ten_kh').val().trim().toUpperCase(),
-- 
-+         sdt:       sdtVal,
-- window.onOpenCvReady = onOpenCvReady;
-+         ngay_mo:   $('#edit_ngay_mo').val(),
-- window.loadStaf
-… [diff truncated]
-
-📌 IDE AST Context: Modified symbols likely include [GAS_API_URL, AppState, AppCache, runAPI, showLoading]
-- **[convention] what-changed in app.js — confirmed 3x**: -             { targets: [3, 4, 5, 6, 7, 8, 9, 11], visible: false },
-+             { targets: [3, 4, 5, 6, 7, 8, 9], visible: false },
-
-📌 IDE AST Context: Modified symbols likely include [GAS_API_URL, AppState, AppCache, runAPI, showLoading]
-- **[convention] Fixed null crash in AppState — confirmed 4x**: -         let row = null;
-+         let sourceData = (AppState.user && AppState.user.role === 'Admin') ? (window._adminAllData || []) : ((AppCache.get('myCustomers') || {}).data || []);
--         let sourceData = (AppState.user && AppState.user.role === 'Admin') ? (window._adminAllData || []) : (AppCache.get('myCustomers') || []);
-+         for (let i = 0; i < sourceData.length; i++) {
--         
-+             if (String(sourceData[i]['ID'] || sourceData[i]['Mã GD']).trim() === String(id).trim()) {
--         for (let i = 0; i < sourceData.length; i++) {
-+                 row = sourceData[i];
--             if (String(sourceData[i]['ID'] || sourceData[i]['Mã GD']).trim() === String(id).trim()) {
-+                 break;
--                 row = sourceData[i];
-+             }
--                 break;
-+         }
--             }
-+         if (!row) return;
--         }
-+ 
--         if (!row) return;
-+         $('#edit_id').val(id);
-- 
-+         $('#edit_ten_kh').val(row['Tên khách hàng'] || '');
--         $('#edit_id').val(id);
-+         $('#edit_sdt').val((row['Số điện thoại'] || '').toString().replace(/^'/, ''));
--         $('#edit_ten_kh').val(row['Tên khách hàng'] || '');
-+         
--         $('#edit_sdt').val((row['Số điện thoại'] || '').toString().replace(/^'/, ''));
-+         let dDate = row['Ngày mở TK'] || row['Thời điểm nhập'] || '';
--         
-+         if (dDate) {
--         let dDate = row['Ngày mở TK'] || row['Thời điểm nhập'] || '';
-+             const rawD = new Date(dDate);
--         if (dDate) {
-+             if (!isNaN(rawD)) {
--             const rawD = new Date(dDate);
-+                 dDate = String(rawD.getDate()).padStart(2, '0') + '/' + String(rawD.getMonth() + 1).padStart(2, '0') + '/' + rawD.getFullYear();
--             if (!isNaN(rawD)) {
-+             }
--                 dDate = String(rawD.getDate()).padStart(2, '0') + '/' + String(rawD.getMonth() + 1).padStart(2, '0') + '/' + rawD.getFullYear();
-+         }
--             }
-+         $('#ed
 … [diff truncated]
 
 📌 IDE AST Context: Modified symbols likely include [GAS_API_URL, AppState, AppCache, runAPI, showLoading]

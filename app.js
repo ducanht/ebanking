@@ -128,6 +128,7 @@ function showAlert(title, text, icon) {
 
 function checkDuplicate(input) {
     const val = input.value.trim();
+    const lh = $('#loai_hinh').val(); // Lấy loại hình hiện tại
     if (!val) {
         $(input).removeClass('is-invalid');
         input.setCustomValidity('');
@@ -139,7 +140,7 @@ function checkDuplicate(input) {
         return;
     }
 
-    runAPI('api_validateduplicate', { field: input.id, value: val }, (res) => {
+    runAPI('api_validateduplicate', { field: input.id, value: val, loaiHinh: lh }, (res) => {
         if (res && res.isDup) {
             input.setCustomValidity(res.msg || 'Giá trị này đã tồn tại!');
             $(input).addClass('is-invalid');
@@ -1069,7 +1070,7 @@ function renderMyCustomersTable(data) {
                 }
             ],
             language: { url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json" },
-            search: { smart: true },
+            search: { caseInsensitive: true, smart: true },
             columnDefs: [
                 { targets: [3, 6, 7, 8], visible: false },
                 { targets: [9], orderable: false, searchable: false }
@@ -1248,7 +1249,7 @@ function renderAdminTable(allData, allStaffs) {
             title: 'Bao_Cao_KH_YenTho_' + new Date().toISOString().slice(0,10)
         }],
         language: { url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json" },
-        search: { caseInsensitive: true, smart: true },
+        search: { caseInsensitive: true, smart: true, searchDelay: 400 },
         columnDefs: [
             { targets: [4], visible: false, searchable: true },   // Email CB (dùng để lọc)
             { targets: [6], orderable: false, searchable: false }  // Nút thao tác

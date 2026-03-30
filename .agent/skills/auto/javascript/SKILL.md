@@ -1,6 +1,6 @@
 ---
 name: javascript
-description: "Javascript for ebanking. 8 conventions, 14 fixes."
+description: "Javascript for ebanking. 1 gotchas, 13 conventions, 21 fixes."
 domain: javascript
 triggers:
   - glob: "**/*.js"
@@ -11,9 +11,144 @@ enabled: true
 
 # Javascript
 
-Auto-compiled from **32 real patterns** in **ebanking**. This skill is auto-routed to agents when working on javascript files.
+Auto-compiled from **54 real patterns** in **ebanking**. This skill is auto-routed to agents when working on javascript files.
+
+## ⚠️ Anti-Patterns & Gotchas
+
+> **CRITICAL:** These are real gotchas from this project. Ignoring them WILL cause bugs.
+
+### ❌ ⚠️ GOTCHA: Patched security issue EVENT — prevents XSS injection attacks
+- 
++ // --- CẤU HÌNH EVENT DELEGATION: XỬ LÝ CLICK XEM CHI TIẾT ---
+- /**
++ $(document).on('click', '.clickable-row', function(e) {
+-  * CACHE SYSTEM
++     // Nếu click vào nút Chi tiết hoặc thành phần bên trong nút, dừng lại để tránh trigger 2 lần
+-
+- Modified 1 files
+- identifier: EVENT
+- identifier: DELEGATION
+
 
 ## 🔧 Problem Playbooks
+
+### Patched security issue Chuy — prevents XSS injection attacks
+-         let row = null;
++         
+-         const sourceData = (AppState.user && AppState.user.role === 'Admin') ? (window._adminAllData || []) : ((AppCache.get('myCustomers') || {}).data || []);
++         // Làm sạch ID: Chuyển về string, trim và bỏ dấu nháy đơn prefix (') thường gặp ở Google Sheets
+-         
++         const rowIdStr = String(id).trim().replace(/^'/, '');
+-         const rowI
+
+**Actionable Steps:**
+1. Modified 1 files
+2. identifier: Chuy
+3. identifier: Google
+4. identifier: Sheets
+5. identifier: String
+
+### Patched security issue CCCD — prevents XSS injection attacks
+-         return `
++         const rowId = (d.ID || d['Mã GD'] || '').toString().replace(/^'/, '');
+-             <tr onclick="openEditCustomerModal('${d.ID || d['Mã GD']}')" class="cursor-pointer">
++         return `
+-                 <td><small class="text-muted">${utils_formatVN(d['Thời điểm nhập'], 'date')}</small></td>
++             <tr data-id="${rowId}" class="clickable-row cursor-pointer">
+
+**Actionable Steps:**
+1. Modified 1 files
+2. identifier: CCCD
+3. identifier: KKD
+4. identifier: AppState
+5. identifier: Chi
+
+### Patched security issue CCCD — prevents XSS injection attacks
+-         let dDate = row['Ngày mở TK'] || row['Thời điểm nhập'] || '';
++         const loaiHinh = row['Loại hình dịch vụ'] || 'Cá nhân';
+-         if (dDate) {
++         const cccdVal = (row['Số CCCD'] || '').toString().replace(/^'/, '');
+-             const rawD = new Date(dDate);
++         const dkkdVal = (row['Số DKKD'] || '').toString().replace(/^'/, '');
+-             if (!isNaN(rawD)) {
++  
+
+**Actionable Steps:**
+1. Modified 1 files
+2. identifier: CCCD
+3. identifier: DKKD
+4. identifier: Date
+5. identifier: String
+
+### Patched security issue Last — prevents XSS injection attacks
+-         $('#staffDash-rank').text('Chưa có dữ liệu');
++         $('#staffDash-rank').html('<small class="text-muted">Chưa có dữ liệu</small>');
+-     if (rankIndex >= 0 && me) {
++     if (rankIndex >= 0 && me && (me.total > 0 || staffs.length > 0)) {
+-         $('#staffDash-rank').text(`#${rank} / ${staffs.length}`);
++         let rankHtml = `#${rank} <small class="text-muted" style="font-size:0
+
+**Actionable Steps:**
+1. Modified 1 files
+2. identifier: Top
+3. identifier: Last
+4. identifier: Date
+5. identifier: String
+
+### Patched security issue AppState — prevents XSS injection attacks
+-         if(dtAllStaffs) try { dtAllStaffs.destroy(); } catch(e){}
++         if(dtAllStaffs) try { dtAllStafffunction openEditCustomerModal(id) {
+-         dtAllStaffs = $('#tblAllStaffs').DataTable({
++     try {
+-             responsive: true,
++         if (!id) return;
+-             dom: "<'row mb-2'<'col-sm-12 col-md-4 d-flex align-items-center justify-content-start'l><'col-sm-12 col-md-4 d-fl
+
+**Actionable Steps:**
+1. Modified 1 files
+2. identifier: AppState
+3. identifier: Admin
+4. identifier: AppCache
+5. identifier: String
+
+### Patched security issue CCCD — prevents XSS injection attacks
+-         $('#edit_id').val(id);
++         $('#edit_id').val(id);        const loaiHinh = row['Loại hình dịch vụ'] || 'Cá nhân';
+-         $('#edit_ten_kh').val(row['Tên khách hàng'] || '');
++         const cccdVal = (row['Số CCCD'] || '').toString().replace(/^'/, '');
+-         $('#edit_sdt').val((row['Số điện thoại'] || '').toString().replace(/^'/, ''));
++         const trangThai = row['Trạng th
+
+**Actionable Steps:**
+1. Modified 1 files
+2. identifier: CCCD
+3. identifier: AppState
+4. identifier: Admin
+5. identifier: Chi
+
+### Patched security issue NONE — prevents XSS injection attacks
+-     if (!val) {
++     const lh = $('#loai_hinh').val(); // Lấy loại hình hiện tại
+-         $(input).removeClass('is-invalid');
++     if (!val) {
+-         input.setCustomValidity('');
++         $(input).removeClass('is-invalid');
+-         return;
++         input.setCustomValidity('');
+-     }
++         return;
+-     
++     }
+-     if (!input.checkValidity()) {
++     
+-         $(input).addClas
+
+**Actionable Steps:**
+1. Modified 1 files
+2. identifier: NONE
+3. identifier: Date
+4. identifier: OPENCV
+5. identifier: IMAGE
 
 ### Patched security issue AppState — prevents XSS injection attacks
 -     runAPI('api_getAdminDashboardData', {}, (res) => {
@@ -211,85 +346,6 @@ Auto-compiled from **32 real patterns** in **ebanking**. This skill is auto-rout
 5. identifier: DataTable
 
 ### Fixed null crash in DataTable — wraps unsafe operation in error boundary
--                 <td><button class="btn btn-sm btn-outline-primary shadow-sm"><i class="bx bx-search-alt"></i> Chi tiết</button></td>
-+                 <td><small>${d['Ngày mở TK'] || d['Ngày mở'] || ''}</small></td>
--             </tr>
-+                 <td><small>${d['Số TK'] || d['Số tài khoản'] || ''}</small></td>
--         `;
-+                 <td><small>${d['Trạng thái'] || ''}</small></td>
+-                 <td><button class="btn btn-sm btn-outline-primary shadow-sm"><i class="bx 
 
-**Actionable Steps:**
-1. Modified 1 files
-2. identifier: Chi
-3. identifier: DataTable
-4. identifier: Excel
-5. identifier: Date
-
-### Fixed null crash in AppState — wraps unsafe operation in error boundary
--     runAPI('api_getMyCustomers', { email: AppState.user.email }, (res) => {
-+     runAPI('api_getmycustomers', { email: AppState.user.email }, (res) => {
--         } else {
-+             renderStaffDashboardLocal(res.data || []);
--             $('#tbMyCustomersBody').html(`<tr><td colspan="7" class="text-center text-danger py-4">Lỗi: ${res.message}</td></tr>`);
-+             
--         }
-+      
-
-**Actionable Steps:**
-1. Modified 1 files
-2. identifier: AppState
-3. identifier: Fetch
-4. identifier: NONE
-5. identifier: Date
-
-### Fixed null crash in NONE — offloads heavy computation off the main thread
-- function utils_formatVN(val, type = 'date') {
-+ function checkDuplicate(input) {
--     if (!val) return 'N/A';
-+     const val = input.value.trim();
--     const dateObj = new Date(val);
-+     if (!val) {
--     if (isNaN(dateObj)) return val;
-+         $(input).removeClass('is-invalid');
--     const d = ('0' + dateObj.getDate()).slice(-2);
-+         input.setCustomValidity('');
--     const m = ('
-
-**Actionable Steps:**
-1. Modified 1 files
-2. identifier: NONE
-3. identifier: Date
-4. identifier: OPENCV
-5. identifier: IMAGE
-
-## 📐 Conventions & Best Practices
-
-### Project Conventions
-- 📐 **Fixed null crash in Excel — wraps unsafe operation in error boundary — confirmed 5x** — -         dom: "<'row mb-2'<'col-sm-12 col-md-3'l><'col-sm-12 col-md-5'f><'col-sm-12 col-md-4 text-e
-- 📐 **Fixed null crash in Find — wraps unsafe operation in error boundary — confirmed 3x** — -     if(!adminData || !adminData.allStaffs) return;
-+     if(!adminData || !adminData.allStaffs) {
-
-- 📐 **Patched security issue VERSION — offloads heavy computation off the main thread — confirmed 3x** — -     VERSION: "2.0.0-HIFI",
-+     VERSION: "2.1.0-AUDITED",
--     apiBase: "" // Sẽ được cập nhật t
-- 📐 **Fixed null crash in Last — wraps unsafe operation in error boundary — confirmed 3x** — -     // Sap xep giam dan theo tong ho so, giong voi thu tu xep hang that su
-+     let staffs = admi
-- 📐 **Fixed null crash in OPENCV — offloads heavy computation off the main thread — confirmed 3x** — -  * OPENCV & IMAGE PROCESSING (PORTED)
-+  * OPENCV & IMAGE PROCESSING
--  */
-+  * Hardened version b
-- 📐 **Added session cookies authentication — confirmed 3x** — - function handleLoginSuccess(silent) {
-+ /**
--     hideLoading();
-+  * Xử lý Lưu thay đổi Hồ sơ Khá
-- 📐 **what-changed in app.js — confirmed 3x** — -             { targets: [3, 4, 5, 6, 7, 8, 9, 11], visible: false },
-+             { targets: [3, 4
-- 📐 **Fixed null crash in AppState — confirmed 4x** — -         let row = null;
-+         let sourceData = (AppState.user && AppState.user.role === 'Admin
-
-## 🤔 Decisions & Trade-offs
-
-- **decision in app.js** — -             $('#staffDash-aboveRankInfo').html(`<i class='bx bx-trending-up'></i> Người xếp trên: 
-
----
-*Auto-generated by BrainSync 🧠 | 32 patterns | 2026-03-28*
+... [Truncated — see individual observations for full content]
