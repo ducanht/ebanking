@@ -11,6 +11,7 @@ $(document).ready(() => {
         localStorage.clear();
         sessionStorage.clear();
         AppCache.clearAll();
+        hideLoading(); // Ẩn spinner khi đã tải xong và ở dạng đăng xuất
         showView('view-login');
         if (typeof onOpenCvReady === 'function') setTimeout(onOpenCvReady, 500);
     }
