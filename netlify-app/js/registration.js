@@ -108,8 +108,8 @@ async function handleRegistration(e) {
         progressPct.text(`${pct}%`);
     };
 
-    const compressWithTimeout = (file, slotLabel, ms = 10000) => {
-        const options = { maxSizeMB: 0.4, maxWidthOrHeight: 1200, useWebWorker: true };
+    const compressWithTimeout = (file, slotLabel, ms = 25000) => {
+        const options = { maxSizeMB: 0.4, maxWidthOrHeight: 1200, useWebWorker: false };
         return Promise.race([
             imageCompression(file, options),
             new Promise((_, reject) => setTimeout(() => reject(new Error("TIMEOUT")), ms))

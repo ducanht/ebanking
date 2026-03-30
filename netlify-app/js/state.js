@@ -2,9 +2,20 @@
  * STATE & CACHE MODULE
  */
 
+let parsedUser = null;
+try {
+    const rawUser = localStorage.getItem('HOKINHDOANH_SESSION');
+    if (rawUser && rawUser !== 'undefined' && rawUser !== 'null') {
+        parsedUser = JSON.parse(rawUser);
+    }
+} catch (e) {
+    console.warn("Dữ liệu phiên làm việc bị hỏng, đang tự động khôi phục...");
+    localStorage.removeItem('HOKINHDOANH_SESSION');
+}
+
 const AppState = {
-    user: JSON.parse(localStorage.getItem('HOKINHDOANH_SESSION')) || null,
-    VERSION: "2.1.2-STABLE",
+    user: parsedUser,
+    VERSION: "2.1.3-STABLE",
     apiBase: "",
     lastActive: Date.now()
 };
