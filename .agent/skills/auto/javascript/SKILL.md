@@ -1,6 +1,6 @@
 ---
 name: javascript
-description: "Javascript for ebanking. 1 gotchas, 13 conventions, 21 fixes."
+description: "Javascript for ebanking. 2 gotchas, 13 conventions, 21 fixes."
 domain: javascript
 triggers:
   - glob: "**/*.js"
@@ -11,11 +11,24 @@ enabled: true
 
 # Javascript
 
-Auto-compiled from **55 real patterns** in **ebanking**. This skill is auto-routed to agents when working on javascript files.
+Auto-compiled from **57 real patterns** in **ebanking**. This skill is auto-routed to agents when working on javascript files.
 
 ## ⚠️ Anti-Patterns & Gotchas
 
 > **CRITICAL:** These are real gotchas from this project. Ignoring them WILL cause bugs.
+
+### ❌ ⚠️ GOTCHA: Patched security issue VERSION — prevents XSS injection attacks
+-     VERSION: "2.1.1-PATCHED",
++     VERSION: "2.1.2-STABLE",
+- 
++ // --- CẤU HÌNH EVENT DELEGATION: XỬ LÝ CLICK XEM CHI TIẾT ---
+- /**
++ $(document).on('click', '.clickable-row', function(e) {
+-  * CACHE SYSTEM
++     // Nếu click vào nút Chi tiết h
+- Modified 1 files
+- identifier: VERSION
+- identifier: STABLE
 
 ### ❌ ⚠️ GOTCHA: Patched security issue EVENT — prevents XSS injection attacks
 - 
@@ -335,17 +348,6 @@ Auto-compiled from **55 real patterns** in **ebanking**. This skill is auto-rout
 +                 <td>${d['Tên đăng nhập'] || ''}</td>
 -                 <td>${staffName}</td>
 +                 <td>${d['Mật khẩu'] || ''}</td>
--                 <td class="text-truncate" style="max-width: 150px;" title="${staffName}">
-+  
-
-**Actionable Steps:**
-1. Modified 1 files
-2. identifier: Populate
-3. identifier: Staff
-4. identifier: Filter
-5. identifier: DataTable
-
-### Fixed null crash in DataTable — wraps unsafe operation in error boundary
--                 <td><button class="btn btn-sm btn-outline-primary shadow-sm"><i class="bx 
+-     
 
 ... [Truncated — see individual observations for full content]

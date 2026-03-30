@@ -1,7 +1,7 @@
 
 
 # Project Memory — ebanking
-> 237 notes | Score threshold: >40
+> 243 notes | Score threshold: >40
 
 ## Safety — Never Run Destructive Commands
 
@@ -23,25 +23,29 @@
 - **⚠️ GOTCHA: Patched security issue EVENT — prevents XSS injection attacks** — - 
 + // --- CẤU HÌNH EVENT DELEGATION: XỬ LÝ CLICK XEM CHI TIẾT ---
 - 
+- **⚠️ GOTCHA: Patched security issue VERSION — prevents XSS injection attacks** — -     VERSION: "2.1.1-PATCHED",
++     VERSION: "2.1.2-STABLE",
+- 
++ //
 
 ## Active: `netlify-app`
 
 - **⚠️ GOTCHA: Patched security issue EVENT — prevents XSS injection attacks**
-- **Strengthened types Admin — adds runtime type validation before use**
-- **what-changed in index.html — confirmed 3x**
-- **what-changed in index.html — confirmed 3x**
-- **convention in index.html**
+- **Patched security issue DataTable — prevents XSS injection attacks — confirmed 3x**
+- **Patched security issue Date — prevents XSS injection attacks — confirmed 3x**
+- **what-changed in app.js — confirmed 4x**
+- **Patched security issue Initialize — prevents XSS injection attacks — confirmed 3x**
 
 ## Project Standards
 
-- Strengthened types Admin — adds runtime type validation before use
-- what-changed in index.html — confirmed 3x
-- what-changed in index.html — confirmed 3x
-- convention in index.html
-- Replaced auth CCCD — adds runtime type validation before use — confirmed 3x
-- Strengthened types Kinh — adds runtime type validation before use
-- Strengthened types GIAN — adds runtime type validation before use
-- Strengthened types Nguoi — adds runtime type validation before use
+- Patched security issue DataTable — prevents XSS injection attacks — confirmed 3x
+- Patched security issue Date — prevents XSS injection attacks — confirmed 3x
+- what-changed in app.js — confirmed 4x
+- Patched security issue Initialize — prevents XSS injection attacks — confirmed 3x
+- Fixed null crash in Excel — wraps unsafe operation in error boundary — confirmed 5x
+- Fixed null crash in Find — wraps unsafe operation in error boundary — confirmed 3x
+- Patched security issue VERSION — offloads heavy computation off the main thread — confirmed 3x
+- Fixed null crash in Last — wraps unsafe operation in error boundary — confirmed 3x
 
 ## Known Fixes
 
