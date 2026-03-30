@@ -862,7 +862,7 @@ async function handleRegistration(e) {
             updateUIProgress('Hồ sơ đã được gửi thành công!', 100);
             progressBar.addClass('bg-success');
             setTimeout(() => {
-                progressWrapper.fadeOut();
+                progressWrapper.addClass('initially-hidden').addClass('d-none').hide();
                 progressBar.removeClass('bg-success');
             }, 3000);
             showAlert('Thành công!', 'Hồ sơ đã được lưu và đồng bộ truyền tin thành công.', 'success');
@@ -1602,13 +1602,13 @@ function openEditCustomerModal(id) {
 $(document).ready(() => {
     // Normalization logic for DataTables Vietnamese Search
     if (typeof $.fn.dataTable !== 'undefined') {
-        // Must use $.fn.DataTable (capital D) for extending type search properly
-        const dtExt = $.fn.DataTable.ext;
+        const dtExt = $.fn.dataTable.ext;
         if (dtExt && dtExt.type && dtExt.type.search) {
             dtExt.type.search.string = function(data) {
-                if (!data) return '';
-                if (typeof data !== 'string') return data.toString();
-                return data
+                if (data === null || data === undefined) return '';
+                let searchData = data;
+                if (typeof data !== 'string') searchData = data.toString();
+                return searchData
                     .replace(/á|à|ả|ã|ạ|ă|ắ|ằ|ẳ|ẵ|ặ|â|ấ|ầ|ẩ|ẫ|ậ/g, 'a')
                     .replace(/é|è|ẻ|ẽ|ẹ|ê|ế|ề|ể|ễ|ệ/g, 'e')
                     .replace(/i|í|ì|ỉ|ĩ|ị/g, 'i')

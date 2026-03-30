@@ -1,302 +1,469 @@
 > **BrainSync Context Pumper** 🧠
-> Dynamically loaded for active file: `netlify-app\index.html` (Domain: **Generic Logic**)
+> Dynamically loaded for active file: `netlify-app\app.js` (Domain: **Generic Logic**)
+
+### 🔴 Generic Logic Gotchas
+- **⚠️ GOTCHA: Patched security issue EVENT — prevents XSS injection attacks**: - 
++ // --- CẤU HÌNH EVENT DELEGATION: XỬ LÝ CLICK XEM CHI TIẾT ---
+- /**
++ $(document).on('click', '.clickable-row', function(e) {
+-  * CACHE SYSTEM
++     // Nếu click vào nút Chi tiết hoặc thành phần bên trong nút, dừng lại để tránh trigger 2 lần
+-  */
++     if ($(e.target).is('button') || $(e.target).closest('button').length) return;
+- const AppCache = {
++     
+-     data: {},
++     const id = $(this).attr('data-id') || $(this).data('id');
+-     timestamp: {},
++     if (id) openEditCustomerModal(id);
+-     TTL: 300000, // 5 phút (tăng từ 3 phút để giảm request lên Vercel)
++ });
+-     isFresh(key) {
++ 
+-         if (!this.timestamp[key]) return false;
++ // Xử lý riêng khi click trực tiếp vào nút Chi tiết
+-         return (Date.now() - this.timestamp[key]) < this.TTL;
++ $(document).on('click', '.btn-detail', function(e) {
+-     },
++     e.stopPropagation(); // Ngăn chặn sự kiện lan lên thẻ tr
+-     set(key, val) {
++     const id = $(this).closest('tr').attr('data-id') || $(this).closest('tr').data('id');
+-         this.data[key] = val;
++     if (id) openEditCustomerModal(id);
+-         this.timestamp[key] = Date.now();
++ });
+-     },
++ 
+-     get(key) {
++ 
+-         return this.isFresh(key) ? this.data[key] : null;
++ 
+-     },
++ /**
+-     clear(key) {
++  * CACHE SYSTEM
+-         delete this.data[key];
++  */
+-         delete this.timestamp[key];
++ const AppCache = {
+-     },
++     data: {},
+-     clearAll() {
++     timestamp: {},
+-         this.data = {};
++     TTL: 300000, // 5 phút (tăng từ 3 phút để giảm request lên Vercel)
+-         this.timestamp = {};
++     isFresh(key) {
+-     }
++         if (!this.timestamp[key]) return false;
+- };
++         return (Date.now() - this.timestamp[key]) < this.TTL;
+- 
++     },
+- /**
++     set(key, val) {
+-  * CORE API WRAPPER
++         this.data[key] = val;
+-  * Hardened with Timeout (30s) and Auto-Retry (Max 2)
++         this.timestamp[key] = Date.now();
+-  */
++     },
+- async function runAPI(action, data = {}, successHandler, 
+… [diff truncated]
+
+📌 IDE AST Context: Modified symbols likely include [GAS_API_URL, AppState, INACTIVITY_LIMIT, checkInactivity, on('click keydown scroll mousedown touchstart') callback]
 
 ### 📐 Generic Logic Conventions & Fixes
-- **[what-changed] what-changed in index.html**: -                             <i class='bx bx-cloud-upload'></i> Gửi Hồ Sơ &amp; Nén Tự Động
-+                             <i class='bx bx-send'></i> Gửi Hồ Sơ
+- **[problem-fix] Fixed null crash in Must**: -                 progressWrapper.fadeOut();
++                 progressWrapper.addClass('initially-hidden').addClass('d-none').hide();
+-         // Must use $.fn.DataTable (capital D) for extending type search properly
++         const dtExt = $.fn.dataTable.ext;
+-         const dtExt = $.fn.DataTable.ext;
++         if (dtExt && dtExt.type && dtExt.type.search) {
+-         if (dtExt && dtExt.type && dtExt.type.search) {
++             dtExt.type.search.string = function(data) {
+-             dtExt.type.search.string = function(data) {
++                 if (data === null || data === undefined) return '';
+-                 if (!data) return '';
++                 let searchData = data;
+-                 if (typeof data !== 'string') return data.toString();
++                 if (typeof data !== 'string') searchData = data.toString();
+-                 return data
++                 return searchData
 
-📌 IDE AST Context: Modified symbols likely include [html]
-- **[what-changed] what-changed in index.html**: -                             <p class="text-muted small mb-1">Phiên bản: v2.1.0</p>
-+                             <p class="text-muted small mb-1">Phiên bản: v2.1.2-STABLE</p>
-
-📌 IDE AST Context: Modified symbols likely include [html]
-- **[what-changed] what-changed in index.html**: -     <script src="app.js"></script>
-+     <script src="app.js?v=2.1.2"></script>
-
-📌 IDE AST Context: Modified symbols likely include [html]
-- **[what-changed] Replaced auth Cache — adds runtime type validation before use**: -     <!-- Pre-load styles -->
-+     <!-- Cache Control -->
--     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-+     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
--     <link href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
-+     <meta http-equiv="Pragma" content="no-cache">
--     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
-+     <meta http-equiv="Expires" content="0">
--     <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet">
-+ 
--     <link href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css" rel="stylesheet">
-+     <!-- Pre-load styles -->
--     <link href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.bootstrap5.min.css" rel="stylesheet">
-+     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
--     <link href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" rel="stylesheet">
-+     <link href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
--     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
-+     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
--     <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet">
-+     <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet">
--     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-+     <link href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css" rel="stylesheet">
--     <link href="style.css" rel="stylesheet">
-+     <link href="https:
-… [diff truncated]
-
-📌 IDE AST Context: Modified symbols likely include [html]
-- **[convention] Strengthened types Admin — adds runtime type validation before use**: -                         <div class="row g-3">
-+                         <div id="edit_status_alert" class="alert alert-warning d-none py-2 mb-3 small shadow-sm">
--                             <div class="col-md-6"><label class="form-label">Tên Khách Hàng</label><input type="text" class="form-control" id="edit_ten_kh" required></div>
-+                             <i class='bx bx-lock-alt me-1'></i> <strong>Chỉ xem:</strong> Hồ sơ đã xác minh. Liên hệ Admin để sửa.
--                             <div class="col-md-6"><label class="form-label">Số điện thoại</label><input type="tel" class="form-control" id="edit_sdt" required></div>
-+                         </div>
--                             <div class="col-md-6"><label class="form-label">Ngày mở</label><input type="text" class="form-control js-datepicker-edit" id="edit_ngay_mo" required></div>
-+                         <div class="row g-3">
--                             <div class="col-md-6">
-+                             <div class="col-md-6"><label class="form-label fw-semibold">Tên Khách Hàng</label><input type="text" class="form-control text-uppercase" id="edit_ten_kh" required></div>
--                                 <label class="form-label">Số Tài khoản</label>
-+                             <div class="col-md-6"><label class="form-label fw-semibold">Số điện thoại</label><input type="tel" class="form-control" id="edit_sdt" required></div>
--                                 <div class="input-group">
-+                             <div class="col-md-6" id="edit_cccd_group"><label class="form-label fw-semibold">Số CCCD (12 số)</label><input type="text" class="form-control" id="edit_cccd" maxlength="12"></div>
--                                     <span class="input-group-text">3800200</span>
-+                             <div class="col-md-6" id="edit_dkkd_group" style="display:none;"><label class="form-label fw-semibold">Số Giấy phép ĐKKD</label><input type="text" class="form-control" id="edit_dkkd"></div>
+📌 IDE AST Context: Modified symbols likely include [GAS_API_URL, AppState, INACTIVITY_LIMIT, checkInactivity, on('click keydown scroll mousedown touchstart') callback]
+- **[convention] 🟢 Edited netlify-app/app.js (5 changes, 29min) — confirmed 3x**: Active editing session on netlify-app/app.js.
+5 content changes over 29 minutes.
+- **[problem-fix] Patched security issue NONE — prevents XSS injection attacks**: -     progressWrapper.show();
++     progressWrapper.removeClass('initially-hidden').removeClass('d-none').show();
+-             progressWrapper.hide();
++             progressWrapper.addClass('initially-hidden').hide();
+- 
++ function checkDuplicate(input) {
+- /**
++     if (!input || !input.value) return;
+-  * STAFF CUSTOMER LOGIC
++     const val = input.value.trim();
+-  */
++     const lh = $('#loai_hinh').val(); // Lấy loại hình hiện tại
+- async function initMyCustomersList() {
++     if (!val) {
+-     if (!AppState.user) return;
++         $(input).removeClass('is-invalid');
 -     
-… [diff truncated]
-
-📌 IDE AST Context: Modified symbols likely include [html]
-- **[convention] what-changed in index.html — confirmed 3x**: -                     <button class="btn btn-outline-secondary btn-sm d-none d-sm-flex align-items-center gap-1 shadow-sm" onclick="$('#modalChangePassword').modal('show')">
-+                     <button class="btn btn-outline-secondary btn-sm d-none d-sm-flex align-items-center gap-1 shadow-sm" onclick="openChangePasswordModal()">
--                     <button class="btn btn-outline-secondary btn-sm d-none d-sm-flex align-items-center gap-1 bg-white shadow-sm" onclick="$('#modalChangePassword').modal('show')">
-+                     <button class="btn btn-outline-secondary btn-sm d-none d-sm-flex align-items-center gap-1 bg-white shadow-sm" onclick="openChangePasswordModal()">
-
-📌 IDE AST Context: Modified symbols likely include [html]
-- **[what-changed] Replaced auth EMAIL — adds runtime type validation before use**: -                                         <th>Họ TÊN</th>
-+                                         <th>HỌ TÊN</th>
--                                         <th>SỐ ĐKKD</th>
-+                                         <th class="d-none">EMAIL CB</th>
--                                         <th>SỐ CCCD</th>
-+                                         <th>CÁN BỘ</th>
--                                         <th>SỐ ĐIỆN THOẠI</th>
-+                                         <th class="text-end">CHI TIẾT</th>
--                                         <th>TÊN ĐN</th>
-+                                     </tr>
--                                         <th>MK</th>
-+                                 </thead>
--                                         <th>TÊN CÁN BỘ</th>
-+                                 <tbody></tbody>
--                                         <th>CÁN BỘ</th>
-+                             </table>
--                                         <th class="text-end">THAO TÁC</th>
-+                         </div>
--                                     </tr>
-+                     </div>
--                                 </thead>
-+                 </div>
--                                 <tbody></tbody>
-+                 <div class="col-12 col-xl-4 d-flex flex-column gap-4">
--                             </table>
-+                     <div class="glass-card p-4">
--                         </div>
-+                         <h6 class="fw-bold mb-3 text-secondary text-uppercase d-flex justify-content-between align-items-center">
--                     </div>
-+                             <span>Top 5 Cán Bộ</span>
--                 </div>
-+                             <button class="btn btn-sm btn-outline-primary" onclick="showAllStaffModal()">Chi tiết</button>
--                 <div class="col-12 col-xl-4 d-flex flex-column gap-4">
-+                         </h6>
--                     <div class="glass-card p-4">
-+                         <div id="db-topstaff" class="d-flex f
-… [diff truncated]
-
-📌 IDE AST Context: Modified symbols likely include [html]
-- **[what-changed] Replaced auth THAO — adds runtime type validation before use**: -                                         <th>TRẠNG THÁI</th>
-+                                         <th class="text-end">THAO TÁC</th>
--                                         <th class="text-end">THAO TÁC</th>
-+                                     </tr>
--                                     </tr>
-+                                 </thead>
--                                 </thead>
-+                                 <tbody></tbody>
--                                 <tbody></tbody>
-+                             </table>
--                             </table>
-+                         </div>
--                         </div>
-+                     </div>
--                     </div>
-+                 </div>
--                 </div>
-+                 <div class="col-12 col-xl-4 d-flex flex-column gap-4">
--                 <div class="col-12 col-xl-4 d-flex flex-column gap-4">
-+                     <div class="glass-card p-4">
--                     <div class="glass-card p-4">
-+                         <h6 class="fw-bold mb-3 text-secondary text-uppercase d-flex justify-content-between align-items-center">
--                         <h6 class="fw-bold mb-3 text-secondary text-uppercase d-flex justify-content-between align-items-center">
-+                             <span>Top 5 Cán Bộ</span>
--                             <span>Top 5 Cán Bộ</span>
-+                             <button class="btn btn-sm btn-outline-primary" onclick="showAllStaffModal()">Chi tiết</button>
--                             <button class="btn btn-sm btn-outline-primary" onclick="showAllStaffModal()">Chi tiết</button>
-+                         </h6>
--                         </h6>
-+                         <div id="db-topstaff" class="d-flex flex-column gap-2"></div>
--                         <div id="db-topstaff" class="d-flex flex-column gap-2"></div>
-+                     </div>
--                     </div>
-+                     <div class="glass-card p-4">
--                     <div class="g
-… [diff truncated]
-
-📌 IDE AST Context: Modified symbols likely include [html]
-- **[convention] what-changed in index.html — confirmed 3x**: -                                 <div class="input-group input-group-sm" style="width: auto;">
-+                                 <div class="input-group input-group-sm w-auto">
--                                 <div class="input-group input-group-sm" style="width: auto;">
-+                                 <div class="input-group input-group-sm w-auto">
-
-📌 IDE AST Context: Modified symbols likely include [html]
-- **[what-changed] Replaced auth Logo**: -                     <div id="login-box" class="glass-card p-4 mx-auto w-100 shadow-lg" style="max-width: 400px; border-top: 4px solid var(--bs-primary);">
-+                     <div id="login-box" class="glass-card p-4 mx-auto w-100 shadow-lg">
--                     <img src="logo.png" class="app-logo mb-3" alt="Logo" style="height: 64px; object-fit: contain;">
-+                     <img src="logo.png" class="app-logo-large mb-3" alt="Logo Quỹ Yên Thọ" title="Logo Quỹ Yên Thọ">
--                         <img src="logo.png" class="app-logo" alt="Logo" style="height: 32px; width: 32px; object-fit: contain;">
-+                         <img src="logo.png" class="app-logo" alt="Logo Quỹ Yên Thọ" title="Logo Quỹ Yên Thọ">
--                             <select id="filterYearChart" class="form-select form-select-sm" style="width: auto;"></select>
-+                             <select id="filterYearChart" class="form-select form-select-sm w-auto" title="Chọn năm xem biểu đồ"></select>
--                         <div class="chart-container-monthly" style="height: 240px; position: relative;">
-+                         <div class="chart-container-monthly-dashboard">
--                                     <input type="text" id="filterFromDate" class="form-control border-start-0 ps-0" placeholder="Từ ngày" style="width: 100px;">
-+                                     <input type="text" id="filterFromDate" class="form-control border-start-0 ps-0 w-100px" placeholder="Từ ngày" title="Lọc từ ngày">
--                                     <input type="text" id="filterToDate" class="form-control border-start-0 ps-0" placeholder="Đến ngày" style="width: 100px;">
-+                                     <input type="text" id="filterToDate" class="form-control border-start-0 ps-0 w-100px" placeholder="Đến ngày" title="Lọc đến ngày">
--                                 <select id="filterStaffAdmin" class="form-select form-select-sm" style="width: auto;"><option value="">Tất cả cán bộ</option></se
-… [diff truncated]
-
-📌 IDE AST Context: Modified symbols likely include [html]
-- **[what-changed] Replaced auth Logo — adds runtime type validation before use**: -                         <img src="logo.png" class="app-logo" alt="Logo" style="height: 32px; width: 32px; object-fit: contain;">
-+                         <img src="logo.png" class="app-logo" alt="Logo Quỹ Yên Thọ" title="Logo Quỹ Yên Thọ">
--                     <p class="text-muted mb-0 small mt-1">Xin chào, <span id="user-name-display-user" class="fw-bold text-dark"></span>!</p>
++         input.setCustomValidity('');
+-     const cached = AppCache.get('myCustomers');
++         return;
+-     if (cached) {
++     }
+-         renderMyCustomersTable(cached.data);
++     
+-         renderStaffDashboardLocal(cached.data || []);
++     if (!input.checkValidity()) {
+-         // Dùng cache admin nếu có, không thì mới fetch
++         $(input).addClass('is-invalid');
+-         const cachedAdmin = AppCache.get('adminDashboard');
++         return;
+-         if (cachedAdmin) {
++     }
+-             updateStaffRankings(cachedAdmin, AppState.user.email);
 + 
--                 </div>
-+                     <p class="text-muted mb-0 small mt-1">Xin chào, <span id="user-name-display-user" class="fw-bold text-dark"></span>!</p>
--                 <div class="d-flex gap-2">
-+                 </div>
--                     <button class="btn btn-outline-secondary btn-sm d-none d-sm-flex align-items-center gap-1 shadow-sm" onclick="$('#modalChangePassword').modal('show')">
-+                 <div class="d-flex gap-2">
--                         <i class='bx bx-lock-open-alt fs-5'></i> <span class="d-none d-sm-inline">Đổi Pass</span>
-+                     <button class="btn btn-outline-secondary btn-sm d-none d-sm-flex align-items-center gap-1 shadow-sm" onclick="$('#modalChangePassword').modal('show')">
--                     </button>
-+                         <i class='bx bx-lock-open-alt fs-5'></i> <span class="d-none d-sm-inline">Đổi Pass</span>
--                     <button class="btn btn-outline-danger btn-sm d-flex align-items-center gap-1 shadow-sm" onclick="logout()">
-+                     </button>
--                         <i class='bx bx-log-out fs-5'></i> <span class="d-none d-sm-inline">Thoát</span>
-+                     <button class="btn btn-outline-danger btn-sm d-flex align-items-center gap-1 shadow-sm" onclick="logout()">
--                     </button>
-+                         <i class='bx bx-log-out fs-5'></i> <span class="d-none d-sm-inline">Thoát</span>
--                 </div>
-+                     </button>
--             </div>
-+                 </div>
--             <div class="glass-card p-3 p-md-4 mb-4">
-+             </div>
+-         } else {
++     runAPI('api_validateduplicate', { field: input.id, value: val, loaiHinh: lh }, (res) => {
+-             runAPI('api_getAdminDashboardData', { email: AppState.user.email }, (adminRes) => {
++         if (res && res.isDup) {
+-                 if (adminRes.status === 'success') {
++             input.setCustomValidity(res.msg || 'Giá trị này đã tồn tại cùng loại hình!');
+-                     const s = _parseStats(adminRes);
++             $(input).addClass('is-invalid');
+-                     AppCache.set('adminDashboard', s);
++             if ($(input).siblings('.invalid-feedback').length) {
+-                     updateStaffRankings(s, AppState.user.email);
++                 $(input).siblings('.invalid-feedback').text(res.msg || 'Giá trị này đã tồn tại cùng loại hình!');
+-                 }
++             }
+-  
 … [diff truncated]
 
-📌 IDE AST Context: Modified symbols likely include [html]
-- **[convention] convention in index.html**: -                             <input type="text" class="form-control text-uppercase" id="ten_kh" required>
-+                             <input type="text" class="form-control text-uppercase" id="ten_kh" placeholder="NHẬP HỌ TÊN" title="Vui lòng nhập họ và tên khách hàng" required>
--                             <input type="text" class="form-control" id="cccd" pattern="[0-9]{12}" maxlength="12" title="Căn cước công dân bắt buộc đúng 12 chữ số" required onblur="checkDuplicate(this)">
-+                             <input type="text" class="form-control" id="cccd" placeholder="12 số CCCD" pattern="[0-9]{12}" maxlength="12" title="Căn cước công dân bắt buộc đúng 12 chữ số" required onblur="checkDuplicate(this)">
--                             <input type="text" class="form-control text-uppercase" id="dkkd" onblur="checkDuplicate(this)">
-+                             <input type="text" class="form-control text-uppercase" id="dkkd" placeholder="SỐ ĐKKD" title="Nhập số đăng ký kinh doanh" onblur="checkDuplicate(this)">
--                             <input type="tel" class="form-control" id="sdt" pattern="0[0-9]{9}" maxlength="10" title="Số điện thoại phải bắt đầu bằng 0 và đủ 10 chữ số" required onblur="checkDuplicate(this)">
-+                             <input type="tel" class="form-control" id="sdt" placeholder="0xxxxxxxxx" pattern="0[0-9]{9}" maxlength="10" title="Số điện thoại phải bắt đầu bằng 0 và đủ 10 chữ số" required onblur="checkDuplicate(this)">
--                                 <input class="form-control" type="file" id="img_truoc" accept="image/*" required>
-+                                 <input class="form-control" type="file" id="img_truoc" accept="image/*" title="Chọn ảnh mặt trước CCCD" required>
--                                 <input class="form-control" type="file" id="img_sau" accept="image/*" required>
-+                                 <input class="form-control" type="file" id="img_sau" accept="image/*" title="Chọn ảnh mặt sau CCCD" required>
--   
-… [diff truncated]
-
-📌 IDE AST Context: Modified symbols likely include [html]
-- **[convention] Replaced auth CCCD — adds runtime type validation before use — confirmed 3x**: -                         <div class="chart-container-pie" style="height: 200px;"><canvas id="chartLoaiHinh"></canvas></div>
-+                         <div class="chart-container-pie"><canvas id="chartLoaiHinh"></canvas></div>
--                             <label class="form-label fw-semibold">Loại hình</label>
-+                             <label for="loai_hinh" class="form-label fw-semibold">Loại hình</label>
--                                 <option value="Cá nhân">Cá nhân</option>
-+ 
--                                 <option value="Hộ kinh doanh">Hộ kinh doanh</option>
-+                                 <option value="Cá nhân">Cá nhân</option>
--                             </select>
-+                                 <option value="Hộ kinh doanh">Hộ kinh doanh</option>
--                         </div>
-+                             </select>
--                         <div class="col-md-6">
-+                         </div>
--                             <label class="form-label fw-semibold">Họ và Tên Khách/HKD</label>
-+                         <div class="col-md-6">
--                             <input type="text" class="form-control text-uppercase" id="ten_kh" required>
-+                             <label for="ten_kh" class="form-label fw-semibold">Họ và Tên Khách/HKD</label>
--                         </div>
-+                             <input type="text" class="form-control text-uppercase" id="ten_kh" required>
--                         <div class="col-md-6">
-+                         </div>
--                             <label class="form-label fw-semibold">Số CCCD (12 số)</label>
-+ 
--                             <input type="text" class="form-control" id="cccd" pattern="[0-9]{12}" maxlength="12" title="Căn cước công dân bắt buộc đúng 12 chữ số" required onblur="checkDuplicate(this)">
-+                         <div class="col-md-6">
--                             <div class="invalid-feedback">Căn cước công dân bắt buộc đúng 12 chữ số.</div>
-+                     
-… [diff truncated]
-
-📌 IDE AST Context: Modified symbols likely include [html]
-- **[what-changed] Replaced auth VIEW — adds runtime type validation before use**: -     <style>
-+ 
--         :root { --emerald: #10b981; --emerald-dark: #059669; --slate: #64748b; --amber: #f59e0b; }
-+     <div id="global-spinner">
--         body { background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); min-height: 100vh; font-family: 'Inter', sans-serif; color: #1e293b; margin: 0; padding: 0; }
-+         <div class="spinner-border text-success spinner-lg" role="status"></div>
--         .glass-card { background: rgba(255, 255, 255, 0.8); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 1rem; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); transition: transform 0.2s; }
-+         <h5 class="mt-3 fw-bold text-secondary">Đang kết nối hệ thống...</h5>
--         #global-spinner { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.9); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-+     </div>
--         .handle-interaction { pointer-events: auto; cursor: move; }
-+ 
--         .chart-container-pie { height: 250px; position: relative; }
-+     <div id="app-container" class="container py-4 mb-5">
--         .mw-150px { max-width: 150px; }
-+         <!-- VIEW: LOGIN -->
--         div#preact-border-shadow-host { display: none; }
-+         <section id="view-login" class="view-section">
--         .img-preview-box { width: 100%; height: 120px; border: 2px dashed #10b981; border-radius: 0.5rem; overflow: hidden; background: #f8fafc; display: flex; align-items: center; justify-content: center; }
-+             <div class="container d-flex justify-content-center align-items-center min-vh-80">
--         .img-preview-inner { width: 100%; height: 100%; object-fit: contain; display: block; }
-+                 <div class="col-12 col-md-6 col-lg-4">
--         .img-detail-box { width: 100%; height: 130px; border-radius: 0.5rem; overflow: hidden; background: #f1f5f9; display: flex; align-items: cent
-… [diff truncated]
-
-📌 IDE AST Context: Modified symbols likely include [html]
-- **[what-changed] Replaced auth Crop — adds runtime type validation before use**: -                         <div class="progress" style="height: 10px;"><div class="progress-bar progress-bar-striped progress-bar-animated bg-success" id="compress-progress-bar" style="width: 0%"></div></div>
-+                         <div class="d-flex justify-content-between mb-1">
--                     </div>
-+                             <small class="text-secondary fw-bold" id="compress-progress-label">Đang nén ảnh...</small>
+📌 IDE AST Context: Modified symbols likely include [GAS_API_URL, AppState, INACTIVITY_LIMIT, checkInactivity, on('click keydown scroll mousedown touchstart') callback]
+- **[convention] Patched security issue Normalization — prevents XSS injection attacks — confirmed 3x**: -             <tr data-id="${rowId}" class="clickable-row cursor-pointer">
++             <tr data-id="${rowId}" class="clickable-row cursor-pointer" onclick="openEditCustomerModal('${rowId}')">
+-                 <td class="text-end"><button class="btn btn-sm btn-outline-primary shadow-sm btn-detail"><i class="bx bx-search-alt"></i> Chi tiết</button></td>
++                 <td class="text-end"><button class="btn btn-sm btn-outline-primary shadow-sm btn-detail" onclick="openEditCustomerModal('${rowId}'); event.stopPropagation();"><i class="bx bx-search-alt"></i> Chi tiết</button></td>
+-             <tr data-id="${rowId}" class="clickable-row cursor-pointer" style="cursor:pointer">
++             <tr data-id="${rowId}" class="clickable-row cursor-pointer" style="cursor:pointer" onclick="openEditCustomerModal('${rowId}')">
+-                 <td class="text-end"><button class="btn btn-sm btn-outline-primary px-2 btn-detail"><i class="bx bx-info-circle"></i></button></td>
++                 <td class="text-end"><button class="btn btn-sm btn-outline-primary px-2 btn-detail" onclick="openEditCustomerModal('${rowId}'); event.stopPropagation();"><i class="bx bx-info-circle"></i></button></td>
+-     if (!AppState.user) {
++     // Normalization logic for DataTables Vietnamese Search
+-         showView('view-login');
++     if (typeof $.fn.dataTable !== 'undefined' && $.fn.dataTable.ext && $.fn.dataTable.ext.type) {
+-         hideLoading();
++         $.fn.dataTable.ext.type.search.string = function(data) {
+-     } else {
++             if (!data) return '';
+-         handleLoginSuccess(true);
++             if (typeof data !== 'string') return data;
+-     }
++             return data
 - 
-+                             <small class="text-primary fw-bold" id="compress-progress-pct">0%</small>
--                     <div class="mt-4 pt-3 text-center border-top">
-+                         </div>
--                         <button type="submit" class="btn btn-primary btn-lg px-5 shadow-sm d-flex align-items-center mx-auto gap-2" id="btnSubmitAccount">
-+                         <div class="progress" style="height: 10px;"><div class="progress-bar progress-bar-striped progress-bar-animated bg-success" id="compress-progress-bar" style="width: 0%"></div></div>
--                             <i class='bx bx-cloud-upload'></i> Gửi Hồ Sơ &amp; Nén Tự Động
-+                     </div>
--                         </button>
-+ 
--                         <small class="d-block mt-2 text-muted">* Mọi ảnh tải lên sẽ tự động đi qua thuật toán Crop &amp; Compress tối ưu dung lượng (&lt; 500KB).</small>
-+ 
--                     </div>
-+                     <div class="mt-4 pt-3 text-center border-top">
--                 </form>
-+                         <button type="submit" class="btn btn-primary btn-lg px-5 shadow-sm d-flex align-items-center mx-auto gap-2" id="btnSubmitAccount">
--             </div>
-+                             <i class='bx bx-cloud-upload'></i> Gửi Hồ Sơ &amp; Nén Tự Động
--         </section>
-+                         </button>
-- 
-+                         <small class="d-block mt-2 text-muted">* Mọi ảnh tải lên sẽ tự động đi qua thuật toán Crop &amp; Compress tối ưu dung lượng (&lt; 500KB).</small>
--         <!-- VIEW: HỒ SƠ CỦ
++                 .replace(/á|à|ả|ã|ạ|ă|ắ|ằ|ẳ|ẵ|ặ|â|ấ|ầ|ẩ|ẫ|ậ/g, 'a')
+-     $('#frm-login').on('submit', handleLogin);
++                 .replace(/é|è|ẻ|ẽ|ẹ|ê|ế|ề|ể|ễ|ệ/g, 'e')
+-     $('#frmChangePassword').on('submit', handleChangePassword);
++                 .replace(/i|í|ì|ỉ|ĩ|ị/g, 'i')
+-     $('#fr
 … [diff truncated]
 
-📌 IDE AST Context: Modified symbols likely include [html]
+📌 IDE AST Context: Modified symbols likely include [GAS_API_URL, AppState, INACTIVITY_LIMIT, checkInactivity, on('click keydown scroll mousedown touchstart') callback]
+- **[what-changed] Replaced auth Date — prevents XSS injection attacks**: -     localStorage.removeItem('HOKINHDOANH_SESSION');
++     localStorage.clear();
+-     sessionStorage.removeItem('HOKINHDOANH_SESSION');
++     sessionStorage.clear();
+-     $('#frm-login')[0].reset();
++     
+-     window.location.reload();
++     // Ép trình duyệt tải lại trang và bỏ qua cache bằng cách thêm tham số timestamp ngẫu nhiên
+- }
++     window.location.href = window.location.origin + window.location.pathname + '?v=' + Date.now();
+- 
++ }
+- function utils_escapeHTML(str) {
++ 
+-     if (!str) return '';
++ function utils_escapeHTML(str) {
+-     return String(str)
++     if (!str) return '';
+-         .replace(/&/g, "&amp;")
++     return String(str)
+-         .replace(/</g, "&lt;")
++         .replace(/&/g, "&amp;")
+-         .replace(/>/g, "&gt;")
++         .replace(/</g, "&lt;")
+-         .replace(/"/g, "&quot;")
++         .replace(/>/g, "&gt;")
+-         .replace(/'/g, "&#039;");
++         .replace(/"/g, "&quot;")
+- }
++         .replace(/'/g, "&#039;");
+- 
++ }
+- window.onOpenCvReady = onOpenCvReady;
++ 
+- window.loadStaffOpenAccountView = () => showView('view-mo-tai-khoan');
++ window.onOpenCvReady = onOpenCvReady;
+- window.loadStaffMyCustomersView = () => { showView('view-my-customers'); initMyCustomersList(); };
++ window.loadStaffOpenAccountView = () => showView('view-mo-tai-khoan');
+- window.logout = logout;
++ window.loadStaffMyCustomersView = () => { showView('view-my-customers'); initMyCustomersList(); };
+- window.finishCropping = finishCropping;
++ window.logout = logout;
+- window.openChangePasswordModal = () => {
++ window.finishCropping = finishCropping;
+-     $('#pwdAlertForce').hide();
++ window.openChangePasswordModal = () => {
+-     $('#modalChangePassword .btn-close').show();
++     $('#pwdAlertForce').hide();
+-     $('#modalChangePassword').attr('data-bs-keyboard', 'true');
++     $('#modalChangePassword .btn-close').show();
+-     $('#frmChangePassword')[0].reset();
++     $('#modalChangePassword').attr('data-bs-keyboard', 'true');
+-     $('#modalChangeP
+… [diff truncated]
+
+📌 IDE AST Context: Modified symbols likely include [GAS_API_URL, AppState, INACTIVITY_LIMIT, checkInactivity, on('click keydown scroll mousedown touchstart') callback]
+- **[what-changed] what-changed in app.js**: -     VERSION: "2.1.1-PATCHED",
++     VERSION: "2.1.2-STABLE",
+
+📌 IDE AST Context: Modified symbols likely include [GAS_API_URL, AppState, INACTIVITY_LIMIT, checkInactivity, on('click keydown scroll mousedown touchstart') callback]
+- **[trade-off] trade-off in app.js**: -         const rowId      = (d['ID'] || d['Mã GD'] || '').toString().trim();
++         const rowId      = (d['ID'] || d['Mã GD'] || '').toString().trim().replace(/^'/, '');
+-             <tr onclick="openEditCustomerModal('${rowId}')" class="cursor-pointer" style="cursor:pointer">
++             <tr data-id="${rowId}" class="clickable-row cursor-pointer" style="cursor:pointer">
+-                 <td class="text-end"><button class="btn btn-sm btn-outline-primary px-2" onclick="event.stopPropagation();openEditCustomerModal('${rowId}')"><i class="bx bx-info-circle"></i></button></td>
++                 <td class="text-end"><button class="btn btn-sm btn-outline-primary px-2 btn-detail"><i class="bx bx-info-circle"></i></button></td>
+-         search: { caseInsensitive: true, smart: true, searchDelay: 400 },
++         search: { caseInsensitive: true, smart: true }, // Bỏ searchDelay để đạt "tức thời"
+
+📌 IDE AST Context: Modified symbols likely include [GAS_API_URL, AppState, INACTIVITY_LIMIT, checkInactivity, on('click keydown scroll mousedown touchstart') callback]
+- **[convention] Patched security issue DataTable — prevents XSS injection attacks — confirmed 3x**: -         if(dtAllStaffs) try { dtAllStafffunction openEditCustomerModal(id) {
++         if(dtAllStaffs) try { dtAllStaffs.destroy(); } catch(e){}
+-     try {
++         dtAllStaffs = $('#tblAllStaffs').DataTable({
+-         if (!id) return;
++             responsive: true,
+-         let row = null;
++             dom: "<'row mb-2'<'col-sm-12 col-md-4 d-flex align-items-center justify-content-start'l><'col-sm-12 col-md-4 d-flex align-items-center justify-content-center'B><'col-sm-12 col-md-4 d-flex align-items-center justify-content-end'f>>" +
+-         const sourceData = (AppState.user && AppState.user.role === 'Admin') ? (window._adminAllData || []) : ((AppCache.get('myCustomers') || {}).data || []);
++                  "<'row'<'col-sm-12'tr>>" +
+-         
++                  "<'row mt-2'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+-         const rowIdStr = String(id).trim().replace(/^'/, '');
++             buttons: [{ extend: 'excelHtml5', text: '<i class="bx bxs-file-export"></i> Xuất Excel', className: 'btn btn-sm btn-success shadow-sm' }],
+-         for (let i = 0; i < sourceData.length; i++) {
++             language: { url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json" }
+-             const currentId = String(sourceData[i]['ID'] || sourceData[i]['Mã GD'] || '').trim().replace(/^'/, '');
++         });
+-             if (currentId === rowIdStr) {
++         $('#modalAllStaff').modal('show');
+-                 row = sourceData[i];
++     } catch(e) { console.error(e); }
+-                 break;
++ }
+-             }
++ 
+-         }
++ // --- CUSTOMER & IMAGE MODAL ---
+- 
++ function openEditCustomerModal(id) {
+-         if (!row) {
++     try {
+-             console.warn("No row found with ID:", id);
++         if (!id) return;
+-             showAlert('Lỗi', 'Không tìm thấy thông tin hồ sơ khách hàng. Vui lòng thử lại.', 'error');
++         let row = null;
+-             return;
++         const sourceData = (AppState.user && AppState.user.role === 'Admin') ? 
+… [diff truncated]
+
+📌 IDE AST Context: Modified symbols likely include [GAS_API_URL, AppState, INACTIVITY_LIMIT, checkInactivity, on('click keydown scroll mousedown touchstart') callback]
+- **[convention] Patched security issue Date — prevents XSS injection attacks — confirmed 3x**: -             return;
++             showAlert('Lỗi', 'Không tìm thấy thông tin hồ sơ khách hàng. Vui lòng thử lại.', 'error');
+-         }
++             return;
+- 
++         }
+-         $('#edit_id').val(id);
++ 
+-         $('#edit_ten_kh').val(row['Tên khách hàng'] || '');
++         // Khởi tạo datepicker cho modal chỉnh sửa nếu chưa có
+-         $('#edit_sdt').val((row['Số điện thoại'] || '').toString().replace(/^'/, ''));
++         if (typeof flatpickr !== 'undefined') {
+-         
++             const fpEl = document.querySelector('.js-datepicker-edit');
+-         let dDate = row['Ngày mở TK'] || row['Thời điểm nhập'] || '';
++             if (fpEl && !fpEl._flatpickr) {
+-         if (dDate) {
++                 flatpickr(fpEl, {
+-             const rawD = new Date(dDate);
++                     dateFormat: "d/m/Y",
+-             if (!isNaN(rawD)) {
++                     altInput: true,
+-                 dDate = String(rawD.getDate()).padStart(2, '0') + '/' + String(rawD.getMonth() + 1).padStart(2, '0') + '/' + rawD.getFullYear();
++                     altFormat: "d/m/Y",
+-             }
++                     allowInput: true
+-         }
++                 });
+-         $('#edit_ngay_mo').val(dDate);
++             }
+-         
++         }
+-         let stk = (row['Số TK'] || row['Số tài khoản'] || '').toString().replace(/^'/, '');
++ 
+-         if (stk.length > 7 && stk.startsWith('3800200')) stk = stk.substring(7);
++         $('#edit_id').val(id);
+-         $('#edit_so_tk').val(stk);
++         $('#edit_ten_kh').val(row['Tên khách hàng'] || '');
+- 
++         $('#edit_sdt').val((row['Số điện thoại'] || '').toString().replace(/^'/, ''));
+-         if (AppState.user && AppState.user.role === 'Admin') {
++         
+-             $('#btnSaveEdit').hide();
++         let dDate = row['Ngày mở TK'] || row['Thời điểm nhập'] || '';
+-             $('#frmEditCustomer input').prop('readonly', true);
++         if (dDate) {
+-         } else {
++             const rawD = new Date(dDate);
+… [diff truncated]
+
+📌 IDE AST Context: Modified symbols likely include [GAS_API_URL, AppState, INACTIVITY_LIMIT, checkInactivity, on('click keydown scroll mousedown touchstart') callback]
+- **[convention] what-changed in app.js — confirmed 4x**: -     VERSION: "2.1.0-AUDITED",
++     VERSION: "2.1.1-PATCHED",
+
+📌 IDE AST Context: Modified symbols likely include [GAS_API_URL, AppState, INACTIVITY_LIMIT, checkInactivity, on('click keydown scroll mousedown touchstart') callback]
+- **[convention] Patched security issue Initialize — prevents XSS injection attacks — confirmed 3x**: - 
++     toggleFormFields(); // Initialize field visibility on load
+-     // Map camera inputs -> corresponding file inputs
++ 
+-     const camMap = {
++     // Map camera inputs -> corresponding file inputs
+-         'cam_truoc': 'img_truoc',
++     const camMap = {
+-         'cam_sau':   'img_sau',
++         'cam_truoc': 'img_truoc',
+-         'cam_dkkd':  'img_dkkd',
++         'cam_sau':   'img_sau',
+-         'cam_qr':    'img_qr',
++         'cam_dkkd':  'img_dkkd',
+-         'cam_thuchien': 'img_thuchien'
++         'cam_qr':    'img_qr',
+-     };
++         'cam_thuchien': 'img_thuchien'
+- 
++     };
+-     const triggerProcessing = async (file, targetId) => {
++ 
+-         if (!file) return;
++     const triggerProcessing = async (file, targetId) => {
+-         showLoading('Phan tich anh...');
++         if (!file) return;
+-         try {
++         showLoading('Phan tich anh...');
+-             const processed = await processImageWithAI(file);
++         try {
+-             startCroppingFlow(processed, targetId);
++             const processed = await processImageWithAI(file);
+-         } catch(e) {
++             startCroppingFlow(processed, targetId);
+-             startCroppingFlow(file, targetId);
++         } catch(e) {
+-         } finally {
++             startCroppingFlow(file, targetId);
+-             hideLoading();
++         } finally {
+-         }
++             hideLoading();
+-     };
++         }
+- 
++     };
+-     // File (gallery) inputs
++ 
+-     const uploadIds = ['img_truoc', 'img_sau', 'img_dkkd', 'img_qr', 'img_thuchien'];
++     // File (gallery) inputs
+-     uploadIds.forEach(id => {
++     const uploadIds = ['img_truoc', 'img_sau', 'img_dkkd', 'img_qr', 'img_thuchien'];
+-         $(`#${id}`).off('change').on('change', async function() {
++     uploadIds.forEach(id => {
+-             if (this.files && this.files[0]) {
++         $(`#${id}`).off('change').on('change', async function() {
+-                 await triggerProcessing(this.files[0], id);
++             
+… [diff truncated]
+
+📌 IDE AST Context: Modified symbols likely include [GAS_API_URL, AppState, INACTIVITY_LIMIT, checkInactivity, on('click keydown scroll mousedown touchstart') callback]
+- **[decision] decision in app.js**: -             $('#staffDash-aboveRankInfo').html(`<i class='bx bx-trending-up'></i> Người xếp trên: <b>${aboveMe.total || 0}</b> hồ sơ (cần thêm ${diff})`);
++             $('#staffDash-aboveRankInfo').html(`<i class='bx bx-trending-up'></i> Người xếp trên: <b>${(aboveMe.total || 0)}</b> hồ sơ (cần thêm ${diff})`);
+
+📌 IDE AST Context: Modified symbols likely include [GAS_API_URL, AppState, INACTIVITY_LIMIT, checkInactivity, on('click keydown scroll mousedown touchstart') callback]
+- **[discovery] discovery in app.js**: -                 <td class="fw-bold">${d['Tên khách hàng']}</td>
++                 <td class="fw-bold">${utils_escapeHTML(d['Tên khách hàng'])}</td>
+-                 <td><small>${d['Số CCCD']}</small></td>
++                 <td><small>${utils_escapeHTML(d['Số CCCD'])}</small></td>
+-                 <td><small>${d['Số GP ĐKKD'] || ''}</small></td>
++                 <td><small>${utils_escapeHTML(d['Số GP ĐKKD'] || '')}</small></td>
+-                 <td><span class="badge bg-light text-dark border">${d['Loại hình dịch vụ']}</span></td>
++                 <td><span class="badge bg-light text-dark border">${utils_escapeHTML(d['Loại hình dịch vụ'])}</span></td>
+-                 <td><small>${d['Số điện thoại']}</small></td>
++                 <td><small>${utils_escapeHTML(d['Số điện thoại'])}</small></td>
+-                 <td>${AppState.user ? AppState.user.name : (d['Cán bộ thực hiện'] || '')}</td>
++                 <td>${AppState.user ? utils_escapeHTML(AppState.user.name) : utils_escapeHTML(d['Cán bộ thực hiện'] || '')}</td>
+-                 <td><small>${d['Ngày mở TK'] || d['Ngày mở'] || ''}</small></td>
++                 <td><small>${utils_escapeHTML(d['Ngày mở TK'] || d['Ngày mở'] || '')}</small></td>
+-                 <td><small>${d['Số TK'] || d['Số tài khoản'] || ''}</small></td>
++                 <td><small>${utils_escapeHTML(d['Số TK'] || d['Số tài khoản'] || '')}</small></td>
+
+📌 IDE AST Context: Modified symbols likely include [GAS_API_URL, AppState, INACTIVITY_LIMIT, checkInactivity, on('click keydown scroll mousedown touchstart') callback]
+- **[convention] Fixed null crash in Excel — wraps unsafe operation in error boundary — confirmed 5x**: -         dom: "<'row mb-2'<'col-sm-12 col-md-3'l><'col-sm-12 col-md-5'f><'col-sm-12 col-md-4 text-end'B>>" +
++         lengthMenu: [10, 25, 50, 100],
+-              "<'row'<'col-sm-12'tr>>" +
++         pageLength: 25,
+-              "<'row mt-2'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
++         dom: "<'row mb-2'<'col-sm-12 col-md-3'l><'col-sm-12 col-md-5'f><'col-sm-12 col-md-4 text-end'B>>" +
+-         buttons: [{
++              "<'row'<'col-sm-12'tr>>" +
+-             extend: 'excelHtml5',
++              "<'row mt-2'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+-             text: '<i class="bx bxs-file-export"></i> Xuất Excel',
++         buttons: [{
+-             className: 'btn btn-sm btn-success shadow-sm',
++             extend: 'excelHtml5',
+-             exportOptions: {
++             text: '<i class="bx bxs-file-export"></i> Xuất Excel',
+-                 // Xuất tất cả cột bao gồm cột ẩn (email, STK, CCCD, ...)
++             className: 'btn btn-sm btn-success shadow-sm',
+-                 columns: ':all',
++             exportOptions: {
+-                 format: {
++                 // Xuất tất cả cột bao gồm cột ẩn (email, STK, CCCD, ...)
+-                     header: function(data, col) {
++                 columns: ':all',
+-                         // Ẩn cột email khỏi header xuất
++                 format: {
+-                         const hdrs = ['Thời gian', 'Họ Tên', 'Loại Hình', 'Số TK', 'Email CB', 'Cán Bộ', 'Thao tác'];
++                     header: function(data, col) {
+-                         return hdrs[col] || data;
++                         // Ẩn cột email khỏi header xuất
+-                     }
++                         const hdrs = ['Thời gian', 'Họ Tên', 'Loại Hình', 'Số TK', 'Email CB', 'Cán Bộ', 'Thao tác'];
+-                 }
++                         return hdrs[col] || data;
+-             },
++                     }
+-             title: 'Bao_Cao_KH_YenTho_' + new Date().toISOString().slice(0,10)
++                 }
+-      
+… [diff truncated]
+
+📌 IDE AST Context: Modified symbols likely include [GAS_API_URL, AppState, INACTIVITY_LIMIT, checkInactivity, on('click keydown scroll mousedown touchstart') callback]

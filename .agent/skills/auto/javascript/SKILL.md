@@ -1,6 +1,6 @@
 ---
 name: javascript
-description: "Javascript for ebanking. 2 gotchas, 14 conventions, 21 fixes."
+description: "Javascript for ebanking. 2 gotchas, 15 conventions, 22 fixes."
 domain: javascript
 triggers:
   - glob: "**/*.js"
@@ -11,7 +11,7 @@ enabled: true
 
 # Javascript
 
-Auto-compiled from **58 real patterns** in **ebanking**. This skill is auto-routed to agents when working on javascript files.
+Auto-compiled from **60 real patterns** in **ebanking**. This skill is auto-routed to agents when working on javascript files.
 
 ## ⚠️ Anti-Patterns & Gotchas
 
@@ -44,6 +44,27 @@ Auto-compiled from **58 real patterns** in **ebanking**. This skill is auto-rout
 
 
 ## 🔧 Problem Playbooks
+
+### Patched security issue NONE — prevents XSS injection attacks
+-     progressWrapper.show();
++     progressWrapper.removeClass('initially-hidden').removeClass('d-none').show();
+-             progressWrapper.hide();
++             progressWrapper.addClass('initially-hidden').hide();
+- 
++ function checkDuplicate(input) {
+- /**
++     if (!input || !input.value) return;
+-  * STAFF CUSTOMER LOGIC
++     const val = input.value.trim();
+-  */
++     const lh = $('#loai
+
+**Actionable Steps:**
+1. Modified 1 files
+2. identifier: NONE
+3. identifier: STAFF
+4. identifier: CUSTOMER
+5. identifier: LOGIC
 
 ### Patched security issue Chuy — prevents XSS injection attacks
 -         let row = null;
@@ -329,25 +350,6 @@ Auto-compiled from **58 real patterns** in **ebanking**. This skill is auto-rout
 +  * - Dung cho Netlify (HTTPS), ho tro ca mobile va desktop.
 - function initMoTaiKhoanForm() {
 +  * - Fallback an toan sang file picker neu browser khong ho tro hoac user tu choi quyen.
--     flatpickr(".js-datepicker", { dateFormat: "Y-m-d", altInput: true, altFormat: "d/m/Y", defaultDate: "today" });
-+  */
--     
-+ let _camera
-
-**Actionable Steps:**
-1. Modified 1 files
-2. identifier: CAMERA
-3. identifier: MODULE
-4. identifier: Flow
-5. identifier: Dung
-
-### Fixed null crash in Populate — wraps unsafe operation in error boundary
--                 <td>${d['Tên đăng nhập'] || ''}</td>
-+                 <td>${d['Số điện thoại'] || ''}</td>
--                 <td>${d['Mật khẩu'] || ''}</td>
-+                 <td>${d['Tên đăng nhập'] || ''}</td>
--                 <td>${staffName}</td>
-+                 <td>${d['Mật khẩu'] || ''}</td>
--     
+-     flatpickr(".js-datepicker", { dateFormat: "Y-m-d", altInpu
 
 ... [Truncated — see individual observations for full content]

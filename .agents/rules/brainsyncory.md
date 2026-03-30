@@ -1,7 +1,7 @@
 
 
 # Project Memory — ebanking
-> 250 notes | Score threshold: >40
+> 252 notes | Score threshold: >40
 
 ## Safety — Never Run Destructive Commands
 
@@ -31,21 +31,21 @@
 ## Active: `netlify-app`
 
 - **⚠️ GOTCHA: Patched security issue EVENT — prevents XSS injection attacks**
-- **Strengthened types Admin — adds runtime type validation before use**
-- **what-changed in index.html — confirmed 3x**
-- **what-changed in index.html — confirmed 3x**
-- **convention in index.html**
+- **🟢 Edited netlify-app/app.js (5 changes, 29min) — confirmed 3x**
+- **Patched security issue Normalization — prevents XSS injection attacks — confirmed 3x**
+- **Patched security issue DataTable — prevents XSS injection attacks — confirmed 3x**
+- **Patched security issue Date — prevents XSS injection attacks — confirmed 3x**
 
 ## Project Standards
 
-- Strengthened types Admin — adds runtime type validation before use
-- what-changed in index.html — confirmed 3x
-- what-changed in index.html — confirmed 3x
-- convention in index.html
-- Replaced auth CCCD — adds runtime type validation before use — confirmed 3x
-- Strengthened types Kinh — adds runtime type validation before use
-- Strengthened types GIAN — adds runtime type validation before use
-- Strengthened types Nguoi — adds runtime type validation before use
+- 🟢 Edited netlify-app/app.js (5 changes, 29min) — confirmed 3x
+- Patched security issue Normalization — prevents XSS injection attacks — confirmed 3x
+- Patched security issue DataTable — prevents XSS injection attacks — confirmed 3x
+- Patched security issue Date — prevents XSS injection attacks — confirmed 3x
+- what-changed in app.js — confirmed 4x
+- Patched security issue Initialize — prevents XSS injection attacks — confirmed 3x
+- Fixed null crash in Excel — wraps unsafe operation in error boundary — confirmed 5x
+- Fixed null crash in Find — wraps unsafe operation in error boundary — confirmed 3x
 
 ## Known Fixes
 
