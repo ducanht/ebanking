@@ -1,6 +1,6 @@
 ---
 name: project
-description: "Project for ebanking. 19 gotchas, 38 conventions, 13 fixes."
+description: "Project for ebanking. 19 gotchas, 39 conventions, 14 fixes."
 domain: project
 triggers:
   - glob: "**/*"
@@ -10,7 +10,7 @@ enabled: true
 
 # Project
 
-Auto-compiled from **156 real patterns** in **ebanking**. This skill is auto-routed to agents when working on project files.
+Auto-compiled from **162 real patterns** in **ebanking**. This skill is auto-routed to agents when working on project files.
 
 ## ⚠️ Anti-Patterns & Gotchas
 
@@ -39,6 +39,18 @@ Auto-compiled from **156 real patterns** in **ebanking**. This skill is auto-rou
 | Never force push to main, master, or production br | Never force push to main, master, or production branches |
 
 ## 🔧 Problem Playbooks
+
+### problem-fix in scratchpad_k0x6k620.md
+- - [ ] Test 'Chi tiết' button in 'Lịch Sử Mở Mới' (Dashboard)
++ - [!] Test 'Chi tiết' button in 'Lịch Sử Mở Mới' (Dashboard) - FAILED (Element not found)
+- - [ ] Test 'Đổi Pass' in navbar (Dashboard)
++ - [!] Test 'Đổi Pass' in navbar (Dashboard) - FAILED
+- - Modal Details:
++ - Modal Details: FAILED - Console error "Không tìm thấy element modalEditCustomer"
+- - Change [REDACTED] - Change [REDACTED
+
+**Actionable Steps:**
+1. Modified 1 files
 
 ### problem-fix in scratchpad_d889vj5r.md
 - 
@@ -251,6 +263,8 @@ Auto-compiled from **156 real patterns** in **ebanking**. This skill is auto-rou
 ## 📐 Conventions & Best Practices
 
 ### Project Conventions
+- 📐 **Added session cookies authentication — confirmed 3x** — - - [!] Test 'Chi tiết' button in 'Lịch Sử Mở Mới' (Dashboard) - FAILED (Element not found)
++ - [!] 
 - 📐 **Patched security issue CCCD — adds runtime type validation before use — confirmed 4x** — - function checkDuplicateAccount(cccd, dkkd, sdt, loaiHinh) {
 + function checkDuplicateAccount(cccd,
 - 📐 **problem-fix in task.md.resolved — confirmed 4x** — - - [ ] Cập nhật Backend (`api_admin.gs`): Bao gồm toàn bộ cán bộ trong bảng xếp hạng.
@@ -267,14 +281,6 @@ Auto-compiled from **156 real patterns** in **ebanking**. This skill is auto-rou
 - 📐 **Updated Git database schema — ensures atomic multi-step database operations — confirmed 3x** — - # Task: Emergency Debugging & System Restoration
 + # Task: Security Audit & Cleanup
 - - [x] Emerge
-- 📐 **Replaced auth Walkthrough — ensures atomic multi-step database operations — confirmed 3x** — - # Walkthrough: Security Hardening & Production Deployment
-+ # Walkthrough: Emergency Stabilization
-- 📐 **Added session cookies authentication — prevents XSS injection attacks — confirmed 3x** — - # Báo Cáo Đánh Giá & Tối Ưu Hóa Hệ Thống (Audit Report)
-+ # BÁO CÁO KIỂM DUYỆT HỆ THỐNG (SYSTEM AU
-- 📐 **Replaced auth Phase — confirmed 3x** — - ## [ ] Verification & Testing
-+ ## Phase 5: Multi-Expert Audit & Optimization (Current)
-- - [/] Te
-- 📐 **Strengthened types Implementation** — - # Implementation Plan: API Alignment & Security Hardening (Netlify v2.0)
-+ # Imp
+- 📐 **Replaced auth 
 
 ... [Truncated — see individual observations for full content]
