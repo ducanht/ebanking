@@ -407,7 +407,8 @@ function handleEditCustomer(e) {
                 confirmButtonColor: '#10b981',
                 confirmButtonText: 'Đóng'
             }).then(() => {
-                $('#modalEditCustomer').modal('hide');
+                const mEl = document.getElementById('modalEditCustomer');
+                if (mEl) bootstrap.Modal.getOrCreateInstance(mEl).hide();
                 if (AppState.user && AppState.user.role !== 'Admin') {
                     initMyCustomersList();
                 } else if (AppState.user && AppState.user.role === 'Admin') {

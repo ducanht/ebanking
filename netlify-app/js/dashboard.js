@@ -278,7 +278,8 @@ function showAllStaffModal() {
             buttons: [{ extend: 'excelHtml5', text: '<i class="bx bxs-file-export"></i> Xuất Excel', className: 'btn btn-sm btn-success shadow-sm' }],
             language: { url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json" }
         });
-        $('#modalAllStaff').modal('show');
+        const mEl = document.getElementById('modalAllStaff');
+        if (mEl) bootstrap.Modal.getOrCreateInstance(mEl).show();
     } catch(e) { console.error(e); }
 }
 

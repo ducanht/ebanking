@@ -114,7 +114,8 @@ function handleChangePassword(e) {
 
         if (res.status === 'success') {
             showAlert('Thành công', 'Đổi mật khẩu thành công! Vui lòng truy cập hệ thống.', 'success');
-            $('#modalChangePassword').modal('hide');
+            const modalEl = document.getElementById('modalChangePassword');
+            if (modalEl) bootstrap.Modal.getOrCreateInstance(modalEl).hide();
             handleLoginSuccess(false);
         } else {
             showAlert('Lỗi', res.message, 'error');

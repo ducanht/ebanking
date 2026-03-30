@@ -1,6 +1,6 @@
 ---
 name: javascript
-description: "Javascript for ebanking. 3 gotchas, 17 conventions, 30 fixes."
+description: "Javascript for ebanking. 3 gotchas, 17 conventions, 32 fixes."
 domain: javascript
 triggers:
   - glob: "**/*.js"
@@ -11,7 +11,7 @@ enabled: true
 
 # Javascript
 
-Auto-compiled from **75 real patterns** in **ebanking**. This skill is auto-routed to agents when working on javascript files.
+Auto-compiled from **78 real patterns** in **ebanking**. This skill is auto-routed to agents when working on javascript files.
 
 ## ⚠️ Anti-Patterns & Gotchas
 
@@ -24,6 +24,39 @@ Auto-compiled from **75 real patterns** in **ebanking**. This skill is auto-rout
 | ⚠️ GOTCHA: Patched security issue EVENT — prevents | -  + // --- CẤU HÌNH EVENT DELEGATION: XỬ LÝ CLICK XEM CHI TIẾT --- - /** + $(document).on('click',  |
 
 ## 🔧 Problem Playbooks
+
+### Fixed null crash in Modal
+-         $('#modalAllStaff').modal('show');
++         const mEl = document.getElementById('modalAllStaff');
+-     } catch(e) { console.error(e); }
++         if (mEl) bootstrap.Modal.getOrCreateInstance(mEl).show();
+- }
++     } catch(e) { console.error(e); }
+- 
++ }
+- window.loadAdminData = () => {
++ 
+-     AppCache.clear('adminDashboard');
++ window.loadAdminData = () => {
+-     initDashboard();
++ 
+
+**Actionable Steps:**
+1. Modified 1 files
+2. identifier: Modal
+3. identifier: AppCache
+
+### problem-fix in customer.js
+-                 $('#modalEditCustomer').modal('hide');
++                 const mEl = document.getElementById('modalEditCustomer');
+-                 if (AppState.user && AppState.user.role !== 'Admin') {
++                 if (mEl) bootstrap.Modal.getOrCreateInstance(mEl).hide();
+-                     initMyCustomersList();
++                 if (AppState.user && AppState.user.role !== 'Admin') {
+
+
+**Actionable Steps:**
+1. Modified 1 files
 
 ### Fixed null crash in Modal — prevents null/undefined runtime crashes
 -                 $('#modalChangePassword').modal('show');
@@ -307,34 +340,6 @@ Auto-compiled from **75 real patterns** in **ebanking**. This skill is auto-rout
 +     runAPI('api_getAdminDashboardData', { email: AppState.user.email }, (res) => {
 -                 <td class="fw-bold text-dark">${d['Tên khách hàng'] || ''}</td>
 +                 <td class="fw-bold text-dark">${utils_escapeHTML(d['Tên khách hàng'] || '')}</td>
--                 <td><span class="badge bg-light text-dark border">${d['Loạ
-
-**Actionable Steps:**
-1. Modified 1 files
-2. identifier: AppState
-3. identifier: Sanitize
-4. identifier: CCCD
-5. identifier: APP
-
-### Fixed null crash in Math — wraps unsafe operation in error boundary
--     const totalSteps = filesToProcess.length + 1; // +1 for final API upload step
-+     const totalSteps = filesToProcess.length + 2; // +1 for prep, +1 for network
--         progressBar.css('width', `${pct}%`);
-+         progressBar.css('width', `${pct}%`).attr('aria-valuenow', pct);
--     for (const slot of filesToProcess) {
-+     updateUIProgress('Bắt đầu quy trình xử lý hồ sơ...', 5);
--     
-
-**Actionable Steps:**
-1. Modified 1 files
-2. identifier: Math
-3. identifier: TIMEOUT
-4. identifier: Fallback
-5. identifier: Promise
-
-### Fixed null crash in AppCache — wraps unsafe operation in error boundary
--                     AppCache.set('adminDashboard', adminRes.data);
-+                     const s = _parseStats(adminRes);
--                
+-                 <td><span class="b
 
 ... [Truncated — see individual observations for full content]

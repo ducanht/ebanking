@@ -1,5 +1,5 @@
 > **BrainSync Context Pumper** 🧠
-> Dynamically loaded for active file: `netlify-app\js\customer.js` (Domain: **Generic Logic**)
+> Dynamically loaded for active file: `netlify-app\js\auth.js` (Domain: **Generic Logic**)
 
 ### 🔴 Generic Logic Gotchas
 - **⚠️ GOTCHA: Added session cookies authentication — adds runtime type validation before use**: -  * NETLIFY HIGH-FIDELITY APP ENGINE (app.js)
@@ -127,120 +127,155 @@
 … [diff truncated]
 
 📌 IDE AST Context: Modified symbols likely include [GAS_API_URL, AppState, INACTIVITY_LIMIT, checkInactivity, on('click keydown scroll mousedown touchstart') callback]
-- **⚠️ GOTCHA: Patched security issue EVENT — prevents XSS injection attacks**: - 
-+ // --- CẤU HÌNH EVENT DELEGATION: XỬ LÝ CLICK XEM CHI TIẾT ---
-- /**
-+ $(document).on('click', '.clickable-row', function(e) {
--  * CACHE SYSTEM
-+     // Nếu click vào nút Chi tiết hoặc thành phần bên trong nút, dừng lại để tránh trigger 2 lần
--  */
-+     if ($(e.target).is('button') || $(e.target).closest('button').length) return;
-- const AppCache = {
-+     
--     data: {},
-+     const id = $(this).attr('data-id') || $(this).data('id');
--     timestamp: {},
-+     if (id) openEditCustomerModal(id);
--     TTL: 300000, // 5 phút (tăng từ 3 phút để giảm request lên Vercel)
-+ });
--     isFresh(key) {
-+ 
--         if (!this.timestamp[key]) return false;
-+ // Xử lý riêng khi click trực tiếp vào nút Chi tiết
--         return (Date.now() - this.timestamp[key]) < this.TTL;
-+ $(document).on('click', '.btn-detail', function(e) {
--     },
-+     e.stopPropagation(); // Ngăn chặn sự kiện lan lên thẻ tr
--     set(key, val) {
-+     const id = $(this).closest('tr').attr('data-id') || $(this).closest('tr').data('id');
--         this.data[key] = val;
-+     if (id) openEditCustomerModal(id);
--         this.timestamp[key] = Date.now();
-+ });
--     },
-+ 
--     get(key) {
-+ 
--         return this.isFresh(key) ? this.data[key] : null;
-+ 
--     },
-+ /**
--     clear(key) {
-+  * CACHE SYSTEM
--         delete this.data[key];
-+  */
--         delete this.timestamp[key];
-+ const AppCache = {
--     },
-+     data: {},
--     clearAll() {
-+     timestamp: {},
--         this.data = {};
-+     TTL: 300000, // 5 phút (tăng từ 3 phút để giảm request lên Vercel)
--         this.timestamp = {};
-+     isFresh(key) {
--     }
-+         if (!this.timestamp[key]) return false;
-- };
-+         return (Date.now() - this.timestamp[key]) < this.TTL;
-- 
-+     },
-- /**
-+     set(key, val) {
--  * CORE API WRAPPER
-+         this.data[key] = val;
--  * Hardened with Timeout (30s) and Auto-Retry (Max 2)
-+         this.timestamp[key] = Date.now();
--  */
-+     },
-- async function runAPI(action, data = {}, successHandler, 
-… [diff truncated]
-
-📌 IDE AST Context: Modified symbols likely include [GAS_API_URL, AppState, INACTIVITY_LIMIT, checkInactivity, on('click keydown scroll mousedown touchstart') callback]
 
 ### 📐 Generic Logic Conventions & Fixes
-- **[problem-fix] Fixed null crash in DataTable — prevents XSS injection attacks**: -             <tr data-id="${rowId}" class="clickable-row cursor-pointer" onclick="openEditCustomerModal('${rowId}')">
-+             <tr data-id="${rowId}" class="clickable-row cursor-pointer">
--                 <td class="text-end"><button class="btn btn-sm btn-outline-primary shadow-sm btn-detail" onclick="openEditCustomerModal('${rowId}'); event.stopPropagation();"><i class="bx bx-search-alt"></i> Chi tiết</button></td>
-+                 <td class="text-end">
--             </tr>
-+                     <button class="btn btn-sm btn-outline-primary shadow-sm btn-detail" title="Xem chi tiết">
--         `;
-+                         <i class="bx bx-search-alt"></i> <span class="d-none d-sm-inline">Chi tiết</span>
--     }).join('');
-+                     </button>
+- **[what-changed] Replaced auth Modal**: -             $('#modalChangePassword').modal('hide');
++             const modalEl = document.getElementById('modalChangePassword');
+-             handleLoginSuccess(false);
++             if (modalEl) bootstrap.Modal.getOrCreateInstance(modalEl).hide();
+-         } else {
++             handleLoginSuccess(false);
+-             showAlert('Lỗi', res.message, 'error');
++         } else {
+-         }
++             showAlert('Lỗi', res.message, 'error');
+-     });
++         }
+- }
++     });
 - 
-+                 </td>
--     $('#tbMyCustomersBody').html(html || '<tr><td colspan="7" class="text-center text-muted py-4">Chưa có hồ sơ nào.</td></tr>');
-+             </tr>
--     
-+         `;
--     if ($.fn.DataTable.isDataTable('#tblMyCustomers')) $('#tblMyCustomers').DataTable().destroy();
-+     }).join('');
--     
++ }
+- // Global exposure
 + 
--     if (data.length > 0) {
-+     $('#tbMyCustomersBody').html(html || '<tr><td colspan="7" class="text-center text-muted py-4">Chưa có hồ sơ nào.</td></tr>');
--         $('#tblMyCustomers').DataTable({
-+     
--             responsive: true,
-+     if ($.fn.DataTable.isDataTable('#tblMyCustomers')) $('#tblMyCustomers').DataTable().destroy();
--             order: [[0, 'desc']],
-+     
--             lengthMenu: [10, 25, 50, 100],
-+     if (data.length > 0) {
--             pageLength: 25,
-+         $('#tblMyCustomers').DataTable({
--             dom: "<'row mb-2'<'col-sm-12 col-md-4'l><'col-sm-12 col-md-4 text-center'B><'col-sm-12 col-md-4'f>>" +
-+             responsive: true,
--                  "<'row'<'col-sm-12'tr>>" +
-+             order: [[0, 'desc']],
--                  "<'row mt-2'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
-+             lengthMenu: [10, 25, 50, 100],
--        
+- window.logout = logout;
++ // Global exposure
+- window.openChangePasswordModal = openChangePasswordModal;
++ window.logout = logout;
+- 
++ window.openChangePasswordModal = openChangePasswordModal;
++ 
+
+📌 IDE AST Context: Modified symbols likely include [handleLogin, handleLoginSuccess, logout, openChangePasswordModal, handleChangePassword]
+- **[problem-fix] Fixed null crash in Modal**: -         $('#modalAllStaff').modal('show');
++         const mEl = document.getElementById('modalAllStaff');
+-     } catch(e) { console.error(e); }
++         if (mEl) bootstrap.Modal.getOrCreateInstance(mEl).show();
+- }
++     } catch(e) { console.error(e); }
+- 
++ }
+- window.loadAdminData = () => {
++ 
+-     AppCache.clear('adminDashboard');
++ window.loadAdminData = () => {
+-     initDashboard();
++     AppCache.clear('adminDashboard');
+- };
++     initDashboard();
+- window.showAllStaffModal = showAllStaffModal;
++ };
+- 
++ window.showAllStaffModal = showAllStaffModal;
++ 
+
+📌 IDE AST Context: Modified symbols likely include [charts, _parseStats, initDashboard, renderAdminStats, renderAdminTopStaff]
+- **[problem-fix] problem-fix in customer.js**: -                 $('#modalEditCustomer').modal('hide');
++                 const mEl = document.getElementById('modalEditCustomer');
+-                 if (AppState.user && AppState.user.role !== 'Admin') {
++                 if (mEl) bootstrap.Modal.getOrCreateInstance(mEl).hide();
+-                     initMyCustomersList();
++                 if (AppState.user && AppState.user.role !== 'Admin') {
+-                 } else if (AppState.user && AppState.user.role === 'Admin') {
++                     initMyCustomersList();
+-                     if (typeof initDashboard === 'function') initDashboard();
++                 } else if (AppState.user && AppState.user.role === 'Admin') {
+-                 }
++                     if (typeof initDashboard === 'function') initDashboard();
+-             });
++                 }
+-         } else {
++             });
+-             showAlert('Lỗi', (res && res.message) ? res.message : 'Không thể cập nhật hồ sơ. Vui lòng thử lại.', 'error');
++         } else {
+-         }
++             showAlert('Lỗi', (res && res.message) ? res.message : 'Không thể cập nhật hồ sơ. Vui lòng thử lại.', 'error');
+-     }, () => {
++         }
+-         btn.prop('disabled', false).html(oldHtml);
++     }, () => {
+-     }, 'Đang lưu hồ sơ...');
++         btn.prop('disabled', false).html(oldHtml);
+- }
++     }, 'Đang lưu hồ sơ...');
+- 
++ }
+- // Cấu hình event delegation xử lý xem chi tiết
++ 
+- $(document).ready(() => {
++ // Cấu hình event delegation xử lý xem chi tiết
+-     $(document).on('click', '.clickable-row', function(e) {
++ $(document).ready(() => {
+-         if ($(e.target).is('button') || $(e.target).closest('button').length) return;
++     $(document).on('click', '.clickable-row', function(e) {
+-         const id = $(this).attr('data-id') || $(this).data('id');
++         if ($(e.target).is('button') || $(e.target).closest('button').length) return;
+-         if (id) openEditCustomerModal(id);
++         const id = $(this).attr('data-id') || $(this).data('
 … [diff truncated]
 
 📌 IDE AST Context: Modified symbols likely include [initMyCustomersList, renderStaffDashboardLocal, updateStaffRankings, staffChartInstance, renderStaffLineChart]
+- **[convention] Fixed null crash in CCCD — offloads heavy computation off the main thread — confirmed 7x**: -     $('#div_dkkd, #div_img_dkkd, #div_ten_dang_nhap').toggle(isHKD);
++     const targets = $('#div_dkkd, #div_img_dkkd, #div_ten_dang_nhap');
+-     $('#dkkd, #img_dkkd').prop('required', isHKD);
++     
+- }
++     if (isHKD) {
+- 
++         targets.hide().removeClass('initially-hidden').fadeIn(400);
+- async function handleRegistration(e) {
++         $('#dkkd, #img_dkkd').prop('required', true);
+-     e.preventDefault();
++         $('#dkkd').addClass('border-primary shadow-sm');
+-     const btn = $('#btnSubmitAccount');
++     } else {
+-     const oldBtn = btn.html();
++         targets.fadeOut(300);
+-     
++         $('#dkkd, #img_dkkd').prop('required', false);
+-     const progressWrapper = $('#compress-progress-wrapper');
++         $('#dkkd').removeClass('border-primary shadow-sm');
+-     const progressBar = $('#compress-progress-bar');
++     }
+-     const progressLabel = $('#compress-progress-label');
++ }
+-     const progressPct = $('#compress-progress-pct');
++ 
+- 
++ async function handleRegistration(e) {
+-     btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Đang xử lý...');
++     e.preventDefault();
+-     progressWrapper.removeClass('initially-hidden').removeClass('d-none').show();
++     const btn = $('#btnSubmitAccount');
+-     progressBar.css('width', '0%');
++     const oldBtn = btn.html();
+-     progressPct.text('0%');
++     
+- 
++     const progressWrapper = $('#compress-progress-wrapper');
+-     const fileSlots = [
++     const progressBar = $('#compress-progress-bar');
+-         { id: 'img_truoc', label: 'CCCD Trước' },
++     const progressLabel = $('#compress-progress-label');
+-         { id: 'img_sau',   label: 'CCCD Sau' },
++     const progressPct = $('#compress-progress-pct');
+-         { id: 'img_dkkd',  label: 'Giấy phép' },
++ 
+-         { id: 'img_qr',    label: 'Mã QR' },
++     btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Đang xử lý...');
+-         { id: 'img_thuchien', l
+… [diff truncated]
+
+📌 IDE AST Context: Modified symbols likely include [initMoTaiKhoanForm, toggleFormFields, handleRegistration, checkDuplicate, loadStaffOpenAccountView]
 - **[what-changed] 🟢 Edited netlify-app/js/api.js (5 changes, 143min)**: Active editing session on netlify-app/js/api.js.
 5 content changes over 143 minutes.
 - **[decision] decision in registration.js**: -     const compressWithTimeout = (file, slotLabel, ms = 10000) => {
@@ -249,82 +284,6 @@
 +         const options = { maxSizeMB: 0.4, maxWidthOrHeight: 1200, useWebWorker: false };
 
 📌 IDE AST Context: Modified symbols likely include [initMoTaiKhoanForm, toggleFormFields, handleRegistration, checkDuplicate, loadStaffOpenAccountView]
-- **[problem-fix] Fixed null crash in JSON**: - const AppState = {
-+ let parsedUser = null;
--     user: JSON.parse(localStorage.getItem('HOKINHDOANH_SESSION')) || null,
-+ try {
--     VERSION: "2.1.2-STABLE",
-+     const rawUser = localStorage.getItem('HOKINHDOANH_SESSION');
--     apiBase: "",
-+     if (rawUser && rawUser !== 'undefined' && rawUser !== 'null') {
--     lastActive: Date.now()
-+         parsedUser = JSON.parse(rawUser);
-- };
-+     }
-- 
-+ } catch (e) {
-- const AppCache = {
-+     console.warn("Dữ liệu phiên làm việc bị hỏng, đang tự động khôi phục...");
--     data: {},
-+     localStorage.removeItem('HOKINHDOANH_SESSION');
--     timestamp: {},
-+ }
--     TTL: 300000, // 5 phút
-+ 
--     isFresh(key) {
-+ const AppState = {
--         if (!this.timestamp[key]) return false;
-+     user: parsedUser,
--         return (Date.now() - this.timestamp[key]) < this.TTL;
-+     VERSION: "2.1.3-STABLE",
--     },
-+     apiBase: "",
--     set(key, val) {
-+     lastActive: Date.now()
--         this.data[key] = val;
-+ };
--         this.timestamp[key] = Date.now();
-+ 
--     },
-+ const AppCache = {
--     get(key) {
-+     data: {},
--         return this.isFresh(key) ? this.data[key] : null;
-+     timestamp: {},
--     },
-+     TTL: 300000, // 5 phút
--     clear(key) {
-+     isFresh(key) {
--         delete this.data[key];
-+         if (!this.timestamp[key]) return false;
--         delete this.timestamp[key];
-+         return (Date.now() - this.timestamp[key]) < this.TTL;
--     clearAll() {
-+     set(key, val) {
--         this.data = {};
-+         this.data[key] = val;
--         this.timestamp = {};
-+         this.timestamp[key] = Date.now();
--     }
-+     },
-- };
-+     get(key) {
-- 
-+         return this.isFresh(key) ? this.data[key] : null;
-- /**
-+     },
--  * AUTO-LOGOUT SECURITY
-+     clear(key) {
--  */
-+         delete this.data[key];
-- const INACTIVITY_LIMIT = 60 * 60 * 1000; // 60 minutes
-+         delete this.timestamp[key];
-- function checkInactivity() {
-+     },
--     if (AppState.user && (Date.now() - AppState.lastAct
-… [diff truncated]
-
-📌 IDE AST Context: Modified symbols likely include [AppState, AppCache, INACTIVITY_LIMIT, checkInactivity, ready() callback]
 - **[convention] Fixed null crash in Object — offloads heavy computation off the main thread — confirmed 4x**: -     flatpickr(".js-datepicker", { dateFormat: "Y-m-d", altInput: true, altFormat: "d/m/Y", defaultDate: "today" });
 +     const fpEls = document.querySelectorAll('.js-datepicker');
 -     
@@ -629,9 +588,5 @@
 +     $('#modalChangePassword').attr('data-bs-keyboard', 'true');
 -     $('#modalChangeP
 … [diff truncated]
-
-📌 IDE AST Context: Modified symbols likely include [GAS_API_URL, AppState, INACTIVITY_LIMIT, checkInactivity, on('click keydown scroll mousedown touchstart') callback]
-- **[what-changed] what-changed in app.js**: -     VERSION: "2.1.1-PATCHED",
-+     VERSION: "2.1.2-STABLE",
 
 📌 IDE AST Context: Modified symbols likely include [GAS_API_URL, AppState, INACTIVITY_LIMIT, checkInactivity, on('click keydown scroll mousedown touchstart') callback]
