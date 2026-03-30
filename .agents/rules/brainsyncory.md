@@ -1,7 +1,7 @@
 
 
 # Project Memory — ebanking
-> 243 notes | Score threshold: >40
+> 246 notes | Score threshold: >40
 
 ## Safety — Never Run Destructive Commands
 
@@ -20,32 +20,21 @@
 
 ## 📝 NOTE: 1 uncommitted file(s) in working tree.\n\n## Important Warnings
 
-- **⚠️ GOTCHA: Patched security issue EVENT — prevents XSS injection attacks** — - 
-+ // --- CẤU HÌNH EVENT DELEGATION: XỬ LÝ CLICK XEM CHI TIẾT ---
-- 
 - **⚠️ GOTCHA: Patched security issue VERSION — prevents XSS injection attacks** — -     VERSION: "2.1.1-PATCHED",
 +     VERSION: "2.1.2-STABLE",
 - 
 + //
 
-## Active: `netlify-app`
-
-- **⚠️ GOTCHA: Patched security issue EVENT — prevents XSS injection attacks**
-- **Patched security issue DataTable — prevents XSS injection attacks — confirmed 3x**
-- **Patched security issue Date — prevents XSS injection attacks — confirmed 3x**
-- **what-changed in app.js — confirmed 4x**
-- **Patched security issue Initialize — prevents XSS injection attacks — confirmed 3x**
-
 ## Project Standards
 
+- Patched security issue CCCD — adds runtime type validation before use — confirmed 4x
+- Strengthened types Admin — adds runtime type validation before use
+- what-changed in app.js — confirmed 7x
+- what-changed in index.html — confirmed 6x
+- problem-fix in task.md.resolved — confirmed 4x
 - Patched security issue DataTable — prevents XSS injection attacks — confirmed 3x
+- Strengthened types Walkthrough
 - Patched security issue Date — prevents XSS injection attacks — confirmed 3x
-- what-changed in app.js — confirmed 4x
-- Patched security issue Initialize — prevents XSS injection attacks — confirmed 3x
-- Fixed null crash in Excel — wraps unsafe operation in error boundary — confirmed 5x
-- Fixed null crash in Find — wraps unsafe operation in error boundary — confirmed 3x
-- Patched security issue VERSION — offloads heavy computation off the main thread — confirmed 3x
-- Fixed null crash in Last — wraps unsafe operation in error boundary — confirmed 3x
 
 ## Known Fixes
 
@@ -55,10 +44,10 @@
 
 ## Recent Decisions
 
+- Optimized Danh — ensures atomic multi-step database operations
 - decision in app.js
 - decision in style.css
 - decision in style.css
-- Optimized Danh — ensures atomic multi-step database operations
 
 ## Verified Best Practices
 

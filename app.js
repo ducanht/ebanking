@@ -1074,7 +1074,7 @@ function renderMyCustomersTable(data) {
     const html = data.sort((a,b) => (new Date(b['Thời điểm nhập']) || 0) - (new Date(a['Thời điểm nhập']) || 0)).map(d => {
         const rowId = (d.ID || d['Mã GD'] || '').toString().replace(/^'/, '');
         return `
-            <tr data-id="${rowId}" class="clickable-row cursor-pointer">
+            <tr data-id="${rowId}" class="clickable-row cursor-pointer" onclick="openEditCustomerModal('${rowId}')">
                 <td><small class="text-muted">${utils_formatVN(d['Thời điểm nhập'], 'date')}</small></td>
                 <td class="fw-bold">${utils_escapeHTML(d['Tên khách hàng'])}</td>
                 <td><small>${utils_escapeHTML(d['Số CCCD'])}</small></td>
@@ -1084,7 +1084,7 @@ function renderMyCustomersTable(data) {
                 <td>${AppState.user ? utils_escapeHTML(AppState.user.name) : utils_escapeHTML(d['Cán bộ thực hiện'] || '')}</td>
                 <td><small>${utils_escapeHTML(d['Ngày mở TK'] || d['Ngày mở'] || '')}</small></td>
                 <td><small>${utils_escapeHTML(d['Số TK'] || d['Số tài khoản'] || '')}</small></td>
-                <td class="text-end"><button class="btn btn-sm btn-outline-primary shadow-sm btn-detail"><i class="bx bx-search-alt"></i> Chi tiết</button></td>
+                <td class="text-end"><button class="btn btn-sm btn-outline-primary shadow-sm btn-detail" onclick="openEditCustomerModal('${rowId}'); event.stopPropagation();"><i class="bx bx-search-alt"></i> Chi tiết</button></td>
             </tr>
         `;
     }).join('');
@@ -1244,14 +1244,14 @@ function renderAdminTable(allData, allStaffs) {
         const staffName  = staffMap[staffEmail] || staffEmail;
         const rowId      = (d['ID'] || d['Mã GD'] || '').toString().trim().replace(/^'/, '');
         return `
-            <tr data-id="${rowId}" class="clickable-row cursor-pointer" style="cursor:pointer">
+            <tr data-id="${rowId}" class="clickable-row cursor-pointer" style="cursor:pointer" onclick="openEditCustomerModal('${rowId}')">
                 <td><small class="text-muted">${utils_formatVN(d['Thời điểm nhập'], 'date')}</small></td>
                 <td class="fw-bold text-dark">${utils_escapeHTML(d['Tên khách hàng'] || '')}</td>
                 <td><span class="badge bg-light text-dark border">${utils_escapeHTML(d['Loại hình dịch vụ'] || 'Cá nhân')}</span></td>
                 <td class="text-secondary"><small>${utils_escapeHTML((d['Số tài khoản'] || '').toString().replace(/^'/, ''))}</small></td>
                 <td class="d-none">${utils_escapeHTML(staffEmail)}</td>
                 <td><small>${utils_escapeHTML(staffName)}</small></td>
-                <td class="text-end"><button class="btn btn-sm btn-outline-primary px-2 btn-detail"><i class="bx bx-info-circle"></i></button></td>
+                <td class="text-end"><button class="btn btn-sm btn-outline-primary px-2 btn-detail" onclick="openEditCustomerModal('${rowId}'); event.stopPropagation();"><i class="bx bx-info-circle"></i></button></td>
             </tr>`;
     }).join('');
 
@@ -1568,6 +1568,29 @@ function openEditCustomerModal(id) {
  * APP INITIALIZATION
  */
 $(document).ready(() => {
+    // Normalization logic for DataTables Vietnamese Search
+    if (typeof $.fn.dataTable !== 'undefined' && $.fn.dataTable.ext && $.fn.dataTable.ext.type) {
+        $.fn.dataTable.ext.type.search.string = function(data) {
+            if (!data) return '';
+            if (typeof data !== 'string') return data;
+            return data
+                .replace(/á|à|ả|ã|ạ|ă|ắ|ằ|ẳ|ẵ|ặ|â|ấ|ầ|ẩ|ẫ|ậ/g, 'a')
+                .replace(/é|è|ẻ|ẽ|ẹ|ê|ế|ề|ể|ễ|ệ/g, 'e')
+                .replace(/i|í|ì|ỉ|ĩ|ị/g, 'i')
+                .replace(/ó|ò|ỏ|õ|ọ|ô|ố|ồ|ổ|ỗ|ộ|ơ|ớ|ờ|ở|ỡ|ợ/g, 'o')
+                .replace(/ú|ù|ủ|ũ|ụ|ư|ứ|ừ|ử|ữ|ự/g, 'u')
+                .replace(/ý|ỳ|ỷ|ỹ|ỵ/g, 'y')
+                .replace(/đ/g, 'd')
+                .replace(/Á|À|Ả|Ã|Ạ|Ă|Ắ|Ằ|Ẳ|Ẵ|Ặ|Â|Ấ|Ầ|Ẩ|Ẫ|Ậ/g, 'A')
+                .replace(/É|È|Ẻ|Ẽ|Ẹ|Ê|Ế|Ề|Ể|Ễ|Ệ/g, 'E')
+                .replace(/I|Í|Ì|Ỉ|Ĩ|Ị/g, 'I')
+                .replace(/Ó|Ò|Ỏ|Õ|Ọ|Ô|Ố|Ồ|Ổ|Ỗ|Ộ|Ơ|Ớ|Ờ|Ở|Ỡ|Ợ/g, 'O')
+                .replace(/Ú|Ù|Ủ|Ũ|Ụ|Ư|Ứ|Ừ|Ử|Ữ|Ự/g, 'U')
+                .replace(/Ý|Ỳ|Ỷ|Ỹ|Ỵ/g, 'Y')
+                .replace(/Đ/g, 'D');
+        };
+    }
+
     if (!AppState.user) {
         showView('view-login');
         hideLoading();
@@ -1601,6 +1624,14 @@ function handleLogin(e) {
             }
         } else showAlert('Lỗi', res.message, 'error');
     });
+}
+
+function openChangePasswordModal() {
+    $('#pwdOld').val('');
+    $('#pwdNew').val('');
+    $('#pwdNewConfirm').val('');
+    $('#pwdAlertForce').hide();
+    $('#modalChangePassword').modal('show');
 }
 
 function handleChangePassword(e) {
