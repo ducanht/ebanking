@@ -1,6 +1,6 @@
 ---
 name: javascript
-description: "Javascript for ebanking. 3 gotchas, 16 conventions, 25 fixes."
+description: "Javascript for ebanking. 3 gotchas, 17 conventions, 30 fixes."
 domain: javascript
 triggers:
   - glob: "**/*.js"
@@ -11,7 +11,7 @@ enabled: true
 
 # Javascript
 
-Auto-compiled from **68 real patterns** in **ebanking**. This skill is auto-routed to agents when working on javascript files.
+Auto-compiled from **75 real patterns** in **ebanking**. This skill is auto-routed to agents when working on javascript files.
 
 ## ⚠️ Anti-Patterns & Gotchas
 
@@ -24,6 +24,88 @@ Auto-compiled from **68 real patterns** in **ebanking**. This skill is auto-rout
 | ⚠️ GOTCHA: Patched security issue EVENT — prevents | -  + // --- CẤU HÌNH EVENT DELEGATION: XỬ LÝ CLICK XEM CHI TIẾT --- - /** + $(document).on('click',  |
 
 ## 🔧 Problem Playbooks
+
+### Fixed null crash in Modal — prevents null/undefined runtime crashes
+-                 $('#modalChangePassword').modal('show');
++                 const modalEl = document.getElementById('modalChangePassword');
+-                 $('#pwdAlertForce').removeClass('initially-hidden').show();
++                 if (modalEl) {
+-                 $('#modalChangePassword .btn-close').hide();
++                     const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+-  
+
+**Actionable Steps:**
+1. Modified 1 files
+2. identifier: Modal
+3. identifier: AppState
+4. identifier: Admin
+5. identifier: AppCache
+
+### Fixed null crash in DEBUG — adds runtime type validation before use
+-         $('#modalEditCustomer').modal('show');
++         const modalEl = document.getElementById('modalEditCustomer');
+-     } catch(err) { console.error(err); }
++         if (!modalEl) {
+- }
++             console.error("DEBUG: Không tìm thấy element modalEditCustomer");
+- 
++             return;
+- function handleEditCustomer(e) {
++         }
+-     e.preventDefault(); 
++         const modal = boo
+
+**Actionable Steps:**
+1. Modified 1 files
+2. identifier: DEBUG
+3. identifier: Modal
+4. identifier: AppState
+5. identifier: AppCache
+
+### Fixed null crash in Modal — prevents null/undefined runtime crashes
+-     $('#pwdOld').val('');
++     const modalEl = document.getElementById('modalChangePassword');
+-     $('#pwdNew').val('');
++     if (!modalEl) return;
+-     $('#pwdNewConfirm').val('');
++     
+-     $('#pwdAlertForce').hide();
++     $('#pwdOld').val('');
+-     $('#modalChangePassword .btn-close').show();
++     $('#pwdNew').val('');
+-     $('#modalChangePassword').attr('data-bs-keyboard', 'true'
+
+**Actionable Steps:**
+1. Modified 1 files
+2. identifier: Modal
+3. identifier: AppState
+4. identifier: Vui
+5. identifier: Hash
+
+### Fixed null crash in DataTable — wraps unsafe operation in error boundary
+-         const rowId      = (d['ID'] || d['Mã GD'] || '').toString().trim().replace(/^'/, '');
++         const rowId      = (d['ID'] || d['Mã GD'] || '').toString().trim().replace(/^[']*/, '');
+-             <tr data-id="${rowId}" class="clickable-row cursor-pointer" style="cursor:pointer" onclick="openEditCustomerModal('${rowId}')">
++             <tr data-id="${rowId}" class="clickable-row curso
+
+**Actionable Steps:**
+1. Modified 1 files
+2. identifier: Chi
+3. identifier: DataTable
+4. identifier: Excel
+5. identifier: Email
+
+### Fixed null crash in DataTable — prevents XSS injection attacks
+-             <tr data-id="${rowId}" class="clickable-row cursor-pointer" onclick="openEditCustomerModal('${rowId}')">
++             <tr data-id="${rowId}" class="clickable-row cursor-pointer">
+-                 <td class="text-end"><button class="btn btn-sm btn-outline-primary shadow-sm btn-detail" onclick="openEditCustomerModal('${rowId}'); event.stopPropagation();"><i class="bx bx-search-alt"><
+
+**Actionable Steps:**
+1. Modified 1 files
+2. identifier: Xem
+3. identifier: Chi
+4. identifier: DataTable
+5. identifier: Excel
 
 ### Fixed null crash in JSON
 - const AppState = {
@@ -253,98 +335,6 @@ Auto-compiled from **68 real patterns** in **ebanking**. This skill is auto-rout
 ### Fixed null crash in AppCache — wraps unsafe operation in error boundary
 -                     AppCache.set('adminDashboard', adminRes.data);
 +                     const s = _parseStats(adminRes);
--                     updateStaffRankings(adminRes.data, AppState.user.email);
-+                     AppCache.set('adminDashboard', s);
--                 }
-+                     updateStaffRankings(s, AppState.user.email);
--             }, null, 'NONE');
-+                 }
--
-
-**Actionable Steps:**
-1. Modified 1 files
-2. identifier: AppCache
-3. identifier: AppState
-4. identifier: NONE
-5. identifier: Fetch
-
-### Fixed null crash in Parse — wraps unsafe operation in error boundary
--     // Parse stats từ response
-+     // Parse stats từ response (statsStr là chuẩn, fallback sang stats)
--             try { s = JSON.parse(res.statsStr); } catch(e) { console.error("Parse statsStr error", e); }
-+             try { s = JSON.parse(res.statsStr); } catch(e) { console.error('Parse statsStr error', e); }
--         } else {
-+         }
--             s = res.stats || res.data;
-+      
-
-**Actionable Steps:**
-1. Modified 1 files
-2. identifier: Parse
-3. identifier: JSON
-4. identifier: Dashboard
-5. identifier: API
-
-### Fixed null crash in Vercel — wraps unsafe operation in error boundary
--     TTL: 180000, 
-+     TTL: 300000, // 5 phút (tăng từ 3 phút để giảm request lên Vercel)
--         return;
-+         renderStaffDashboardLocal(cached.data || []);
--     }
-+         // Dùng cache admin nếu có, không thì mới fetch
-- 
-+         const cachedAdmin = AppCache.get('adminDashboard');
--     $('#tbMyCustomersBody').html('<tr><td colspan="7" class="text-center py-4"><span class="spinner-
-
-**Actionable Steps:**
-1. Modified 1 files
-2. identifier: TTL
-3. identifier: Vercel
-4. identifier: AppCache
-5. identifier: AppState
-
-### Patched security issue Hardened — offloads heavy computation off the main thread
--  */
-+  * Hardened with Timeout (30s) and Auto-Retry (Max 2)
-- async function runAPI(action, data = {}, successHandler, errorHandler, loadingMsg = 'Đang xử lý...') {
-+  */
--     if (loadingMsg !== 'NONE') showLoading(loadingMsg);
-+ async function runAPI(action, data = {}, successHandler, errorHandler, loadingMsg = 'Đang xử lý...', retryCount = 0) {
-- 
-+     if (loadingMsg !== 'NONE' && retryCount
-
-**Actionable Steps:**
-1. Modified 1 files
-2. identifier: Hardened
-3. identifier: Timeout
-4. identifier: Auto
-5. identifier: Retry
-
-### Fixed null crash in Elements — offloads heavy computation off the main thread
--     btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Đang nén ảnh...');
-+     
-- 
-+     // UI Elements
--     progressWrapper.show();
-+     const progressLabel = $('#compress-progress-label');
-- 
-+     const progressPct = $('#compress-progress-pct');
--     const fileSlots = [
-+ 
--         { id: 'img_truoc', label: 'CCCD Trước' },
-+     btn.prop('disabled', t
-
-**Actionable Steps:**
-1. Modified 1 files
-2. identifier: Elements
-3. identifier: CCCD
-4. identifier: Sau
-5. identifier: AppState
-
-### Fixed null crash in Find — wraps unsafe operation in error boundary
--     } else {
-+         
--         $('#staffDash-rank').text('Chưa xếp hạng');
-+         // Find person immedi
+-                
 
 ... [Truncated — see individual observations for full content]

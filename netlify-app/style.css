@@ -128,6 +128,26 @@ body {
     padding: 0.3rem 0.75rem;
 }
 
+/* Table Hover & Row Styling */
+.table-hover tbody tr:hover {
+    background-color: rgba(16, 185, 129, 0.05) !important;
+    transition: background-color 0.2s;
+}
+
+.clickable-row {
+    transition: transform 0.1s;
+}
+
+.clickable-row:active {
+    transform: scale(0.995);
+}
+
+.badge {
+    font-weight: 500;
+    padding: 0.4em 0.8em;
+    border-radius: 6px;
+}
+
 /* Charts */
 .chart-container-monthly {
     margin-top: 1rem;
@@ -207,5 +227,16 @@ canvas.canvas-responsive { max-width: 100%; height: auto; }
 .modal-footer-z { position: relative; z-index: 10; }
 .text-truncate-max { max-width: 100%; }
 .table-full-width { width: 100% !important; }
+
+/* Custom Focus for HKD */
+.border-primary.shadow-sm {
+    border-width: 2px !important;
+    box-shadow: 0 0 0 0.25rem rgba(16, 185, 129, 0.15) !important;
+}
+
+.form-control:focus {
+    border-color: var(--emerald);
+    box-shadow: 0 0 0 0.25rem rgba(16, 185, 129, 0.2);
+}
 
 

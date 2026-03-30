@@ -175,7 +175,7 @@ function renderMyCustomersTable(data) {
     const html = data.sort((a,b) => (new Date(b['Thời điểm nhập']) || 0) - (new Date(a['Thời điểm nhập']) || 0)).map(d => {
         const rowId = (d.ID || d['Mã GD'] || '').toString().replace(/^'/, '');
         return `
-            <tr data-id="${rowId}" class="clickable-row cursor-pointer" onclick="openEditCustomerModal('${rowId}')">
+            <tr data-id="${rowId}" class="clickable-row cursor-pointer">
                 <td><small class="text-muted">${utils_formatVN(d['Thời điểm nhập'], 'date')}</small></td>
                 <td class="fw-bold">${utils_escapeHTML(d['Tên khách hàng'])}</td>
                 <td><small>${utils_escapeHTML(d['Số CCCD'])}</small></td>
@@ -185,7 +185,11 @@ function renderMyCustomersTable(data) {
                 <td>${AppState.user ? utils_escapeHTML(AppState.user.name) : utils_escapeHTML(d['Cán bộ thực hiện'] || '')}</td>
                 <td><small>${utils_escapeHTML(d['Ngày mở TK'] || d['Ngày mở'] || '')}</small></td>
                 <td><small>${utils_escapeHTML(d['Số TK'] || d['Số tài khoản'] || '')}</small></td>
-                <td class="text-end"><button class="btn btn-sm btn-outline-primary shadow-sm btn-detail" onclick="openEditCustomerModal('${rowId}'); event.stopPropagation();"><i class="bx bx-search-alt"></i> Chi tiết</button></td>
+                <td class="text-end">
+                    <button class="btn btn-sm btn-outline-primary shadow-sm btn-detail" title="Xem chi tiết">
+                        <i class="bx bx-search-alt"></i> <span class="d-none d-sm-inline">Chi tiết</span>
+                    </button>
+                </td>
             </tr>
         `;
     }).join('');
@@ -226,7 +230,7 @@ function openEditCustomerModal(id) {
     try {
         if (!id) return;
         
-        const rowIdStr = String(id).trim().replace(/^'/, '');
+        const rowIdStr = String(id).trim().replace(/^[']*/, '');
         let row = null;
         let sourceData = [];
 
@@ -237,17 +241,15 @@ function openEditCustomerModal(id) {
             sourceData = (cache && Array.isArray(cache.data)) ? cache.data : [];
         }
         
-        for (let i = 0; i < sourceData.length; i++) {
-            const currentId = String(sourceData[i]['ID'] || sourceData[i]['Mã GD'] || '').trim().replace(/^'/, '');
-            if (currentId === rowIdStr) {
-                row = sourceData[i];
-                break;
-            }
-        }
+        // Tìm kiếm chính xác hơn
+        row = sourceData.find(d => {
+            const currentId = String(d['ID'] || d['Mã GD'] || '').trim().replace(/^[']*/, '');
+            return currentId === rowIdStr;
+        });
 
         if (!row) {
-            console.warn("Không tìm thấy khách hàng với ID:", rowIdStr, "trong nguồn dữ liệu của", AppState.user?.role);
-            showAlert('Lỗi', 'Không tìm thấy thông tin hồ sơ khách hàng. Vui lòng thử lại hoặc tải lại trang.', 'error');
+            console.error("DEBUG: Không tìm thấy ID:", rowIdStr, "trong", sourceData.length, "bản ghi.");
+            showAlert('Lỗi', 'Không tìm thấy hồ sơ. Vui lòng tải lại trang.', 'error');
             return;
         }
 
@@ -354,7 +356,13 @@ function openEditCustomerModal(id) {
         const imgsBlock = imgs ? `<div class="col-12"><p class="text-muted small fw-semibold mb-1"><i class="bx bx-image"></i> Hình ảnh đính kèm</p><div class="row g-2">${imgs}</div></div>` : '<div class="col-12 text-center text-muted"><p class="small">Chưa có ảnh đính kèm</p></div>';
 
         $('#edit_images_container').html(infoHtml + imgsBlock);
-        $('#modalEditCustomer').modal('show');
+        const modalEl = document.getElementById('modalEditCustomer');
+        if (!modalEl) {
+            console.error("DEBUG: Không tìm thấy element modalEditCustomer");
+            return;
+        }
+        const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+        modal.show();
     } catch(err) { console.error(err); }
 }
 

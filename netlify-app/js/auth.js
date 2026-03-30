@@ -13,10 +13,14 @@ function handleLogin(e) {
             AppState.user = res.user;
             localStorage.setItem('HOKINHDOANH_SESSION', JSON.stringify(res.user));
             if (res.requirePasswordChange) {
-                $('#modalChangePassword').modal('show');
-                $('#pwdAlertForce').removeClass('initially-hidden').show();
-                $('#modalChangePassword .btn-close').hide();
-                $('#modalChangePassword').attr('data-bs-keyboard', 'false');
+                const modalEl = document.getElementById('modalChangePassword');
+                if (modalEl) {
+                    const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+                    modal.show();
+                    $('#pwdAlertForce').removeClass('initially-hidden').show();
+                    $('#modalChangePassword .btn-close').hide();
+                    $('#modalChangePassword').attr('data-bs-keyboard', 'false');
+                }
                 hideLoading();
             } else {
                 handleLoginSuccess(false);
@@ -55,6 +59,9 @@ function logout() {
 }
 
 function openChangePasswordModal() {
+    const modalEl = document.getElementById('modalChangePassword');
+    if (!modalEl) return;
+    
     $('#pwdOld').val('');
     $('#pwdNew').val('');
     $('#pwdNewConfirm').val('');
@@ -62,7 +69,9 @@ function openChangePasswordModal() {
     $('#modalChangePassword .btn-close').show();
     $('#modalChangePassword').attr('data-bs-keyboard', 'true');
     $('#frmChangePassword')[0]?.reset();
-    $('#modalChangePassword').modal('show');
+    
+    const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+    modal.show();
 }
 
 function handleChangePassword(e) {

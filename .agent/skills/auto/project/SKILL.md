@@ -1,6 +1,6 @@
 ---
 name: project
-description: "Project for ebanking. 19 gotchas, 38 conventions, 12 fixes."
+description: "Project for ebanking. 19 gotchas, 38 conventions, 13 fixes."
 domain: project
 triggers:
   - glob: "**/*"
@@ -10,7 +10,7 @@ enabled: true
 
 # Project
 
-Auto-compiled from **148 real patterns** in **ebanking**. This skill is auto-routed to agents when working on project files.
+Auto-compiled from **155 real patterns** in **ebanking**. This skill is auto-routed to agents when working on project files.
 
 ## ⚠️ Anti-Patterns & Gotchas
 
@@ -39,6 +39,23 @@ Auto-compiled from **148 real patterns** in **ebanking**. This skill is auto-rou
 | Never force push to main, master, or production br | Never force push to main, master, or production branches |
 
 ## 🔧 Problem Playbooks
+
+### problem-fix in scratchpad_d889vj5r.md
+- 
++ - [!] Observation: OpenCV.js is likely used for image cropping/enhancement, but cannot test without sample images.
+- ## 5. Customer Details
++ 
+- - [ ] View customer details from the list ("Hồ sơ").
++ ## 5. Customer Details
+- - [ ] Verify data accuracy and layout.
++ - [ ] View customer details from the list ("Hồ sơ").
+- 
++ - [ ] Verify data accuracy and layout.
+- ## 6. Change Password
++ - [!] 
+
+**Actionable Steps:**
+1. Modified 1 files
 
 ### Patched security issue Netlify — prevents XSS injection attacks
 - # Walkthrough - Fixing Customer Info Display (Netlify)
@@ -258,10 +275,6 @@ Auto-compiled from **148 real patterns** in **ebanking**. This skill is auto-rou
 + ## Phase 5: Multi-Expert Audit & Optimization (Current)
 - - [/] Te
 - 📐 **Strengthened types Implementation** — - # Implementation Plan: API Alignment & Security Hardening (Netlify v2.0)
-+ # Implementation Plan: 
-- 📐 **Version your API from day 1 (/api/v1/)** — Version your API from day 1 (/api/v1/)
-- 📐 **Use consistent response format across all endpoints** — Use consistent response format across all endpoints
-- 📐 **Implement soft delete for important data — don't hard delete without confirmation** — Implement soft delete for important data — don't hard delete without confirmation
-- 📐 **Handle timezone correctly — store UTC, display in user's timezone** — Handle timez
++ # Imp
 
 ... [Truncated — see individual observations for full content]

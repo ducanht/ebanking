@@ -1,7 +1,7 @@
 
 
 # Project Memory — ebanking
-> 266 notes | Score threshold: >40
+> 283 notes | Score threshold: >40
 
 ## Safety — Never Run Destructive Commands
 
@@ -29,6 +29,7 @@
 
 ## Project Standards
 
+- Fixed null crash in CCCD — offloads heavy computation off the main thread — confirmed 7x
 - Fixed null crash in Object — offloads heavy computation off the main thread — confirmed 4x
 - 🟢 Edited netlify-app/app.js (5 changes, 29min) — confirmed 3x
 - what-changed in index.html — confirmed 3x
@@ -36,20 +37,20 @@
 - Patched security issue CCCD — adds runtime type validation before use — confirmed 4x
 - Strengthened types Admin — adds runtime type validation before use
 - what-changed in app.js — confirmed 7x
-- what-changed in index.html — confirmed 6x
 
 ## Known Fixes
 
 - ❌ -     result.message = "GAS Backend Error: " + err.toString(); → ✅ Fixed null crash in Truy — hardens HTTP security headers
 - ❌ - async function runAPI(action, data = {}, successHandler, errorHandler, loadingMsg = 'Đang xử lý... → ✅ Patched security issue VERSION — offloads heavy computation off the main thread
+- ❌ -     } catch(err) { console.error(err); } → ✅ Fixed null crash in DEBUG — adds runtime type validation before use
 - ❌ -     - [ ] Add error feedback if a record is not found. → ✅ problem-fix in task.md
 
 ## Recent Decisions
 
+- decision in index.html
 - decision in registration.js
 - Optimized Danh — ensures atomic multi-step database operations
 - decision in app.js
-- decision in style.css
 
 ## Verified Best Practices
 

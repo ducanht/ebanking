@@ -1,5 +1,5 @@
 > **BrainSync Context Pumper** 🧠
-> Dynamically loaded for active file: `netlify-app\js\api.js` (Domain: **Generic Logic**)
+> Dynamically loaded for active file: `netlify-app\js\customer.js` (Domain: **Generic Logic**)
 
 ### 🔴 Generic Logic Gotchas
 - **⚠️ GOTCHA: Added session cookies authentication — adds runtime type validation before use**: -  * NETLIFY HIGH-FIDELITY APP ENGINE (app.js)
@@ -199,6 +199,132 @@
 📌 IDE AST Context: Modified symbols likely include [GAS_API_URL, AppState, INACTIVITY_LIMIT, checkInactivity, on('click keydown scroll mousedown touchstart') callback]
 
 ### 📐 Generic Logic Conventions & Fixes
+- **[problem-fix] Fixed null crash in DataTable — prevents XSS injection attacks**: -             <tr data-id="${rowId}" class="clickable-row cursor-pointer" onclick="openEditCustomerModal('${rowId}')">
++             <tr data-id="${rowId}" class="clickable-row cursor-pointer">
+-                 <td class="text-end"><button class="btn btn-sm btn-outline-primary shadow-sm btn-detail" onclick="openEditCustomerModal('${rowId}'); event.stopPropagation();"><i class="bx bx-search-alt"></i> Chi tiết</button></td>
++                 <td class="text-end">
+-             </tr>
++                     <button class="btn btn-sm btn-outline-primary shadow-sm btn-detail" title="Xem chi tiết">
+-         `;
++                         <i class="bx bx-search-alt"></i> <span class="d-none d-sm-inline">Chi tiết</span>
+-     }).join('');
++                     </button>
+- 
++                 </td>
+-     $('#tbMyCustomersBody').html(html || '<tr><td colspan="7" class="text-center text-muted py-4">Chưa có hồ sơ nào.</td></tr>');
++             </tr>
+-     
++         `;
+-     if ($.fn.DataTable.isDataTable('#tblMyCustomers')) $('#tblMyCustomers').DataTable().destroy();
++     }).join('');
+-     
++ 
+-     if (data.length > 0) {
++     $('#tbMyCustomersBody').html(html || '<tr><td colspan="7" class="text-center text-muted py-4">Chưa có hồ sơ nào.</td></tr>');
+-         $('#tblMyCustomers').DataTable({
++     
+-             responsive: true,
++     if ($.fn.DataTable.isDataTable('#tblMyCustomers')) $('#tblMyCustomers').DataTable().destroy();
+-             order: [[0, 'desc']],
++     
+-             lengthMenu: [10, 25, 50, 100],
++     if (data.length > 0) {
+-             pageLength: 25,
++         $('#tblMyCustomers').DataTable({
+-             dom: "<'row mb-2'<'col-sm-12 col-md-4'l><'col-sm-12 col-md-4 text-center'B><'col-sm-12 col-md-4'f>>" +
++             responsive: true,
+-                  "<'row'<'col-sm-12'tr>>" +
++             order: [[0, 'desc']],
+-                  "<'row mt-2'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
++             lengthMenu: [10, 25, 50, 100],
+-        
+… [diff truncated]
+
+📌 IDE AST Context: Modified symbols likely include [initMyCustomersList, renderStaffDashboardLocal, updateStaffRankings, staffChartInstance, renderStaffLineChart]
+- **[what-changed] 🟢 Edited netlify-app/js/api.js (5 changes, 143min)**: Active editing session on netlify-app/js/api.js.
+5 content changes over 143 minutes.
+- **[decision] decision in registration.js**: -     const compressWithTimeout = (file, slotLabel, ms = 10000) => {
++     const compressWithTimeout = (file, slotLabel, ms = 25000) => {
+-         const options = { maxSizeMB: 0.4, maxWidthOrHeight: 1200, useWebWorker: true };
++         const options = { maxSizeMB: 0.4, maxWidthOrHeight: 1200, useWebWorker: false };
+
+📌 IDE AST Context: Modified symbols likely include [initMoTaiKhoanForm, toggleFormFields, handleRegistration, checkDuplicate, loadStaffOpenAccountView]
+- **[problem-fix] Fixed null crash in JSON**: - const AppState = {
++ let parsedUser = null;
+-     user: JSON.parse(localStorage.getItem('HOKINHDOANH_SESSION')) || null,
++ try {
+-     VERSION: "2.1.2-STABLE",
++     const rawUser = localStorage.getItem('HOKINHDOANH_SESSION');
+-     apiBase: "",
++     if (rawUser && rawUser !== 'undefined' && rawUser !== 'null') {
+-     lastActive: Date.now()
++         parsedUser = JSON.parse(rawUser);
+- };
++     }
+- 
++ } catch (e) {
+- const AppCache = {
++     console.warn("Dữ liệu phiên làm việc bị hỏng, đang tự động khôi phục...");
+-     data: {},
++     localStorage.removeItem('HOKINHDOANH_SESSION');
+-     timestamp: {},
++ }
+-     TTL: 300000, // 5 phút
++ 
+-     isFresh(key) {
++ const AppState = {
+-         if (!this.timestamp[key]) return false;
++     user: parsedUser,
+-         return (Date.now() - this.timestamp[key]) < this.TTL;
++     VERSION: "2.1.3-STABLE",
+-     },
++     apiBase: "",
+-     set(key, val) {
++     lastActive: Date.now()
+-         this.data[key] = val;
++ };
+-         this.timestamp[key] = Date.now();
++ 
+-     },
++ const AppCache = {
+-     get(key) {
++     data: {},
+-         return this.isFresh(key) ? this.data[key] : null;
++     timestamp: {},
+-     },
++     TTL: 300000, // 5 phút
+-     clear(key) {
++     isFresh(key) {
+-         delete this.data[key];
++         if (!this.timestamp[key]) return false;
+-         delete this.timestamp[key];
++         return (Date.now() - this.timestamp[key]) < this.TTL;
+-     clearAll() {
++     set(key, val) {
+-         this.data = {};
++         this.data[key] = val;
+-         this.timestamp = {};
++         this.timestamp[key] = Date.now();
+-     }
++     },
+- };
++     get(key) {
+- 
++         return this.isFresh(key) ? this.data[key] : null;
+- /**
++     },
+-  * AUTO-LOGOUT SECURITY
++     clear(key) {
+-  */
++         delete this.data[key];
+- const INACTIVITY_LIMIT = 60 * 60 * 1000; // 60 minutes
++         delete this.timestamp[key];
+- function checkInactivity() {
++     },
+-     if (AppState.user && (Date.now() - AppState.lastAct
+… [diff truncated]
+
+📌 IDE AST Context: Modified symbols likely include [AppState, AppCache, INACTIVITY_LIMIT, checkInactivity, ready() callback]
 - **[convention] Fixed null crash in Object — offloads heavy computation off the main thread — confirmed 4x**: -     flatpickr(".js-datepicker", { dateFormat: "Y-m-d", altInput: true, altFormat: "d/m/Y", defaultDate: "today" });
 +     const fpEls = document.querySelectorAll('.js-datepicker');
 -     
@@ -507,117 +633,5 @@
 📌 IDE AST Context: Modified symbols likely include [GAS_API_URL, AppState, INACTIVITY_LIMIT, checkInactivity, on('click keydown scroll mousedown touchstart') callback]
 - **[what-changed] what-changed in app.js**: -     VERSION: "2.1.1-PATCHED",
 +     VERSION: "2.1.2-STABLE",
-
-📌 IDE AST Context: Modified symbols likely include [GAS_API_URL, AppState, INACTIVITY_LIMIT, checkInactivity, on('click keydown scroll mousedown touchstart') callback]
-- **[trade-off] trade-off in app.js**: -         const rowId      = (d['ID'] || d['Mã GD'] || '').toString().trim();
-+         const rowId      = (d['ID'] || d['Mã GD'] || '').toString().trim().replace(/^'/, '');
--             <tr onclick="openEditCustomerModal('${rowId}')" class="cursor-pointer" style="cursor:pointer">
-+             <tr data-id="${rowId}" class="clickable-row cursor-pointer" style="cursor:pointer">
--                 <td class="text-end"><button class="btn btn-sm btn-outline-primary px-2" onclick="event.stopPropagation();openEditCustomerModal('${rowId}')"><i class="bx bx-info-circle"></i></button></td>
-+                 <td class="text-end"><button class="btn btn-sm btn-outline-primary px-2 btn-detail"><i class="bx bx-info-circle"></i></button></td>
--         search: { caseInsensitive: true, smart: true, searchDelay: 400 },
-+         search: { caseInsensitive: true, smart: true }, // Bỏ searchDelay để đạt "tức thời"
-
-📌 IDE AST Context: Modified symbols likely include [GAS_API_URL, AppState, INACTIVITY_LIMIT, checkInactivity, on('click keydown scroll mousedown touchstart') callback]
-- **[convention] what-changed in app.js — confirmed 7x**: -     VERSION: "2.2.0-STABLE",
-+     VERSION: "2.1.1-PATCHED",
--                    + (loaiHinh !== 'Cá nhân' ? getImgHtml(row['URL GP DKKD'] || '', 'GP ĐKKD') : '')
-+                    + (loaiHinh !== 'Cá nhân' ? getImgHtml(row['URL GP DKKD'] || row['URL DKKD'] || '', 'GP ĐKKD') : '')
--                    + getImgHtml(row['URL QR'] || '', 'QR TK')
-+                    + getImgHtml(row['URL QR'] || row['URL Mã QR'] || '', 'QR TK')
--                    + getImgHtml(row['URL Ảnh Thực Hiện'] || '', 'Ảnh GD');
-+                    + getImgHtml(row['URL Ảnh Thực Hiện'] || row['URL Thực Hiện'] || '', 'Ảnh GD');
-
-📌 IDE AST Context: Modified symbols likely include [GAS_API_URL, AppState, INACTIVITY_LIMIT, checkInactivity, on('click keydown scroll mousedown touchstart') callback]
-- **[convention] Patched security issue DataTable — prevents XSS injection attacks — confirmed 3x**: -         if(dtAllStaffs) try { dtAllStafffunction openEditCustomerModal(id) {
-+         if(dtAllStaffs) try { dtAllStaffs.destroy(); } catch(e){}
--     try {
-+         dtAllStaffs = $('#tblAllStaffs').DataTable({
--         if (!id) return;
-+             responsive: true,
--         let row = null;
-+             dom: "<'row mb-2'<'col-sm-12 col-md-4 d-flex align-items-center justify-content-start'l><'col-sm-12 col-md-4 d-flex align-items-center justify-content-center'B><'col-sm-12 col-md-4 d-flex align-items-center justify-content-end'f>>" +
--         const sourceData = (AppState.user && AppState.user.role === 'Admin') ? (window._adminAllData || []) : ((AppCache.get('myCustomers') || {}).data || []);
-+                  "<'row'<'col-sm-12'tr>>" +
--         
-+                  "<'row mt-2'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
--         const rowIdStr = String(id).trim().replace(/^'/, '');
-+             buttons: [{ extend: 'excelHtml5', text: '<i class="bx bxs-file-export"></i> Xuất Excel', className: 'btn btn-sm btn-success shadow-sm' }],
--         for (let i = 0; i < sourceData.length; i++) {
-+             language: { url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json" }
--             const currentId = String(sourceData[i]['ID'] || sourceData[i]['Mã GD'] || '').trim().replace(/^'/, '');
-+         });
--             if (currentId === rowIdStr) {
-+         $('#modalAllStaff').modal('show');
--                 row = sourceData[i];
-+     } catch(e) { console.error(e); }
--                 break;
-+ }
--             }
-+ 
--         }
-+ // --- CUSTOMER & IMAGE MODAL ---
-- 
-+ function openEditCustomerModal(id) {
--         if (!row) {
-+     try {
--             console.warn("No row found with ID:", id);
-+         if (!id) return;
--             showAlert('Lỗi', 'Không tìm thấy thông tin hồ sơ khách hàng. Vui lòng thử lại.', 'error');
-+         let row = null;
--             return;
-+         const sourceData = (AppState.user && AppState.user.role === 'Admin') ? 
-… [diff truncated]
-
-📌 IDE AST Context: Modified symbols likely include [GAS_API_URL, AppState, INACTIVITY_LIMIT, checkInactivity, on('click keydown scroll mousedown touchstart') callback]
-- **[convention] Patched security issue Date — prevents XSS injection attacks — confirmed 3x**: -             return;
-+             showAlert('Lỗi', 'Không tìm thấy thông tin hồ sơ khách hàng. Vui lòng thử lại.', 'error');
--         }
-+             return;
-- 
-+         }
--         $('#edit_id').val(id);
-+ 
--         $('#edit_ten_kh').val(row['Tên khách hàng'] || '');
-+         // Khởi tạo datepicker cho modal chỉnh sửa nếu chưa có
--         $('#edit_sdt').val((row['Số điện thoại'] || '').toString().replace(/^'/, ''));
-+         if (typeof flatpickr !== 'undefined') {
--         
-+             const fpEl = document.querySelector('.js-datepicker-edit');
--         let dDate = row['Ngày mở TK'] || row['Thời điểm nhập'] || '';
-+             if (fpEl && !fpEl._flatpickr) {
--         if (dDate) {
-+                 flatpickr(fpEl, {
--             const rawD = new Date(dDate);
-+                     dateFormat: "d/m/Y",
--             if (!isNaN(rawD)) {
-+                     altInput: true,
--                 dDate = String(rawD.getDate()).padStart(2, '0') + '/' + String(rawD.getMonth() + 1).padStart(2, '0') + '/' + rawD.getFullYear();
-+                     altFormat: "d/m/Y",
--             }
-+                     allowInput: true
--         }
-+                 });
--         $('#edit_ngay_mo').val(dDate);
-+             }
--         
-+         }
--         let stk = (row['Số TK'] || row['Số tài khoản'] || '').toString().replace(/^'/, '');
-+ 
--         if (stk.length > 7 && stk.startsWith('3800200')) stk = stk.substring(7);
-+         $('#edit_id').val(id);
--         $('#edit_so_tk').val(stk);
-+         $('#edit_ten_kh').val(row['Tên khách hàng'] || '');
-- 
-+         $('#edit_sdt').val((row['Số điện thoại'] || '').toString().replace(/^'/, ''));
--         if (AppState.user && AppState.user.role === 'Admin') {
-+         
--             $('#btnSaveEdit').hide();
-+         let dDate = row['Ngày mở TK'] || row['Thời điểm nhập'] || '';
--             $('#frmEditCustomer input').prop('readonly', true);
-+         if (dDate) {
--         } else {
-+             const rawD = new Date(dDate);
-… [diff truncated]
 
 📌 IDE AST Context: Modified symbols likely include [GAS_API_URL, AppState, INACTIVITY_LIMIT, checkInactivity, on('click keydown scroll mousedown touchstart') callback]

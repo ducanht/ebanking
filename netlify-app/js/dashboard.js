@@ -115,16 +115,20 @@ function renderAdminTable(allData, allStaffs) {
     const html = window._adminAllData.map(d => {
         const staffEmail = (d['Cán bộ thực hiện'] || '').toString().trim();
         const staffName  = staffMap[staffEmail] || staffEmail;
-        const rowId      = (d['ID'] || d['Mã GD'] || '').toString().trim().replace(/^'/, '');
+        const rowId      = (d['ID'] || d['Mã GD'] || '').toString().trim().replace(/^[']*/, '');
         return `
-            <tr data-id="${rowId}" class="clickable-row cursor-pointer" style="cursor:pointer" onclick="openEditCustomerModal('${rowId}')">
+            <tr data-id="${rowId}" class="clickable-row cursor-pointer">
                 <td><small class="text-muted">${utils_formatVN(d['Thời điểm nhập'], 'date')}</small></td>
                 <td class="fw-bold text-dark">${utils_escapeHTML(d['Tên khách hàng'] || '')}</td>
                 <td><span class="badge bg-light text-dark border">${utils_escapeHTML(d['Loại hình dịch vụ'] || 'Cá nhân')}</span></td>
                 <td class="text-secondary"><small>${utils_escapeHTML((d['Số tài khoản'] || '').toString().replace(/^'/, ''))}</small></td>
                 <td class="d-none">${utils_escapeHTML(staffEmail)}</td>
                 <td><small>${utils_escapeHTML(staffName)}</small></td>
-                <td class="text-end"><button class="btn btn-sm btn-outline-primary px-2 btn-detail" onclick="openEditCustomerModal('${rowId}'); event.stopPropagation();"><i class="bx bx-info-circle"></i></button></td>
+                <td class="text-end">
+                    <button class="btn btn-sm btn-outline-primary px-2 btn-detail" title="Chi tiết">
+                        <i class="bx bx-info-circle"></i>
+                    </button>
+                </td>
             </tr>`;
     }).join('');
 

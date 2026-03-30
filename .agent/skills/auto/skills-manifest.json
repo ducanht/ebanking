@@ -1,31 +1,31 @@
 {
   "project": {
     "enabled": true,
-    "lastGenerated": "2026-03-30T07:45:21.830Z",
-    "observationCount": 148,
+    "lastGenerated": "2026-03-30T08:55:00.617Z",
+    "observationCount": 155,
     "skillCount": 0,
     "domain": "project",
     "triggerGlobs": [
       "**/*"
     ],
-    "description": "Project for ebanking. 19 gotchas, 38 conventions, 12 fixes."
+    "description": "Project for ebanking. 19 gotchas, 38 conventions, 13 fixes."
   },
   "javascript": {
     "enabled": true,
-    "lastGenerated": "2026-03-30T07:45:21.830Z",
-    "observationCount": 68,
+    "lastGenerated": "2026-03-30T08:55:00.618Z",
+    "observationCount": 75,
     "skillCount": 0,
     "domain": "javascript",
     "triggerGlobs": [
       "**/*.js",
       "**/*.jsx"
     ],
-    "description": "Javascript for ebanking. 3 gotchas, 16 conventions, 25 fixes."
+    "description": "Javascript for ebanking. 3 gotchas, 17 conventions, 30 fixes."
   },
   "html": {
     "enabled": true,
-    "lastGenerated": "2026-03-30T07:45:21.831Z",
-    "observationCount": 40,
+    "lastGenerated": "2026-03-30T08:55:00.614Z",
+    "observationCount": 42,
     "skillCount": 0,
     "domain": "html",
     "triggerGlobs": [
@@ -35,8 +35,8 @@
   },
   "css": {
     "enabled": true,
-    "lastGenerated": "2026-03-30T07:45:21.832Z",
-    "observationCount": 6,
+    "lastGenerated": "2026-03-30T08:55:00.617Z",
+    "observationCount": 7,
     "skillCount": 0,
     "domain": "css",
     "triggerGlobs": [
@@ -47,7 +47,7 @@
   },
   "config": {
     "enabled": true,
-    "lastGenerated": "2026-03-30T07:45:21.831Z",
+    "lastGenerated": "2026-03-30T08:55:00.619Z",
     "observationCount": 4,
     "skillCount": 0,
     "domain": "config",

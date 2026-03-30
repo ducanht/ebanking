@@ -57,8 +57,17 @@ function initMoTaiKhoanForm() {
 
 function toggleFormFields() {
     const isHKD = $('#loai_hinh').val() === 'Hộ kinh doanh';
-    $('#div_dkkd, #div_img_dkkd, #div_ten_dang_nhap').toggle(isHKD);
-    $('#dkkd, #img_dkkd').prop('required', isHKD);
+    const targets = $('#div_dkkd, #div_img_dkkd, #div_ten_dang_nhap');
+    
+    if (isHKD) {
+        targets.hide().removeClass('initially-hidden').fadeIn(400);
+        $('#dkkd, #img_dkkd').prop('required', true);
+        $('#dkkd').addClass('border-primary shadow-sm');
+    } else {
+        targets.fadeOut(300);
+        $('#dkkd, #img_dkkd').prop('required', false);
+        $('#dkkd').removeClass('border-primary shadow-sm');
+    }
 }
 
 async function handleRegistration(e) {
@@ -109,7 +118,15 @@ async function handleRegistration(e) {
     };
 
     const compressWithTimeout = (file, slotLabel, ms = 25000) => {
-        const options = { maxSizeMB: 0.4, maxWidthOrHeight: 1200, useWebWorker: false };
+        const options = {
+            maxSizeMB: 0.8,
+            maxWidthOrHeight: 2048,
+            useWebWorker: true,
+            onProgress: (pct) => {
+                const currentPct = Math.round(pct);
+                updateUIProgress(`Đang tối ưu ảnh (${currentPct}%)...`, Math.round(((currentStep - 1) / totalSteps) * 100 + (currentPct / totalSteps)));
+            }
+        };
         return Promise.race([
             imageCompression(file, options),
             new Promise((_, reject) => setTimeout(() => reject(new Error("TIMEOUT")), ms))
