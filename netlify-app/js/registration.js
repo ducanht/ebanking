@@ -2,7 +2,12 @@
  * REGISTRATION LOGIC
  */
 function initMoTaiKhoanForm() {
-    flatpickr(".js-datepicker", { dateFormat: "Y-m-d", altInput: true, altFormat: "d/m/Y", defaultDate: "today" });
+    const fpEls = document.querySelectorAll('.js-datepicker');
+    fpEls.forEach(el => {
+        if (!el._flatpickr) {
+            flatpickr(el, { dateFormat: "Y-m-d", altInput: true, altFormat: "d/m/Y", defaultDate: "today" });
+        }
+    });
     
     $('#frm-mo-tk').off('submit').on('submit', handleRegistration);
     $('#loai_hinh').on('change', toggleFormFields);

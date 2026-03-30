@@ -25,7 +25,14 @@ async function runAPI(action, data = {}, successHandler, errorHandler, loadingMs
 
         if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
         
-        const result = await response.json();
+        let result;
+        const textRes = await response.text();
+        try {
+            result = JSON.parse(textRes);
+        } catch (e) {
+            console.error("Lỗi phân tích JSON từ Server. Phản hồi thô:", textRes.substring(0, 100));
+            throw new Error('Dữ liệu trả về bị rác (Không phải JSON). Vui lòng thử đổi mạng Wi-Fi khác.');
+        }
         
         if (loadingMsg !== 'NONE') hideLoading();
         if (successHandler) successHandler(result);
