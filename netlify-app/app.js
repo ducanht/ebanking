@@ -769,7 +769,7 @@ async function handleRegistration(e) {
     const progressPct = $('#compress-progress-pct');
 
     btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Đang xử lý...');
-    progressWrapper.show();
+    progressWrapper.removeClass('initially-hidden').removeClass('d-none').show();
     progressBar.css('width', '0%');
     progressPct.text('0%');
 
@@ -883,10 +883,42 @@ async function handleRegistration(e) {
         updateUIProgress('Lỗi kết nối máy chủ!', 0);
         progressBar.addClass('bg-danger');
         setTimeout(() => {
-            progressWrapper.hide();
+            progressWrapper.addClass('initially-hidden').hide();
             progressBar.removeClass('bg-danger');
         }, 5000);
     }, 'NONE');
+}
+
+function checkDuplicate(input) {
+    if (!input || !input.value) return;
+    const val = input.value.trim();
+    const lh = $('#loai_hinh').val(); // Lấy loại hình hiện tại
+    if (!val) {
+        $(input).removeClass('is-invalid');
+        input.setCustomValidity('');
+        return;
+    }
+    
+    if (!input.checkValidity()) {
+        $(input).addClass('is-invalid');
+        return;
+    }
+
+    runAPI('api_validateduplicate', { field: input.id, value: val, loaiHinh: lh }, (res) => {
+        if (res && res.isDup) {
+            input.setCustomValidity(res.msg || 'Giá trị này đã tồn tại cùng loại hình!');
+            $(input).addClass('is-invalid');
+            if ($(input).siblings('.invalid-feedback').length) {
+                $(input).siblings('.invalid-feedback').text(res.msg || 'Giá trị này đã tồn tại cùng loại hình!');
+            }
+        } else {
+            input.setCustomValidity('');
+            $(input).removeClass('is-invalid');
+            if (input.id === 'cccd') $(input).siblings('.invalid-feedback').text('Căn cước công dân bắt buộc đúng 12 chữ số.');
+            else if (input.id === 'sdt') $(input).siblings('.invalid-feedback').text('SĐT bắt buộc bắt đầu bằng 0 và đủ 10 chữ số.');
+            else if (input.id === 'so_tk') $(input).siblings('.invalid-feedback').text('Cần nhập đúng 9 chữ số cuối.');
+        }
+    }, null, 'NONE');
 }
 
 
@@ -1569,26 +1601,30 @@ function openEditCustomerModal(id) {
  */
 $(document).ready(() => {
     // Normalization logic for DataTables Vietnamese Search
-    if (typeof $.fn.dataTable !== 'undefined' && $.fn.dataTable.ext && $.fn.dataTable.ext.type) {
-        $.fn.dataTable.ext.type.search.string = function(data) {
-            if (!data) return '';
-            if (typeof data !== 'string') return data;
-            return data
-                .replace(/á|à|ả|ã|ạ|ă|ắ|ằ|ẳ|ẵ|ặ|â|ấ|ầ|ẩ|ẫ|ậ/g, 'a')
-                .replace(/é|è|ẻ|ẽ|ẹ|ê|ế|ề|ể|ễ|ệ/g, 'e')
-                .replace(/i|í|ì|ỉ|ĩ|ị/g, 'i')
-                .replace(/ó|ò|ỏ|õ|ọ|ô|ố|ồ|ổ|ỗ|ộ|ơ|ớ|ờ|ở|ỡ|ợ/g, 'o')
-                .replace(/ú|ù|ủ|ũ|ụ|ư|ứ|ừ|ử|ữ|ự/g, 'u')
-                .replace(/ý|ỳ|ỷ|ỹ|ỵ/g, 'y')
-                .replace(/đ/g, 'd')
-                .replace(/Á|À|Ả|Ã|Ạ|Ă|Ắ|Ằ|Ẳ|Ẵ|Ặ|Â|Ấ|Ầ|Ẩ|Ẫ|Ậ/g, 'A')
-                .replace(/É|È|Ẻ|Ẽ|Ẹ|Ê|Ế|Ề|Ể|Ễ|Ệ/g, 'E')
-                .replace(/I|Í|Ì|Ỉ|Ĩ|Ị/g, 'I')
-                .replace(/Ó|Ò|Ỏ|Õ|Ọ|Ô|Ố|Ồ|Ổ|Ỗ|Ộ|Ơ|Ớ|Ờ|Ở|Ỡ|Ợ/g, 'O')
-                .replace(/Ú|Ù|Ủ|Ũ|Ụ|Ư|Ứ|Ừ|Ử|Ữ|Ự/g, 'U')
-                .replace(/Ý|Ỳ|Ỷ|Ỹ|Ỵ/g, 'Y')
-                .replace(/Đ/g, 'D');
-        };
+    if (typeof $.fn.dataTable !== 'undefined') {
+        // Must use $.fn.DataTable (capital D) for extending type search properly
+        const dtExt = $.fn.DataTable.ext;
+        if (dtExt && dtExt.type && dtExt.type.search) {
+            dtExt.type.search.string = function(data) {
+                if (!data) return '';
+                if (typeof data !== 'string') return data.toString();
+                return data
+                    .replace(/á|à|ả|ã|ạ|ă|ắ|ằ|ẳ|ẵ|ặ|â|ấ|ầ|ẩ|ẫ|ậ/g, 'a')
+                    .replace(/é|è|ẻ|ẽ|ẹ|ê|ế|ề|ể|ễ|ệ/g, 'e')
+                    .replace(/i|í|ì|ỉ|ĩ|ị/g, 'i')
+                    .replace(/ó|ò|ỏ|õ|ọ|ô|ố|ồ|ổ|ỗ|ộ|ơ|ớ|ờ|ở|ỡ|ợ/g, 'o')
+                    .replace(/ú|ù|ủ|ũ|ụ|ư|ứ|ừ|ử|ữ|ự/g, 'u')
+                    .replace(/ý|ỳ|ỷ|ỹ|ỵ/g, 'y')
+                    .replace(/đ/g, 'd')
+                    .replace(/Á|À|Ả|Ã|Ạ|Ă|Ắ|Ằ|Ẳ|Ẵ|Ặ|Â|Ấ|Ầ|Ẩ|Ẫ|Ậ/g, 'A')
+                    .replace(/É|È|Ẻ|Ẽ|Ẹ|Ê|Ế|Ề|Ể|Ễ|Ệ/g, 'E')
+                    .replace(/I|Í|Ì|Ỉ|Ĩ|Ị/g, 'I')
+                    .replace(/Ó|Ò|Ỏ|Õ|Ọ|Ô|Ố|Ồ|Ổ|Ỗ|Ộ|Ơ|Ớ|Ờ|Ở|Ỡ|Ợ/g, 'O')
+                    .replace(/Ú|Ù|Ủ|Ũ|Ụ|Ư|Ứ|Ừ|Ử|Ữ|Ự/g, 'U')
+                    .replace(/Ý|Ỳ|Ỷ|Ỹ|Ỵ/g, 'Y')
+                    .replace(/Đ/g, 'D');
+            };
+        }
     }
 
     if (!AppState.user) {
