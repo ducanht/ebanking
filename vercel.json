@@ -3,6 +3,7 @@
   "name": "qtd-coopbank",
   "cleanUrls": true,
   "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
+    { "source": "/(app\\.js|style\\.css|logo\\.png)", "destination": "/netlify-app/$1" },
+    { "source": "/(.*)", "destination": "/netlify-app/index.html" }
   ]
 }
