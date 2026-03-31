@@ -50,12 +50,18 @@ async function initMyCustomersList() {
 }
 
 function renderStaffDashboardLocal(data) {
-    let caNhan = 0, hkd = 0;
+    let caNhan = 0, hkd = 0, total = 0;
+    let activated = 0, inactive = 0;
     let timeline = {};
 
     data.forEach(d => {
+        total++;
         if (d['Loại hình dịch vụ'] === 'Cá nhân') caNhan++;
         else if (d['Loại hình dịch vụ'] === 'Hộ kinh doanh') hkd++;
+
+        const status = d['Trạng thái'] || '';
+        if (status === 'Đã kích hoạt') activated++;
+        else inactive++;
 
         let rawDate = new Date(d["Thời điểm nhập"]);
         if (!isNaN(rawDate)) {
@@ -64,8 +70,9 @@ function renderStaffDashboardLocal(data) {
         }
     });
 
-    $('#staffDash-canhan').text(caNhan);
-    $('#staffDash-hkd').text(hkd);
+    $('#staffDash-total').text(total);
+    $('#staffDash-activated').text(activated);
+    $('#staffDash-inactive').text(inactive);
 
     renderStaffLineChart(timeline);
 }
@@ -299,8 +306,14 @@ function openEditCustomerModal(id) {
         $('#edit_ten_dang_nhap').val((row['Tên đăng nhập'] || '').toString().replace(/^'/, ''));
         $('#edit_mat_khau').val(row['Mật khẩu'] || '');
 
-        const trangThai = row['Trạng thái'] || 'Chưa hoàn thành';
-        const isVerified = (trangThai === 'Đã xác minh');
+        const status = row['Trạng thái'] || '';
+        if (status === 'Đã kích hoạt') {
+            $('#edit_is_activated').prop('checked', true);
+        } else {
+            $('#edit_is_activated').prop('checked', false);
+        }
+
+        const isVerified = (status === 'Đã xác minh' || status === 'Đã kích hoạt');
 
         // Theo yêu cầu mới, User tự quản lý sửa hồ sơ nên không khóa nút Lưu kể cả khi đã xác minh
         if (AppState.user && AppState.user.role === 'Admin') {
@@ -399,7 +412,8 @@ function handleEditCustomer(e) {
         ngay_mo:   $('#edit_ngay_mo').val(),
         so_tk:     ($('#edit_so_tk').val().trim() ? '3800200' + $('#edit_so_tk').val().trim() : ''),
         ten_dang_nhap: $('#edit_ten_dang_nhap').val().trim(),
-        mat_khau:  $('#edit_mat_khau').val().trim()
+        mat_khau:  $('#edit_mat_khau').val().trim(),
+        is_activated: $('#edit_is_activated').is(':checked')
     };
 
     runAPI('api_updatecustomer', payload, (res) => {

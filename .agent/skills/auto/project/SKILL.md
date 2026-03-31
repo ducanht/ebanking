@@ -1,6 +1,6 @@
 ---
 name: project
-description: "Project for ebanking. 19 gotchas, 42 conventions, 16 fixes."
+description: "Project for ebanking. 19 gotchas, 44 conventions, 16 fixes."
 domain: project
 triggers:
   - glob: "**/*"
@@ -10,7 +10,7 @@ enabled: true
 
 # Project
 
-Auto-compiled from **183 real patterns** in **ebanking**. This skill is auto-routed to agents when working on project files.
+Auto-compiled from **186 real patterns** in **ebanking**. This skill is auto-routed to agents when working on project files.
 
 ## ⚠️ Anti-Patterns & Gotchas
 
@@ -290,10 +290,9 @@ Auto-compiled from **183 real patterns** in **ebanking**. This skill is auto-rou
 ## 📐 Conventions & Best Practices
 
 ### Project Conventions
-- 📐 **Git Commit: Update v2.1.6-STABLE: Registration hardening and editing log — confirmed 3x** — Captured via Git commit.
-Message: Update v2.1.6-STABLE: Registration hardening and editing logic
-Bra
-- 📐 **what-changed in scratchpad_ic059k5m.md.resolved — confirmed 3x** — -     - [/] Back image: upload `test_cccd_placeholder`
-+
+- 📐 **Updated Backend database schema — confirmed 3x** — - - [ ] Update Backend: Default status to "Chưa kích hoạt" in `api_account.gs`
++ - [x] Update Backen
+- 📐 **Fixed null crash in JSON — externalizes configuration for environment flexibi... — confirmed 3x** — -       caNhan: caNhanAccounts,
++       activated: activatedCoun
 
 ... [Truncated — see individual observations for full content]

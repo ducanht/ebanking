@@ -1176,6 +1176,8 @@ async function initDashboard() {
 
 function renderAdminStats(s) {
     $('#db-total').text(s.total || 0);
+    $('#db-activated').text(s.activated || 0);
+    $('#db-inactive').text(s.inactive || 0);
     $('#db-ca-nhan-sub').text(s.caNhan || 0);
     $('#db-hkd-sub').text(s.hkd || 0);
     $('#db-ca-nhan').text(s.caNhan || 0);
@@ -1509,8 +1511,14 @@ function openEditCustomerModal(id) {
         $('#edit_ten_dang_nhap').val((row['Tên đăng nhập'] || '').toString().replace(/^'/, ''));
         $('#edit_mat_khau').val(row['Mật khẩu'] || '');
 
-        const trangThai = row['Trạng thái'] || 'Chưa hoàn thành';
-        const isVerified = (trangThai === 'Đã xác minh');
+        const status = row['Trạng thái'] || '';
+        if (status === 'Đã kích hoạt') {
+            $('#edit_is_activated').prop('checked', true);
+        } else {
+            $('#edit_is_activated').prop('checked', false);
+        }
+
+        const isVerified = (status === 'Đã xác minh' || status === 'Đã kích hoạt');
 
         // Theo yêu cầu mới, User tự quản lý sửa hồ sơ nên không khóa nút Lưu kể cả khi đã xác minh
         if (AppState.user && AppState.user.role === 'Admin') {
@@ -1727,7 +1735,8 @@ function handleEditCustomer(e) {
         ngay_mo:   $('#edit_ngay_mo').val(),
         so_tk:     ($('#edit_so_tk').val().trim() ? '3800200' + $('#edit_so_tk').val().trim() : ''),
         ten_dang_nhap: $('#edit_ten_dang_nhap').val().trim(),
-        mat_khau:  $('#edit_mat_khau').val().trim()
+        mat_khau:  $('#edit_mat_khau').val().trim(),
+        is_activated: $('#edit_is_activated').is(':checked')
     };
 
     runAPI('api_updatecustomer', payload, (res) => {

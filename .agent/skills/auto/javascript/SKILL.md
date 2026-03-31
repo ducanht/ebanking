@@ -1,6 +1,6 @@
 ---
 name: javascript
-description: "Javascript for ebanking. 3 gotchas, 18 conventions, 35 fixes."
+description: "Javascript for ebanking. 3 gotchas, 19 conventions, 39 fixes."
 domain: javascript
 triggers:
   - glob: "**/*.js"
@@ -11,7 +11,7 @@ enabled: true
 
 # Javascript
 
-Auto-compiled from **83 real patterns** in **ebanking**. This skill is auto-routed to agents when working on javascript files.
+Auto-compiled from **90 real patterns** in **ebanking**. This skill is auto-routed to agents when working on javascript files.
 
 ## ⚠️ Anti-Patterns & Gotchas
 
@@ -24,6 +24,75 @@ Auto-compiled from **83 real patterns** in **ebanking**. This skill is auto-rout
 | ⚠️ GOTCHA: Patched security issue EVENT — prevents | -  + // --- CẤU HÌNH EVENT DELEGATION: XỬ LÝ CLICK XEM CHI TIẾT --- - /** + $(document).on('click',  |
 
 ## 🔧 Problem Playbooks
+
+### Patched security issue Theo — prevents XSS injection attacks
+-         const trangThai = row['Trạng thái'] || 'Chưa hoàn thành';
++         const status = row['Trạng thái'] || '';
+-         const isVerified = (trangThai === 'Đã xác minh');
++         if (status === 'Đã kích hoạt') {
+- 
++             $('#edit_is_activated').prop('checked', true);
+-         // Theo yêu cầu mới, User tự quản lý sửa hồ sơ nên không khóa nút Lưu kể cả khi đã xác minh
++         } e
+
+**Actionable Steps:**
+1. Modified 1 files
+2. identifier: Theo
+3. identifier: User
+4. identifier: AppState
+5. identifier: Admin
+
+### Patched security issue Chart — prevents XSS injection attacks
+-     $('#db-ca-nhan-sub').text(s.caNhan || 0);
++     $('#db-activated').text(s.activated || 0);
+-     $('#db-hkd-sub').text(s.hkd || 0);
++     $('#db-inactive').text(s.inactive || 0);
+-     $('#db-ca-nhan').text(s.caNhan || 0);
++     $('#db-ca-nhan-sub').text(s.caNhan || 0);
+-     $('#db-hkd-count').text(s.hkd || 0);
++     $('#db-hkd-sub').text(s.hkd || 0);
+- }
++     $('#db-ca-nhan').text(s.caNha
+
+**Actionable Steps:**
+1. Modified 1 files
+2. identifier: Chart
+3. identifier: DataTable
+4. identifier: Date
+5. identifier: Email
+
+### Patched security issue Theo — prevents XSS injection attacks
+-         // Phân quyền và hiển thị tiêu đề
++         const trangThai = row['Trạng thái'] || 'Chưa hoàn thành';
+-         if ((AppState.user && AppState.user.role === 'Admin') || isVerified) {
++         const isVerified = (trangThai === 'Đã xác minh');
+-             $('#btnSaveEdit').hide();
++ 
+-             $('#frmEditCustomer input').prop('readonly', true);
++         // Theo yêu cầu mới, User tự
+
+**Actionable Steps:**
+1. Modified 1 files
+2. identifier: Theo
+3. identifier: User
+4. identifier: AppState
+5. identifier: Admin
+
+### Patched security issue AppState — prevents XSS injection attacks
+-         const trangThai = row['Trạng thái'] || 'Chưa hoàn thành';
++         $('#edit_ten_dang_nhap').val((row['Tên đăng nhập'] || '').toString().replace(/^'/, ''));
+-         const isVerified = (trangThai === 'Đã xác minh');
++         $('#edit_mat_khau').val(row['Mật khẩu'] || '');
+-         // Phân quyền và hiển thị tiêu đề
++         const trangThai = row['Trạng thái'] || 'Chưa hoàn thành';
+-  
+
+**Actionable Steps:**
+1. Modified 1 files
+2. identifier: AppState
+3. identifier: Admin
+4. identifier: Chi
+5. identifier: CCCD
 
 ### Fixed null crash in CCCD — offloads heavy computation off the main thread
 -         $('#dkkd, #img_dkkd, #ten_dang_nhap').prop('required', true);
@@ -273,70 +342,6 @@ Auto-compiled from **83 real patterns** in **ebanking**. This skill is auto-rout
 -         const sourceData = (AppState.user && AppState.user.role === 'Admin') ? (window._adminAllData || []) : ((AppCache.get('myCustomers') || {}).data || []);
 +         // Làm sạch ID: Chuyển về string, trim và bỏ dấu nháy đơn prefix (') thường gặp ở Google Sheets
 -         
-+         const rowIdStr = String(id).trim().replace(/^'/, '');
--         const rowI
-
-**Actionable Steps:**
-1. Modified 1 files
-2. identifier: Chuy
-3. identifier: Google
-4. identifier: Sheets
-5. identifier: String
-
-### Patched security issue CCCD — prevents XSS injection attacks
--         return `
-+         const rowId = (d.ID || d['Mã GD'] || '').toString().replace(/^'/, '');
--             <tr onclick="openEditCustomerModal('${d.ID || d['Mã GD']}')" class="cursor-pointer">
-+         return `
--                 <td><small class="text-muted">${utils_formatVN(d['Thời điểm nhập'], 'date')}</small></td>
-+             <tr data-id="${rowId}" class="clickable-row cursor-pointer">
-
-**Actionable Steps:**
-1. Modified 1 files
-2. identifier: CCCD
-3. identifier: KKD
-4. identifier: AppState
-5. identifier: Chi
-
-### Patched security issue CCCD — prevents XSS injection attacks
--         let dDate = row['Ngày mở TK'] || row['Thời điểm nhập'] || '';
-+         const loaiHinh = row['Loại hình dịch vụ'] || 'Cá nhân';
--         if (dDate) {
-+         const cccdVal = (row['Số CCCD'] || '').toString().replace(/^'/, '');
--             const rawD = new Date(dDate);
-+         const dkkdVal = (row['Số DKKD'] || '').toString().replace(/^'/, '');
--             if (!isNaN(rawD)) {
-+  
-
-**Actionable Steps:**
-1. Modified 1 files
-2. identifier: CCCD
-3. identifier: DKKD
-4. identifier: Date
-5. identifier: String
-
-### Patched security issue Last — prevents XSS injection attacks
--         $('#staffDash-rank').text('Chưa có dữ liệu');
-+         $('#staffDash-rank').html('<small class="text-muted">Chưa có dữ liệu</small>');
--     if (rankIndex >= 0 && me) {
-+     if (rankIndex >= 0 && me && (me.total > 0 || staffs.length > 0)) {
--         $('#staffDash-rank').text(`#${rank} / ${staffs.length}`);
-+         let rankHtml = `#${rank} <small class="text-muted" style="font-size:0
-
-**Actionable Steps:**
-1. Modified 1 files
-2. identifier: Top
-3. identifier: Last
-4. identifier: Date
-5. identifier: String
-
-### Patched security issue AppState — prevents XSS injection attacks
--         if(dtAllStaffs) try { dtAllStaffs.destroy(); } catch(e){}
-+         if(dtAllStaffs) try { dtAllStafffunction openEditCustomerModal(id) {
--         dtAllStaffs = $('#tblAllStaffs').DataTable({
-+     try {
--             responsive: true,
-+         if (!id) return;
--             dom: "<'row mb-2'<'col-sm-12 col-md-4 d-flex align-ite
++         cons
 
 ... [Truncated — see individual observations for full content]

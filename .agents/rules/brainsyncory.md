@@ -1,7 +1,7 @@
 
 
 # Project Memory — ebanking
-> 325 notes | Score threshold: >40
+> 337 notes | Score threshold: >40
 
 ## Safety — Never Run Destructive Commands
 
@@ -25,6 +25,7 @@
 
 ## Project Standards
 
+- Patched security issue Theo — prevents XSS injection attacks — confirmed 5x
 - Fixed null crash in AppState — offloads heavy computation off the main thread — confirmed 3x
 - what-changed in scratchpad_ic059k5m.md.resolved — confirmed 3x
 - Replaced auth Login — confirmed 3x
@@ -32,7 +33,6 @@
 - Fixed null crash in CCCD — offloads heavy computation off the main thread — confirmed 7x
 - Fixed null crash in Object — offloads heavy computation off the main thread — confirmed 4x
 - 🟢 Edited netlify-app/app.js (5 changes, 29min) — confirmed 3x
-- what-changed in index.html — confirmed 3x
 
 ## Known Fixes
 
