@@ -133,8 +133,9 @@ function renderAdminTable(allData, allStaffs) {
         const staffName  = staffMap[staffEmail] || staffEmail;
         const rowId      = (d['ID'] || d['Mã GD'] || '').toString().trim().replace(/^[']*/, '');
         
-        const isActivated = (d['Trạng thái'] === 'Đã kích hoạt');
-        const statusDot = `<span class="status-dot ${isActivated ? 'active' : 'inactive'}" title="${d['Trạng thái'] || 'Chưa kích hoạt'}"></span>`;
+        const rawStatus = (d['Trạng thái'] || d['trang_thai'] || '').toString().trim();
+        const isActivated = rawStatus.toLowerCase().includes('đã kích hoạt') || rawStatus.toLowerCase().includes('activated');
+        const statusDot = `<span class="status-dot ${isActivated ? 'active' : 'inactive'}" title="${rawStatus || 'Chưa kích hoạt'}"></span>`;
         
         // Số TK: GAS trả về field 'Số TK', fallback sang 'Số tài khoản' nếu có
         const soTk = (d['Số TK'] || d['Số tài khoản'] || '').toString().replace(/^'/, '');
@@ -176,13 +177,21 @@ function renderAdminTable(allData, allStaffs) {
             extend: 'excelHtml5',
             text: '<i class="bx bxs-file-export"></i> Xuất Excel',
             className: 'btn btn-sm btn-success shadow-sm',
-            // P0-FIX: Chỉ export 6 cột dữ liệu, bỏ cột 6 (nút Chi tiết - có HTML)
             exportOptions: {
-                columns: [0, 1, 2, 3, 4, 5],
+                columns: [0, 1, 2, 3, 4, 5],  // Bỏ cột 6 (nút Chi tiết)
                 format: {
-                    header: function(data, col) {
-                        const hdrs = ['Thời gian', 'Họ Tên', 'Số TK', 'Loại Hình', 'Số Điện Thoại', 'Cán Bộ'];
-                        return hdrs[col] || data;
+                    // Strip HTML — lấy text thuần cho mọi cột (kể cả statusDot + badge)
+                    body: function(data, rowIdx, colIdx, node) {
+                        var tmp = document.createElement('div');
+                        tmp.innerHTML = data;
+                        var text = (tmp.textContent || tmp.innerText || '').trim();
+                        // Cột Loại Hình (idx 3): statusDot sẽ bỏ, chỉ lấy text badge
+                        return text;
+                    },
+                    header: function(data) {
+                        var tmp = document.createElement('div');
+                        tmp.innerHTML = data;
+                        return (tmp.textContent || tmp.innerText || data).trim();
                     }
                 }
             },

@@ -192,8 +192,9 @@ function renderStaffLineChart(timeline) {
 function renderMyCustomersTable(data) {
     const html = data.sort((a,b) => (new Date(b['Thời điểm nhập']) || 0) - (new Date(a['Thời điểm nhập']) || 0)).map(d => {
         const rowId = (d.ID || d['Mã GD'] || '').toString().replace(/^'/, '');
-        const isActivated = (d['Trạng thái'] === 'Đã kích hoạt');
-        const statusDot = `<span class="status-dot ${isActivated ? 'active' : 'inactive'}" title="${d['Trạng thái'] || 'Chưa kích hoạt'}"></span>`;
+        const rawStatus = (d['Trạng thái'] || d['trang_thai'] || '').toString().trim();
+        const isActivated = rawStatus.toLowerCase().includes('đã kích hoạt') || rawStatus.toLowerCase().includes('activated');
+        const statusDot = `<span class="status-dot ${isActivated ? 'active' : 'inactive'}" title="${rawStatus || 'Chưa kích hoạt'}"></span>`;
         return `
             <tr data-id="${rowId}" class="clickable-row cursor-pointer">
                 <td><small class="text-muted">${utils_formatVN(d['Thời điểm nhập'], 'date')}</small></td>
@@ -228,8 +229,22 @@ function renderMyCustomersTable(data) {
                     extend: 'excelHtml5', 
                     text: '<i class="bx bxs-file-export"></i> Xuất Excel', 
                     className: 'btn btn-sm btn-success shadow-sm',
-                    // P0-FIX: Chỉ export 5 cột dữ liệu (bỏ cột "Xem" - nút bấm)
-                    exportOptions: { columns: [0, 1, 2, 3, 4] },
+                    exportOptions: {
+                        columns: [0, 1, 2, 3, 4],  // Bỏ cột 5 (nút Xem)
+                        format: {
+                            // Strip HTML — lấy text thuần cho mọi cột
+                            body: function(data, rowIdx, colIdx, node) {
+                                var tmp = document.createElement('div');
+                                tmp.innerHTML = data;
+                                return (tmp.textContent || tmp.innerText || '').trim();
+                            },
+                            header: function(data) {
+                                var tmp = document.createElement('div');
+                                tmp.innerHTML = data;
+                                return (tmp.textContent || tmp.innerText || data).trim();
+                            }
+                        }
+                    },
                     title: 'HoSo_CaNhan_YenTho_' + new Date().toISOString().slice(0,10)
                 }
             ],

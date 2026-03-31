@@ -248,4 +248,37 @@ canvas.canvas-responsive { max-width: 100%; height: auto; }
     box-shadow: 0 0 0 0.25rem rgba(16, 185, 129, 0.2);
 }
 
+/* ============================================
+   STATUS DOT — Chấm tròn trạng thái hồ sơ
+   Dùng trong bảng danh sách (Staff & Admin)
+   ============================================ */
+.status-dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    vertical-align: middle;
+    margin-right: 5px;
+    flex-shrink: 0;
+    position: relative;
+}
+
+/* Đã kích hoạt → Xanh lá + animation pulse */
+.status-dot.active {
+    background-color: #10b981;
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.5);
+    animation: pulse-green 2s infinite;
+}
+
+/* Chưa kích hoạt → Đỏ tĩnh */
+.status-dot.inactive {
+    background-color: #ef4444;
+    box-shadow: none;
+}
+
+@keyframes pulse-green {
+    0%   { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.5); }
+    70%  { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
 
