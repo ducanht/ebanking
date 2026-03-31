@@ -38,9 +38,9 @@
                     <div id="login-box" class="glass-card p-4 mx-auto w-100 shadow-lg">
                 <div class="text-center mb-4">
                     <img src="logo.png" class="app-logo-large mb-3" alt="Logo Quỹ Yên Thọ" title="Logo Quỹ Yên Thọ">
-                    <h3 class="fw-bold text-primary">QUỸ TÍN DỤNG NHÂN DÂN YÊN THỌ</h3>
-                    <p class="text-muted small">Hệ Thống Quản Lý</p>
-                </div>            <p class="text-secondary small">Hệ thống QL Chỉ tiêu Mở Tài khoản</p>
+                    <h5 class="fw-bold text-primary mb-2">QUỸ TÍN DỤNG NHÂN DÂN YÊN THỌ</h5>
+                    <div class="login-badge shadow-sm">Hệ Thống Quản Lý Chỉ Tiêu Mở Tài Khoản</div>
+                </div>
                         </div>
                         <form id="frm-login">
                             <div class="mb-3">
@@ -96,33 +96,44 @@
             </div>
             <!-- KPIs -->
             <div class="row g-3 mb-4">
-                <div class="col-12 col-md-3">
-                    <div class="glass-card p-3 border-start border-primary border-4 h-100 d-flex flex-column justify-content-center shadow-sm">
-                        <p class="text-muted mb-1 fw-semibold small text-uppercase">TỔNG TÀI KHOẢN</p>
+                <div class="col-6 col-md-3">
+                    <div class="glass-card p-3 border-start border-primary border-4 h-100 shadow-sm">
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            <div class="icon-box-sm bg-primary-subtle text-primary"><i class="bx bx-collection"></i></div>
+                            <h6 class="text-muted mb-0 small text-uppercase">TỔNG HỒ SƠ</h6>
+                        </div>
                         <h3 class="fw-bold text-primary mb-0" id="db-total">0</h3>
-                        <small class="text-secondary mt-1"><span id="db-ca-nhan-sub" class="fw-bold text-info">0</span> Cá nhân | <span id="db-hkd-sub" class="fw-bold text-warning">0</span> Hộ KD</small>
                     </div>
                 </div>
-                <div class="col-12 col-md-3">
-                    <div class="glass-card p-3 border-start border-success border-4 h-100 d-flex flex-column justify-content-center shadow-sm">
-                        <p class="text-muted mb-1 fw-semibold small text-uppercase">ĐÃ KÍCH HOẠT</p>
+                <div class="col-6 col-md-3">
+                    <div class="glass-card p-3 border-start border-success border-4 h-100 shadow-sm">
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            <div class="icon-box-sm bg-success-subtle text-success"><i class="bx bx-check-double"></i></div>
+                            <h6 class="text-muted mb-0 small text-uppercase">ĐÃ KÍCH HOẠT</h6>
+                        </div>
                         <h3 class="fw-bold text-success mb-0" id="db-activated">0</h3>
                     </div>
                 </div>
-                <div class="col-12 col-md-3">
-                    <div class="glass-card p-3 border-start border-warning border-4 h-100 d-flex flex-column justify-content-center shadow-sm">
-                        <p class="text-muted mb-1 fw-semibold small text-uppercase">CHƯA KÍCH HOẠT</p>
+                <div class="col-6 col-md-3">
+                    <div class="glass-card p-3 border-start border-warning border-4 h-100 shadow-sm">
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            <div class="icon-box-sm bg-warning-subtle text-warning"><i class="bx bx-time-five"></i></div>
+                            <h6 class="text-muted mb-0 small text-uppercase">CHƯA KÍCH HOẠT</h6>
+                        </div>
                         <h3 class="fw-bold text-warning mb-0" id="db-inactive">0</h3>
                     </div>
                 </div>
-                <div class="col-12 col-md-3 d-none d-md-block">
-                    <!-- Placeholder or additional metric if needed, currently 3 cards + 1 extra to fill row? 
-                         Let's just use 4 cards: Total, Activated, Inactive, and maybe keep Ca Nhan/HKD split as a separate card or combined.
-                         Wait, let's just make it 4 columns: Total, Activated, Inactive, and types. -->
-                    <div class="glass-card p-3 border-start border-info border-4 h-100 d-flex flex-column justify-content-center shadow-sm">
-                         <p class="text-muted mb-1 fw-semibold small text-uppercase">LOẠI HÌNH</p>
-                         <h5 class="fw-bold text-dark mb-0"><span id="db-ca-nhan">0</span> Cá nhân</h5>
-                         <h5 class="fw-bold text-dark mb-0"><span id="db-hkd-count">0</span> Hộ KD</h5>
+                <div class="col-6 col-md-3">
+                    <div class="glass-card p-3 border-start border-info border-4 h-100 shadow-sm">
+                        <h6 class="text-muted mb-2 small text-uppercase fw-bold">PHÂN BỔ LOẠI HÌNH</h6>
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="small fw-semibold"><i class="bx bx-user text-info"></i> Cá nhân: <span id="db-canhan" class="fw-bold">0</span></span>
+                            <span class="small fw-semibold"><i class="bx bx-store text-warning"></i> Hộ KD: <span id="db-hkd" class="fw-bold">0</span></span>
+                        </div>
+                        <div class="progress mt-2" style="height: 6px; border-radius: 10px;">
+                            <div id="db-prog-canhan" class="progress-bar bg-info" role="progressbar" style="width: 50%"></div>
+                            <div id="db-prog-hkd" class="progress-bar bg-warning" role="progressbar" style="width: 50%"></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -164,9 +175,9 @@
                                     <tr>
                                         <th>THỜI GIAN</th>
                                         <th>HỌ TÊN</th>
+                                        <th>SỐ TÀI KHOẢN</th>
                                         <th>LOẠI HÌNH</th>
-                                        <th>SỐ TK</th>
-                                        <th class="d-none">EMAIL CB</th>
+                                        <th>SỐ ĐIỆN THOẠI</th>
                                         <th>CÁN BỘ</th>
                                         <th class="text-end">CHI TIẾT</th>
                                     </tr>
@@ -363,33 +374,48 @@
                     </button>
                 </div>
             </div>
-            <div class="row g-3 mb-4" id="staff-dashboard-cards">
+            <div class="row g-3 mb-4">
                 <div class="col-6 col-md-3">
-                    <div class="glass-card p-3 text-center border-start border-4 border-primary h-100 shadow-sm align-content-center">
-                        <h6 class="text-muted mb-1 small text-uppercase font-size-10">TỔNG HỒ SƠ</h6>
-                        <h3 class="fw-bold text-primary mb-0" id="staffDash-total"><i class='bx bx-loader-alt bx-spin'></i></h3>
-                        <small class="text-secondary" style="font-size: 0.65rem;">
-                            <span id="staffDash-canhan" class="fw-bold text-info">0</span> Cá nhân | <span id="staffDash-hkd" class="fw-bold text-warning">0</span> Hộ KD
-                        </small>
+                    <div class="glass-card p-3 border-start border-4 border-primary h-100 shadow-sm">
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            <div class="icon-box-sm bg-primary-subtle text-primary"><i class="bx bx-list-check"></i></div>
+                            <h6 class="text-muted mb-0 small text-uppercase fw-bold">TỔNG HỒ SƠ</h6>
+                        </div>
+                        <h3 class="fw-bold text-primary mb-0" id="staffDash-total">0</h3>
+                        <div class="progress mt-2" style="height: 4px;">
+                            <div id="staffDash-prog-canhan" class="progress-bar bg-info" role="progressbar" style="width: 50%"></div>
+                            <div id="staffDash-prog-hkd" class="progress-bar bg-warning" role="progressbar" style="width: 50%"></div>
+                        </div>
+                        <div class="d-flex justify-content-between mt-1" style="font-size: 0.65rem;">
+                            <span>Cá nhân: <b id="staffDash-canhan">0</b></span>
+                            <span>Hộ KD: <b id="staffDash-hkd">0</b></span>
+                        </div>
                     </div>
                 </div>
                 <div class="col-6 col-md-3">
-                    <div class="glass-card p-3 text-center border-start border-4 border-success h-100 shadow-sm align-content-center">
-                        <h6 class="text-muted mb-1 small text-uppercase font-size-10">ĐÃ KÍCH HOẠT</h6>
+                    <div class="glass-card p-3 border-start border-4 border-success h-100 shadow-sm d-flex flex-column justify-content-center">
+                        <div class="d-flex align-items-center gap-2 mb-1">
+                            <div class="icon-box-sm bg-success-subtle text-success"><i class="bx bx-check-circle"></i></div>
+                            <h6 class="text-muted mb-0 small text-uppercase fw-bold">ĐÃ KÍCH HOẠT</h6>
+                        </div>
                         <h3 class="fw-bold text-success mb-0" id="staffDash-activated">0</h3>
                     </div>
                 </div>
                 <div class="col-6 col-md-3">
-                    <div class="glass-card p-3 text-center border-start border-4 border-warning h-100 shadow-sm align-content-center">
-                        <h6 class="text-muted mb-1 small text-uppercase font-size-10">CHƯA KÍCH HOẠT</h6>
+                    <div class="glass-card p-3 border-start border-4 border-warning h-100 shadow-sm d-flex flex-column justify-content-center">
+                        <div class="d-flex align-items-center gap-2 mb-1">
+                            <div class="icon-box-sm bg-warning-subtle text-warning"><i class="bx bx-time-five"></i></div>
+                            <h6 class="text-muted mb-0 small text-uppercase fw-bold">CHƯA KÍCH HOẠT</h6>
+                        </div>
                         <h3 class="fw-bold text-warning mb-0" id="staffDash-inactive">0</h3>
                     </div>
                 </div>
                 <div class="col-6 col-md-3">
-                    <div class="glass-card p-2 text-center bg-white border border-danger h-100 shadow-sm align-content-center">
-                        <h6 class="text-muted mb-1 small text-uppercase font-size-10"><i class='bx bxs-crown text-danger'></i> Hạng của tôi</h6>
-                        <h5 class="fw-bold text-dark mb-0" id="staffDash-rank">--</h5>
-                        <p class="mb-0 small text-secondary mt-1" id="staffDash-aboveRankInfo" style="font-size: 0.7rem;"></p>
+                    <div class="glass-card p-3 bg-white border border-danger h-100 shadow-sm d-flex flex-column justify-content-center position-relative overflow-hidden">
+                        <div class="position-absolute top-0 end-0 p-2 opacity-10"><i class='bx bxs-crown fs-1 text-danger'></i></div>
+                        <h6 class="text-muted mb-1 small text-uppercase fw-bold">HẠNG CỦA TÔI</h6>
+                        <h4 class="fw-bold text-dark mb-0" id="staffDash-rank">--</h4>
+                        <p class="mb-0 small text-secondary" id="staffDash-aboveRankInfo" style="font-size: 0.7rem;"></p>
                     </div>
                 </div>
             </div>
@@ -401,7 +427,7 @@
             <div class="glass-card p-3 p-md-4">
                 <div class="table-responsive">
                     <table id="tblMyCustomers" class="table table-hover dt-responsive nowrap w-100 align-middle">
-                        <thead><tr><th>THỜI GIAN</th><th>Họ TÊN</th><th>CCCD</th><th>SỐ ĐKKD</th><th>LOẠI HÌNH</th><th>SỐ ĐIỆN THOẠI</th><th>TÊN CÁN BỘ</th><th>NGÀY MỞ TK</th><th>SỐ TÀI KHOẢN</th><th class="text-end">XEM</th></tr></thead>
+                        <thead><tr><th>THỜI GIAN</th><th>HỌ TÊN</th><th>SỐ TÀI KHOẢN</th><th>LOẠI HÌNH</th><th>SỐ ĐIỆN THOẠI</th><th class="text-end">XEM</th></tr></thead>
                         <tbody id="tbMyCustomersBody"></tbody>
                     </table>
                 </div>

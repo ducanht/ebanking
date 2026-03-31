@@ -1175,11 +1175,18 @@ async function initDashboard() {
 }
 
 function renderAdminStats(s) {
-    $('#admin-total').text(s.total || 0);
-    $('#admin-canhan').text(s.caNhan || 0);
-    $('#admin-hkd').text(s.hkd || 0);
-    $('#admin-activated').text(s.activated || 0);
-    $('#admin-inactive').text(s.inactive || 0);
+    $('#db-total').text(s.total || 0);
+    $('#db-canhan').text(s.caNhan || 0);
+    $('#db-hkd').text(s.hkd || 0);
+    $('#db-activated').text(s.activated || 0);
+    $('#db-inactive').text(s.inactive || 0);
+    
+    // Update progress bars
+    const total = s.total || 1; // tránh chia cho 0
+    const cnPct = Math.round((s.caNhan || 0) / total * 100);
+    const hkdPct = 100 - cnPct;
+    $('#db-prog-canhan').css('width', cnPct + '%').attr('aria-valuenow', cnPct);
+    $('#db-prog-hkd').css('width', hkdPct + '%').attr('aria-valuenow', hkdPct);
 }
 
 function renderAdminTopStaff(allStaffs) {
@@ -1251,13 +1258,16 @@ function renderAdminTable(allData, allStaffs) {
         const staffEmail = (d['Cán bộ thực hiện'] || '').toString().trim();
         const staffName  = staffMap[staffEmail] || staffEmail;
         const rowId      = (d['ID'] || d['Mã GD'] || '').toString().trim().replace(/^'/, '');
+        const isActivated = (d['Trạng thái'] === 'Đã kích hoạt');
+        const statusDot = `<span class="status-dot ${isActivated ? 'active' : 'inactive'}" title="${d['Trạng thái'] || 'Chưa kích hoạt'}"></span>`;
+        
         return `
-            <tr data-id="${rowId}" class="clickable-row cursor-pointer" style="cursor:pointer" onclick="openEditCustomerModal('${rowId}')">
+            <tr data-id="${rowId}" class="clickable-row cursor-pointer" onclick="openEditCustomerModal('${rowId}')">
                 <td><small class="text-muted">${utils_formatVN(d['Thời điểm nhập'], 'date')}</small></td>
                 <td class="fw-bold text-dark">${utils_escapeHTML(d['Tên khách hàng'] || '')}</td>
-                <td><span class="badge bg-light text-dark border">${utils_escapeHTML(d['Loại hình dịch vụ'] || 'Cá nhân')}</span></td>
                 <td class="text-secondary"><small>${utils_escapeHTML((d['Số tài khoản'] || '').toString().replace(/^'/, ''))}</small></td>
-                <td class="d-none">${utils_escapeHTML(staffEmail)}</td>
+                <td>${statusDot} <span class="badge bg-light text-dark border">${utils_escapeHTML(d['Loại hình dịch vụ'] || 'Cá nhân')}</span></td>
+                <td><small>${utils_escapeHTML(d['Số điện thoại'] || '')}</small></td>
                 <td><small>${utils_escapeHTML(staffName)}</small></td>
                 <td class="text-end"><button class="btn btn-sm btn-outline-primary px-2 btn-detail" onclick="openEditCustomerModal('${rowId}'); event.stopPropagation();"><i class="bx bx-info-circle"></i></button></td>
             </tr>`;
@@ -1301,7 +1311,6 @@ function renderAdminTable(allData, allStaffs) {
         language: { url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json" },
         search: { caseInsensitive: true, smart: true }, // Bỏ searchDelay để đạt "tức thời"
         columnDefs: [
-            { targets: [4], visible: false, searchable: true },   // Email CB (dùng để lọc)
             { targets: [6], orderable: false, searchable: false }  // Nút thao tác
         ]
     });

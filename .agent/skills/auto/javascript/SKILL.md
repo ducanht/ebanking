@@ -1,6 +1,6 @@
 ---
 name: javascript
-description: "Javascript for ebanking. 3 gotchas, 20 conventions, 43 fixes."
+description: "Javascript for ebanking. 3 gotchas, 20 conventions, 45 fixes."
 domain: javascript
 triggers:
   - glob: "**/*.js"
@@ -11,7 +11,7 @@ enabled: true
 
 # Javascript
 
-Auto-compiled from **97 real patterns** in **ebanking**. This skill is auto-routed to agents when working on javascript files.
+Auto-compiled from **99 real patterns** in **ebanking**. This skill is auto-routed to agents when working on javascript files.
 
 ## ⚠️ Anti-Patterns & Gotchas
 
@@ -24,6 +24,44 @@ Auto-compiled from **97 real patterns** in **ebanking**. This skill is auto-rout
 | ⚠️ GOTCHA: Patched security issue EVENT — prevents | -  + // --- CẤU HÌNH EVENT DELEGATION: XỬ LÝ CLICK XEM CHI TIẾT --- - /** + $(document).on('click',  |
 
 ## 🔧 Problem Playbooks
+
+### Fixed null crash in Update — prevents XSS injection attacks
+-     renderStaffLineChart(timeline);
++     // Update progress bars
+- }
++     const t = total || 1;
+- 
++     const cnPct = Math.round(caNhan / t * 100);
+- function updateStaffRankings(adminData, email) {
++     const hkdPct = 100 - cnPct;
+-     if(!adminData || !adminData.allStaffs) {
++     $('#staffDash-prog-canhan').css('width', cnPct + '%').attr('aria-valuenow', cnPct);
+-         $('#staffDash-r
+
+**Actionable Steps:**
+1. Modified 1 files
+2. identifier: Update
+3. identifier: Math
+4. identifier: Date
+5. identifier: String
+
+### Patched security issue Update — prevents XSS injection attacks
+-     $('#admin-total').text(s.total || 0);
++     $('#db-total').text(s.total || 0);
+-     $('#admin-canhan').text(s.caNhan || 0);
++     $('#db-canhan').text(s.caNhan || 0);
+-     $('#admin-hkd').text(s.hkd || 0);
++     $('#db-hkd').text(s.hkd || 0);
+-     $('#admin-activated').text(s.activated || 0);
++     $('#db-activated').text(s.activated || 0);
+-     $('#admin-inactive').text(s.inactive || 0)
+
+**Actionable Steps:**
+1. Modified 1 files
+2. identifier: Update
+3. identifier: Math
+4. identifier: Chart
+5. identifier: DataTable
 
 ### Patched security issue Chart — prevents XSS injection attacks
 -     $('#db-total').text(s.total || 0);
@@ -310,36 +348,6 @@ Auto-compiled from **97 real patterns** in **ebanking**. This skill is auto-rout
 ### Fixed null crash in DataTable — wraps unsafe operation in error boundary
 -         const rowId      = (d['ID'] || d['Mã GD'] || '').toString().trim().replace(/^'/, '');
 +         const rowId      = (d['ID'] || d['Mã GD'] || '').toString().trim().replace(/^[']*/, '');
--             <tr data-id="${rowId}" class="clickable-row cursor-pointer" style="cursor:pointer" onclick="openEditCustomerModal('${rowId}')">
-+             <tr data-id="${rowId}" class="clickable-row curso
-
-**Actionable Steps:**
-1. Modified 1 files
-2. identifier: Chi
-3. identifier: DataTable
-4. identifier: Excel
-5. identifier: Email
-
-### Fixed null crash in DataTable — prevents XSS injection attacks
--             <tr data-id="${rowId}" class="clickable-row cursor-pointer" onclick="openEditCustomerModal('${rowId}')">
-+             <tr data-id="${rowId}" class="clickable-row cursor-pointer">
--                 <td class="text-end"><button class="btn btn-sm btn-outline-primary shadow-sm btn-detail" onclick="openEditCustomerModal('${rowId}'); event.stopPropagation();"><i class="bx bx-search-alt"><
-
-**Actionable Steps:**
-1. Modified 1 files
-2. identifier: Xem
-3. identifier: Chi
-4. identifier: DataTable
-5. identifier: Excel
-
-### Fixed null crash in JSON
-- const AppState = {
-+ let parsedUser = null;
--     user: JSON.parse(localStorage.getItem('HOKINHDOANH_SESSION')) || null,
-+ try {
--     VERSION: "2.1.2-STABLE",
-+     const rawUser = localStorage.getItem('HOKINHDOANH_SESSION');
--     apiBase: "",
-
+-             <t
 
 ... [Truncated — see individual observations for full content]

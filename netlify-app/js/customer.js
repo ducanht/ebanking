@@ -78,6 +78,13 @@ function renderStaffDashboardLocal(data) {
     $('#staffDash-activated').text(activated);
     $('#staffDash-inactive').text(inactive);
 
+    // Update progress bars
+    const t = total || 1;
+    const cnPct = Math.round(caNhan / t * 100);
+    const hkdPct = 100 - cnPct;
+    $('#staffDash-prog-canhan').css('width', cnPct + '%').attr('aria-valuenow', cnPct);
+    $('#staffDash-prog-hkd').css('width', hkdPct + '%').attr('aria-valuenow', hkdPct);
+
     renderStaffLineChart(timeline);
 }
 
@@ -185,17 +192,15 @@ function renderStaffLineChart(timeline) {
 function renderMyCustomersTable(data) {
     const html = data.sort((a,b) => (new Date(b['Thời điểm nhập']) || 0) - (new Date(a['Thời điểm nhập']) || 0)).map(d => {
         const rowId = (d.ID || d['Mã GD'] || '').toString().replace(/^'/, '');
+        const isActivated = (d['Trạng thái'] === 'Đã kích hoạt');
+        const statusDot = `<span class="status-dot ${isActivated ? 'active' : 'inactive'}" title="${d['Trạng thái'] || 'Chưa kích hoạt'}"></span>`;
         return `
             <tr data-id="${rowId}" class="clickable-row cursor-pointer">
                 <td><small class="text-muted">${utils_formatVN(d['Thời điểm nhập'], 'date')}</small></td>
-                <td class="fw-bold">${utils_escapeHTML(d['Tên khách hàng'])}</td>
-                <td><small>${utils_escapeHTML(d['Số CCCD'])}</small></td>
-                <td><small>${utils_escapeHTML(d['Số GP ĐKKD'] || '')}</small></td>
-                <td><span class="badge bg-light text-dark border">${utils_escapeHTML(d['Loại hình dịch vụ'])}</span></td>
+                <td class="fw-bold text-dark">${utils_escapeHTML(d['Tên khách hàng'])}</td>
+                <td class="text-secondary"><small>${utils_escapeHTML(d['Số TK'] || d['Số tài khoản'] || '')}</small></td>
+                <td>${statusDot} <span class="badge bg-light text-dark border">${utils_escapeHTML(d['Loại hình dịch vụ'])}</span></td>
                 <td><small>${utils_escapeHTML(d['Số điện thoại'])}</small></td>
-                <td>${AppState.user ? utils_escapeHTML(AppState.user.name) : utils_escapeHTML(d['Cán bộ thực hiện'] || '')}</td>
-                <td><small>${utils_escapeHTML(d['Ngày mở TK'] || d['Ngày mở'] || '')}</small></td>
-                <td><small>${utils_escapeHTML(d['Số TK'] || d['Số tài khoản'] || '')}</small></td>
                 <td class="text-end">
                     <button class="btn btn-sm btn-outline-primary shadow-sm btn-detail" title="Xem chi tiết">
                         <i class="bx bx-search-alt"></i> <span class="d-none d-sm-inline">Chi tiết</span>
@@ -230,8 +235,7 @@ function renderMyCustomersTable(data) {
             language: { url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json" },
             search: { caseInsensitive: true, smart: true },
             columnDefs: [
-                { targets: [3, 6, 7, 8], visible: false },
-                { targets: [9], orderable: false, searchable: false }
+                { targets: [5], orderable: false, searchable: false }
             ]
         });
     }

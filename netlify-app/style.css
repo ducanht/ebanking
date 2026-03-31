@@ -189,6 +189,15 @@ body {
 .chart-container-monthly { position: relative; height: 240px; }
 canvas.canvas-responsive { max-width: 100%; height: auto; }
 .quad-handle { cursor: move; stroke-width: 2; }
+.icon-box-sm { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 8px; font-size: 1.2rem; }
+.bg-primary-subtle { background-color: rgba(16, 185, 129, 0.1) !important; }
+.bg-info-subtle { background-color: rgba(13, 202, 240, 0.1) !important; }
+.bg-warning-subtle { background-color: rgba(255, 193, 7, 0.1) !important; }
+.bg-success-subtle { background-color: rgba(25, 135, 84, 0.1) !important; }
+.status-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 6px; }
+.status-dot.active { background-color: #10b981; box-shadow: 0 0 8px rgba(16, 185, 129, 0.5); }
+.status-dot.inactive { background-color: #ef4444; box-shadow: 0 0 8px rgba(239, 68, 68, 0.5); }
+.login-badge { display: inline-block; padding: 6px 16px; background: rgba(16, 185, 129, 0.08); color: var(--emerald); border-radius: 20px; font-size: 0.85rem; font-weight: 600; border: 1px solid rgba(16, 185, 129, 0.2); }
 
 /* Premium Depth Enhancements */
 .glass-card {
