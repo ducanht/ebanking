@@ -1,5 +1,5 @@
 # ebanking — Project Memory
-# Auto-synced | 354 observations
+# Auto-synced | 361 observations
 
 **Stack:** Unknown stack
 
@@ -22,6 +22,7 @@
 
 # 📐 Conventions
 
+- Git Commit: feat: implement manual activation and update dashboards v2.1 — confirmed 3x
 - Git Commit: Update v2.1.6-STABLE: Registration hardening and editing log — confirmed 3x
 - Version your API from day 1 (/api/v1/)
 - Use consistent response format across all endpoints
@@ -29,7 +30,6 @@
 - Handle timezone correctly — store UTC, display in user's timezone
 - Make layouts responsive from the start — mobile-first approach
 - Disable submit button during form submission — prevent double-submit
-- Always add empty states ("No items yet" with call-to-action)
 
 # ⚡ Available Tools (ON-DEMAND only)
 - `save(title, content, category)` — Save a note + auto-detect conflicts

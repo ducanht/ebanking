@@ -1521,11 +1521,19 @@ function openEditCustomerModal(id) {
         const status = row['Trạng thái'] || '';
         $('#edit_is_activated').prop('checked', status === 'Đã kích hoạt');
 
-        // Bỏ hoàn toàn việc khóa sửa. Mọi User (Staff/Admin) đều có thể sửa hồ sơ.
-        $('#btnSaveEdit').show();
-        $('#frmEditCustomer input').prop('readonly', false);
-        $('.modal-title').html(`<i class='bx bxs-edit-alt text-white'></i> Chi tiết & Chỉnh sửa hồ sơ`);
-        
+        // Phân quyền: Mật khẩu và chỉnh sửa chỉ khả dụng cho Staff
+        if (AppState.user && AppState.user.role === 'Admin') {
+            $('#btnSaveEdit').hide();
+            $('#frmEditCustomer input').prop('readonly', true);
+            $('#frmEditCustomer select, #frmEditCustomer input[type="checkbox"]').prop('disabled', true);
+            $('.modal-title').html(`<i class='bx bx-info-circle text-white'></i> Chi tiết hồ sơ khách hàng`);
+        } else {
+            $('#btnSaveEdit').show();
+            $('#frmEditCustomer input').prop('readonly', false);
+            $('#frmEditCustomer select, #frmEditCustomer input[type="checkbox"]').prop('disabled', false);
+            $('.modal-title').html(`<i class='bx bxs-edit-alt text-white'></i> Chi tiết & Chỉnh sửa hồ sơ`);
+        }
+
         if (status === 'Đã kích hoạt') {
             $('.modal-title').append(` <span class="badge bg-success small"><i class="bx bxs-check-circle"></i> Đã kích hoạt</span>`);
         } else {

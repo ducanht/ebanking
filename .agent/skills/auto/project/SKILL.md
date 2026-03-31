@@ -1,6 +1,6 @@
 ---
 name: project
-description: "Project for ebanking. 19 gotchas, 45 conventions, 17 fixes."
+description: "Project for ebanking. 19 gotchas, 46 conventions, 17 fixes."
 domain: project
 triggers:
   - glob: "**/*"
@@ -10,7 +10,7 @@ enabled: true
 
 # Project
 
-Auto-compiled from **192 real patterns** in **ebanking**. This skill is auto-routed to agents when working on project files.
+Auto-compiled from **193 real patterns** in **ebanking**. This skill is auto-routed to agents when working on project files.
 
 ## ⚠️ Anti-Patterns & Gotchas
 
