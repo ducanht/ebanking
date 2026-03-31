@@ -57,15 +57,15 @@ function initMoTaiKhoanForm() {
 
 function toggleFormFields() {
     const isHKD = $('#loai_hinh').val() === 'Hộ kinh doanh';
-    const targets = $('#div_dkkd, #div_img_dkkd, #div_ten_dang_nhap');
+    const targets = $('#div_dkkd, #div_img_dkkd, #div_ten_dang_nhap, #div_mat_khau');
     
     if (isHKD) {
         targets.hide().removeClass('initially-hidden').fadeIn(400);
-        $('#dkkd, #img_dkkd').prop('required', true);
+        $('#dkkd, #img_dkkd, #ten_dang_nhap').prop('required', true);
         $('#dkkd').addClass('border-primary shadow-sm');
     } else {
         targets.fadeOut(300);
-        $('#dkkd, #img_dkkd').prop('required', false);
+        $('#dkkd, #img_dkkd, #ten_dang_nhap').prop('required', false);
         $('#dkkd').removeClass('border-primary shadow-sm');
     }
 }
@@ -93,16 +93,18 @@ async function handleRegistration(e) {
         { id: 'img_thuchien', label: 'Ảnh thực hiện' }
     ];
 
+    const getSafeVal = (id) => ($(`#${id}`).val() || "").trim();
+
     const data = {
         action: "api_submitregistration",
         email: AppState.user.email,
         loai_hinh: $('#loai_hinh').val(),
-        ten_kh: $('#ten_kh').val().trim(),
-        cccd: $('#cccd').val().trim(),
-        dkkd: $('#dkkd').val().trim(),
-        sdt: $('#sdt').val().trim(),
-        so_tk: '3800200' + $('#so_tk').val().trim(),
-        ten_dang_nhap: $('#ten_dang_nhap').val().trim(),
+        ten_kh: getSafeVal('ten_kh'),
+        cccd: getSafeVal('cccd'),
+        dkkd: getSafeVal('dkkd'),
+        sdt: getSafeVal('sdt'),
+        so_tk: '3800200' + getSafeVal('so_tk'),
+        ten_dang_nhap: getSafeVal('ten_dang_nhap'),
         ngay_mo: $('#ngay_mo').val(),
         mat_khau: $('#mat_khau').val() || ""
     };
@@ -117,11 +119,12 @@ async function handleRegistration(e) {
         progressPct.text(`${pct}%`);
     };
 
-    const compressWithTimeout = (file, slotLabel, ms = 25000) => {
+    const compressWithTimeout = (file, slotLabel, ms = 15000) => {
+        console.log(`[COMPRESS] Bắt đầu nén ${slotLabel}...`);
         const options = {
             maxSizeMB: 0.8,
             maxWidthOrHeight: 2048,
-            useWebWorker: true,
+            useWebWorker: false,
             onProgress: (pct) => {
                 const currentPct = Math.round(pct);
                 updateUIProgress(`Đang tối ưu ảnh (${currentPct}%)...`, Math.round(((currentStep - 1) / totalSteps) * 100 + (currentPct / totalSteps)));
@@ -129,7 +132,10 @@ async function handleRegistration(e) {
         };
         return Promise.race([
             imageCompression(file, options),
-            new Promise((_, reject) => setTimeout(() => reject(new Error("TIMEOUT")), ms))
+            new Promise((_, reject) => setTimeout(() => {
+                console.warn(`[COMPRESS] Timeout ${slotLabel} (${ms}ms)`);
+                reject(new Error("TIMEOUT"));
+            }, ms))
         ]);
     };
 
@@ -149,8 +155,8 @@ async function handleRegistration(e) {
             data[slot.id] = await imageCompression.getDataUrlFromFile(compressed);
         } catch (err) {
             if (err.message === "TIMEOUT") {
-                console.warn(`Nén ${slot.label} quá thời gian, dùng ảnh gốc.`);
-                progressLabel.text(`Bỏ qua nén ${slot.label} (quá 10s)...`);
+                console.warn(`Nén ${slotLabel} quá thời gian, dùng ảnh gốc.`);
+                progressLabel.text(`Bỏ qua nén ${slot.label} (quá 15s)...`);
             } else {
                 console.error(`Lỗi nén ${slot.label}:`, err);
             }

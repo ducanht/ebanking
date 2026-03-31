@@ -1,7 +1,7 @@
 
 
 # Project Memory — ebanking
-> 295 notes | Score threshold: >40
+> 314 notes | Score threshold: >40
 
 ## Safety — Never Run Destructive Commands
 
@@ -22,32 +22,17 @@
 
 - **⚠️ GOTCHA: Added session cookies authentication — adds runtime type validation before use** — -  * NETLIFY HIGH-FIDELITY APP ENGINE (app.js)
 +  * MÃ NGUỒN FRONTEND 
-- **⚠️ GOTCHA: Patched security issue EVENT — prevents XSS injection attacks** — - 
-+ // --- CẤU HÌNH EVENT DELEGATION: XỬ LÝ CLICK XEM CHI TIẾT ---
-- 
-- **⚠️ GOTCHA: Patched security issue VERSION — prevents XSS injection attacks** — -     VERSION: "2.1.1-PATCHED",
-+     VERSION: "2.1.2-STABLE",
-- 
-+ //
-
-## Active: `netlify-app`
-
-- **⚠️ GOTCHA: Added session cookies authentication — adds runtime type validation before use**
-- **what-changed in index.html — confirmed 3x**
-- **⚠️ GOTCHA: Patched security issue EVENT — prevents XSS injection attacks**
-- **Strengthened types Admin — adds runtime type validation before use**
-- **what-changed in index.html — confirmed 3x**
 
 ## Project Standards
 
+- Fixed null crash in AppState — offloads heavy computation off the main thread — confirmed 3x
+- what-changed in scratchpad_ic059k5m.md.resolved — confirmed 3x
+- Replaced auth Login — confirmed 3x
+- Added session cookies authentication — confirmed 3x
+- Fixed null crash in CCCD — offloads heavy computation off the main thread — confirmed 7x
+- Fixed null crash in Object — offloads heavy computation off the main thread — confirmed 4x
+- 🟢 Edited netlify-app/app.js (5 changes, 29min) — confirmed 3x
 - what-changed in index.html — confirmed 3x
-- Strengthened types Admin — adds runtime type validation before use
-- what-changed in index.html — confirmed 3x
-- what-changed in index.html — confirmed 3x
-- convention in index.html
-- Replaced auth CCCD — adds runtime type validation before use — confirmed 3x
-- Strengthened types Kinh — adds runtime type validation before use
-- Strengthened types GIAN — adds runtime type validation before use
 
 ## Known Fixes
 
@@ -59,10 +44,10 @@
 
 ## Recent Decisions
 
+- Optimized Modal — ensures atomic multi-step database operations
 - decision in index.html
-- decision in app.js
-- decision in style.css
-- decision in style.css
+- decision in registration.js
+- Optimized Danh — ensures atomic multi-step database operations
 
 ## Verified Best Practices
 

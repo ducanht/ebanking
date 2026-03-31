@@ -1,6 +1,6 @@
 ---
 name: project
-description: "Project for ebanking. 19 gotchas, 39 conventions, 14 fixes."
+description: "Project for ebanking. 19 gotchas, 41 conventions, 15 fixes."
 domain: project
 triggers:
   - glob: "**/*"
@@ -10,7 +10,7 @@ enabled: true
 
 # Project
 
-Auto-compiled from **162 real patterns** in **ebanking**. This skill is auto-routed to agents when working on project files.
+Auto-compiled from **177 real patterns** in **ebanking**. This skill is auto-routed to agents when working on project files.
 
 ## ⚠️ Anti-Patterns & Gotchas
 
@@ -39,6 +39,17 @@ Auto-compiled from **162 real patterns** in **ebanking**. This skill is auto-rou
 | Never force push to main, master, or production br | Never force push to main, master, or production branches |
 
 ## 🔧 Problem Playbooks
+
+### problem-fix in scratchpad_7neh669b.md
+- - [ ] Verify record in 'Hồ sơ'
++ - [x] Verify record in 'Hồ sơ' - FAILED: Record "NGUYEN VAN TEST OPENCV" not found.
+- - Record found in History: [ ]
++ - Record found in History: [ ] No, search returned no results.
+
+📌 IDE AST Context: Modified symbols likely include [# Task: Test Registration, OpenCV, and Image Compression]
+
+**Actionable Steps:**
+1. Modified 1 files
 
 ### problem-fix in scratchpad_k0x6k620.md
 - - [ ] Test 'Chi tiết' button in 'Lịch Sử Mở Mới' (Dashboard)
@@ -263,24 +274,16 @@ Auto-compiled from **162 real patterns** in **ebanking**. This skill is auto-rou
 ## 📐 Conventions & Best Practices
 
 ### Project Conventions
+- 📐 **what-changed in scratchpad_ic059k5m.md.resolved — confirmed 3x** — -     - [/] Back image: upload `test_cccd_placeholder`
++     - [x] Back image: upload `test_cccd_pla
+- 📐 **Replaced auth Login — confirmed 3x** — - - [ ] Login as Staff: qtdyentho.thaobui@gmail.com / Qtd@2003
++ - [x] Login as Staff: qtdyentho.tha
 - 📐 **Added session cookies authentication — confirmed 3x** — - - [!] Test 'Chi tiết' button in 'Lịch Sử Mở Mới' (Dashboard) - FAILED (Element not found)
 + - [!] 
 - 📐 **Patched security issue CCCD — adds runtime type validation before use — confirmed 4x** — - function checkDuplicateAccount(cccd, dkkd, sdt, loaiHinh) {
 + function checkDuplicateAccount(cccd,
 - 📐 **problem-fix in task.md.resolved — confirmed 4x** — - - [ ] Cập nhật Backend (`api_admin.gs`): Bao gồm toàn bộ cán bộ trong bảng xếp hạng.
 + - [x] Fix C
-- 📐 **Strengthened types Walkthrough** — - # Walkthrough - Hardening Search and Duplicate Logic
-+ # Walkthrough - Fixing Customer Info Displa
-- 📐 **Strengthened types Fixing** — - # Hardening Search and Duplicate Logic
-+ # Fixing Customer Information Display Regression
-- The ob
-- 📐 **Updated renderMyCustomersTable database schema — confirmed 3x** — - - [ ] Hardening Search Logic in Netlify App (`netlify-app/app.js`)
-+ - [x] Hardening Search Logic 
-- 📐 **Strengthened types Hardening** — - # Implementation Plan - Account Uniqueness Logic Adjustment
-+ # Hardening Search and Duplicate Log
-- 📐 **Updated Git database schema — ensures atomic multi-step database operations — confirmed 3x** — - # Task: Emergency Debugging & System Restoration
-+ # Task: Security Audit & Cleanup
-- - [x] Emerge
-- 📐 **Replaced auth 
+- 📐 **Strengthened types Walkthrough** — - # Walkthrough - Hardening Search and Du
 
 ... [Truncated — see individual observations for full content]

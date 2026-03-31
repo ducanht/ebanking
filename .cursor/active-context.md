@@ -2,6 +2,57 @@
 > Dynamically loaded for active file: `netlify-app\index.html` (Domain: **Generic Logic**)
 
 ### 📐 Generic Logic Conventions & Fixes
+- **[what-changed] Replaced auth TDND — adds runtime type validation before use**: -                             <p class="text-muted small mb-1">Phiên bản: v2.1.5-STABLE</p>
++                             <p class="mb-0 text-white-50 small">Quỹ TDND Yên Thọ &copy; 2026. Phiên bản hệ thống v2.1.6-STABLE</p>
+-                         <div class="col-md-6">
++                         <div class="col-md-6 initially-hidden" id="div_ten_dang_nhap">
+-                             <label for="sdt" class="form-label fw-semibold">Số điện thoại</label>
++                             <label for="ten_dang_nhap" class="form-label fw-bold text-primary"><i class="bx bx-user"></i> Tên Đăng Nhập Website (HKD)</label>
+-                             <input type="tel" class="form-control" id="sdt" placeholder="0xxxxxxxxx" pattern="0[0-9]{9}" maxlength="10" title="Số điện thoại phải bắt đầu bằng 0 và đủ 10 chữ số" required onblur="checkDuplicate(this)">
++                             <input type="text" class="form-control border-primary shadow-sm" id="ten_dang_nhap" placeholder="Ví dụ: cuahangtest">
+- 
++                         </div>
+-                             <div class="invalid-feedback">SĐT bắt buộc bắt đầu bằng 0 và đủ 10 chữ số.</div>
++ 
+-                         </div>
++                         <div class="col-md-6 initially-hidden" id="div_mat_khau">
+-                     </div>
++                             <label for="mat_khau" class="form-label fw-bold text-primary"><i class="bx bx-key"></i> Mật khẩu mặc định</label>
+-                     
++                             <input type="text" class="form-control border-primary shadow-sm" id="mat_khau" placeholder="Qtd@2003" value="Qtd@2003">
+-                     <h5 class="fw-bold border-bottom pb-2 mt-4 mb-3 text-secondary"><span class="badge bg-primary rounded-circle">B</span> Thông tin Tài khoản</h5>
++                         </div>
+-                     <div class="row g-3">
++ 
+-                             <label for="so_tk" class="form-label fw-semibold">Số CIF (16 số)</label>
++                             <
+… [diff truncated]
+
+📌 IDE AST Context: Modified symbols likely include [html]
+- **[what-changed] Replaced auth STABLE**: -     <link href="style.css?v=2.1.4" rel="stylesheet">
++     <link href="style.css?v=2.1.5" rel="stylesheet">
+-                             <p class="text-muted small mb-1">Phiên bản: v2.1.4-STABLE</p>
++                             <p class="text-muted small mb-1">Phiên bản: v2.1.5-STABLE</p>
+-     <script src="js/utils.js?v=2.1.4"></script>
++     <script src="js/utils.js?v=2.1.5"></script>
+-     <script src="js/api.js?v=2.1.4"></script>
++     <script src="js/api.js?v=2.1.5"></script>
+-     <script src="js/state.js?v=2.1.4"></script>
++     <script src="js/state.js?v=2.1.5"></script>
+-     <script src="js/auth.js?v=2.1.4"></script>
++     <script src="js/auth.js?v=2.1.5"></script>
+-     <script src="js/camera.js?v=2.1.4"></script>
++     <script src="js/camera.js?v=2.1.5"></script>
+-     <script src="js/registration.js?v=2.1.4"></script>
++     <script src="js/registration.js?v=2.1.5"></script>
+-     <script src="js/customer.js?v=2.1.4"></script>
++     <script src="js/customer.js?v=2.1.5"></script>
+-     <script src="js/dashboard.js?v=2.1.4"></script>
++     <script src="js/dashboard.js?v=2.1.5"></script>
+-     <script src="app.js?v=2.1.4"></script>
++     <script src="app.js?v=2.1.5"></script>
+
+📌 IDE AST Context: Modified symbols likely include [html]
 - **[what-changed] what-changed in index.html**: -     <!-- Modal Camera Live --  >
 +     <!-- Modal Camera Live -->
 
@@ -194,30 +245,6 @@
 -                     </div>
 +                     <div class="glass-card p-4">
 -                     <div class="g
-… [diff truncated]
-
-📌 IDE AST Context: Modified symbols likely include [html]
-- **[convention] what-changed in index.html — confirmed 3x**: -                                 <div class="input-group input-group-sm" style="width: auto;">
-+                                 <div class="input-group input-group-sm w-auto">
--                                 <div class="input-group input-group-sm" style="width: auto;">
-+                                 <div class="input-group input-group-sm w-auto">
-
-📌 IDE AST Context: Modified symbols likely include [html]
-- **[what-changed] Replaced auth Logo**: -                     <div id="login-box" class="glass-card p-4 mx-auto w-100 shadow-lg" style="max-width: 400px; border-top: 4px solid var(--bs-primary);">
-+                     <div id="login-box" class="glass-card p-4 mx-auto w-100 shadow-lg">
--                     <img src="logo.png" class="app-logo mb-3" alt="Logo" style="height: 64px; object-fit: contain;">
-+                     <img src="logo.png" class="app-logo-large mb-3" alt="Logo Quỹ Yên Thọ" title="Logo Quỹ Yên Thọ">
--                         <img src="logo.png" class="app-logo" alt="Logo" style="height: 32px; width: 32px; object-fit: contain;">
-+                         <img src="logo.png" class="app-logo" alt="Logo Quỹ Yên Thọ" title="Logo Quỹ Yên Thọ">
--                             <select id="filterYearChart" class="form-select form-select-sm" style="width: auto;"></select>
-+                             <select id="filterYearChart" class="form-select form-select-sm w-auto" title="Chọn năm xem biểu đồ"></select>
--                         <div class="chart-container-monthly" style="height: 240px; position: relative;">
-+                         <div class="chart-container-monthly-dashboard">
--                                     <input type="text" id="filterFromDate" class="form-control border-start-0 ps-0" placeholder="Từ ngày" style="width: 100px;">
-+                                     <input type="text" id="filterFromDate" class="form-control border-start-0 ps-0 w-100px" placeholder="Từ ngày" title="Lọc từ ngày">
--                                     <input type="text" id="filterToDate" class="form-control border-start-0 ps-0" placeholder="Đến ngày" style="width: 100px;">
-+                                     <input type="text" id="filterToDate" class="form-control border-start-0 ps-0 w-100px" placeholder="Đến ngày" title="Lọc đến ngày">
--                                 <select id="filterStaffAdmin" class="form-select form-select-sm" style="width: auto;"><option value="">Tất cả cán bộ</option></se
 … [diff truncated]
 
 📌 IDE AST Context: Modified symbols likely include [html]

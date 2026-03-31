@@ -1,6 +1,6 @@
 ---
 name: javascript
-description: "Javascript for ebanking. 3 gotchas, 17 conventions, 32 fixes."
+description: "Javascript for ebanking. 3 gotchas, 18 conventions, 33 fixes."
 domain: javascript
 triggers:
   - glob: "**/*.js"
@@ -11,7 +11,7 @@ enabled: true
 
 # Javascript
 
-Auto-compiled from **78 real patterns** in **ebanking**. This skill is auto-routed to agents when working on javascript files.
+Auto-compiled from **80 real patterns** in **ebanking**. This skill is auto-routed to agents when working on javascript files.
 
 ## ⚠️ Anti-Patterns & Gotchas
 
@@ -24,6 +24,25 @@ Auto-compiled from **78 real patterns** in **ebanking**. This skill is auto-rout
 | ⚠️ GOTCHA: Patched security issue EVENT — prevents | -  + // --- CẤU HÌNH EVENT DELEGATION: XỬ LÝ CLICK XEM CHI TIẾT --- - /** + $(document).on('click',  |
 
 ## 🔧 Problem Playbooks
+
+### Fixed null crash in COMPRESS — offloads heavy computation off the main thread
+-     const compressWithTimeout = (file, slotLabel, ms = 25000) => {
++     const compressWithTimeout = (file, slotLabel, ms = 15000) => {
+-         const options = {
++         console.log(`[COMPRESS] Bắt đầu nén ${slotLabel}...`);
+-             maxSizeMB: 0.8,
++         const options = {
+-             maxWidthOrHeight: 2048,
++             maxSizeMB: 0.8,
+-             useWebWorker: true,
++        
+
+**Actionable Steps:**
+1. Modified 1 files
+2. identifier: COMPRESS
+3. identifier: Math
+4. identifier: Promise
+5. identifier: Timeout
 
 ### Fixed null crash in Modal
 -         $('#modalAllStaff').modal('show');
@@ -324,22 +343,6 @@ Auto-compiled from **78 real patterns** in **ebanking**. This skill is auto-rout
 +         return;
 -     
 +     }
--     if (!input.checkValidity()) {
-+     
--         $(input).addClas
-
-**Actionable Steps:**
-1. Modified 1 files
-2. identifier: NONE
-3. identifier: Date
-4. identifier: OPENCV
-5. identifier: IMAGE
-
-### Patched security issue AppState — prevents XSS injection attacks
--     runAPI('api_getAdminDashboardData', {}, (res) => {
-+     runAPI('api_getAdminDashboardData', { email: AppState.user.email }, (res) => {
--                 <td class="fw-bold text-dark">${d['Tên khách hàng'] || ''}</td>
-+                 <td class="fw-bold text-dark">${utils_escapeHTML(d['Tên khách hàng'] || '')}</td>
--                 <td><span class="b
+-     if 
 
 ... [Truncated — see individual observations for full content]

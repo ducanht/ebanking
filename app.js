@@ -807,7 +807,15 @@ async function handleRegistration(e) {
 
     // Helper: Nén ảnh với timeout 10s
     const compressWithTimeout = (file, slotLabel, ms = 10000) => {
-        const options = { maxSizeMB: 0.4, maxWidthOrHeight: 1200, useWebWorker: true };
+        const options = { 
+            maxSizeMB: 0.4, 
+            maxWidthOrHeight: 1200, 
+            useWebWorker: false, // Tắt web worker để tránh lỗi CORS/treo
+            onProgress: (pct) => {
+                const currentPct = Math.round(pct);
+                updateUIProgress(`Đang tối ưu ${slotLabel} (${currentPct}%)...`, Math.round(((currentStep - 1) / totalSteps) * 100 + (currentPct / totalSteps)));
+            }
+        };
         return Promise.race([
             imageCompression(file, options),
             new Promise((_, reject) => setTimeout(() => reject(new Error("TIMEOUT")), ms))
