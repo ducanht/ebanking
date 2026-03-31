@@ -1,7 +1,7 @@
 
 
 # Project Memory — ebanking
-> 359 notes | Score threshold: >40
+> 366 notes | Score threshold: >40
 
 ## Safety — Never Run Destructive Commands
 
@@ -18,32 +18,16 @@
 
 **Stack:** Unknown stack
 
-## 📝 NOTE: 1 uncommitted file(s) in working tree.\n\n## Important Warnings
+## 📝 NOTE: 1 uncommitted file(s) in working tree.\n\n## Project Standards
 
-- **⚠️ GOTCHA: Added session cookies authentication — adds runtime type validation before use** — -  * NETLIFY HIGH-FIDELITY APP ENGINE (app.js)
-+  * MÃ NGUỒN FRONTEND 
-- **⚠️ GOTCHA: Patched security issue EVENT — prevents XSS injection attacks** — - 
-+ // --- CẤU HÌNH EVENT DELEGATION: XỬ LÝ CLICK XEM CHI TIẾT ---
-- 
-
-## Active: `netlify-app`
-
-- **⚠️ GOTCHA: Added session cookies authentication — adds runtime type validation before use**
-- **⚠️ GOTCHA: Patched security issue EVENT — prevents XSS injection attacks**
-- **what-changed in index.html — confirmed 3x**
-- **Strengthened types Admin — adds runtime type validation before use**
-- **decision in index.html**
-
-## Project Standards
-
+- Fixed null crash in DataTable — prevents XSS injection attacks — confirmed 3x
+- Patched security issue Staff — prevents XSS injection attacks — confirmed 3x
+- Replaced auth Modules — confirmed 3x
+- Updated 1 database schema — confirmed 3x
 - what-changed in index.html — confirmed 3x
-- Strengthened types Admin — adds runtime type validation before use
-- what-changed in index.html — confirmed 3x
-- what-changed in index.html — confirmed 3x
-- convention in index.html
-- Replaced auth CCCD — adds runtime type validation before use — confirmed 3x
-- Strengthened types Kinh — adds runtime type validation before use
-- Strengthened types GIAN — adds runtime type validation before use
+- Fixed null crash in JSON — externalizes configuration for environment flexibi... — confirmed 5x
+- Patched security issue User — prevents XSS injection attacks — confirmed 3x
+- Updated Backend database schema — confirmed 3x
 
 ## Known Fixes
 
@@ -55,10 +39,10 @@
 
 ## Recent Decisions
 
-- decision in index.html
 - decision in task.md
 - Optimized Modal — ensures atomic multi-step database operations
-- decision in app.js
+- decision in index.html
+- decision in registration.js
 
 ## Verified Best Practices
 

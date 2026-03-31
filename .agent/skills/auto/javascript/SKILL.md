@@ -1,6 +1,6 @@
 ---
 name: javascript
-description: "Javascript for ebanking. 3 gotchas, 20 conventions, 45 fixes."
+description: "Javascript for ebanking. 3 gotchas, 22 conventions, 46 fixes."
 domain: javascript
 triggers:
   - glob: "**/*.js"
@@ -11,7 +11,7 @@ enabled: true
 
 # Javascript
 
-Auto-compiled from **99 real patterns** in **ebanking**. This skill is auto-routed to agents when working on javascript files.
+Auto-compiled from **103 real patterns** in **ebanking**. This skill is auto-routed to agents when working on javascript files.
 
 ## ⚠️ Anti-Patterns & Gotchas
 
@@ -24,6 +24,22 @@ Auto-compiled from **99 real patterns** in **ebanking**. This skill is auto-rout
 | ⚠️ GOTCHA: Patched security issue EVENT — prevents | -  + // --- CẤU HÌNH EVENT DELEGATION: XỬ LÝ CLICK XEM CHI TIẾT --- - /** + $(document).on('click',  |
 
 ## 🔧 Problem Playbooks
+
+### Fixed null crash in AppState — prevents XSS injection attacks
+-         // Bỏ hoàn toàn việc khóa sửa. Mọi User (Staff/Admin) đều có thể sửa hồ sơ.
++         if (AppState.user && AppState.user.role === 'Admin') {
+-         $('#btnSaveEdit').show();
++             $('#btnSaveEdit').hide();
+-         $('#frmEditCustomer input').prop('readonly', false);
++             $('#frmEditCustomer input').prop('readonly', true);
+-         $('.modal-title').html(`<i class='
+
+**Actionable Steps:**
+1. Modified 1 files
+2. identifier: AppState
+3. identifier: Admin
+4. identifier: Chi
+5. identifier: CCCD
 
 ### Fixed null crash in Update — prevents XSS injection attacks
 -     renderStaffLineChart(timeline);
@@ -332,22 +348,6 @@ Auto-compiled from **99 real patterns** in **ebanking**. This skill is auto-rout
 +     if (!modalEl) return;
 -     $('#pwdNewConfirm').val('');
 +     
--     $('#pwdAlertForce').hide();
-+     $('#pwdOld').val('');
--     $('#modalChangePassword .btn-close').show();
-+     $('#pwdNew').val('');
--     $('#modalChangePassword').attr('data-bs-keyboard', 'true'
-
-**Actionable Steps:**
-1. Modified 1 files
-2. identifier: Modal
-3. identifier: AppState
-4. identifier: Vui
-5. identifier: Hash
-
-### Fixed null crash in DataTable — wraps unsafe operation in error boundary
--         const rowId      = (d['ID'] || d['Mã GD'] || '').toString().trim().replace(/^'/, '');
-+         const rowId      = (d['ID'] || d['Mã GD'] || '').toString().trim().replace(/^[']*/, '');
--             <t
+-     $('#pwdAlertForce')
 
 ... [Truncated — see individual observations for full content]

@@ -48,6 +48,8 @@ function renderAdminStats(s) {
     $('#db-hkd-sub').text(s.hkd || 0);
     $('#db-ca-nhan').text(s.caNhan || 0);
     $('#db-hkd-count').text(s.hkd || 0);
+    $('#db-activated').text(s.activated || 0);
+    $('#db-inactive').text(s.inactive || 0);
 }
 
 function renderAdminTopStaff(allStaffs) {
@@ -116,17 +118,21 @@ function renderAdminTable(allData, allStaffs) {
         const staffEmail = (d['Cán bộ thực hiện'] || '').toString().trim();
         const staffName  = staffMap[staffEmail] || staffEmail;
         const rowId      = (d['ID'] || d['Mã GD'] || '').toString().trim().replace(/^[']*/, '');
+        
+        const isActivated = (d['Trạng thái'] === 'Đã kích hoạt');
+        const statusDot = `<span class="status-dot ${isActivated ? 'active' : 'inactive'}" title="${d['Trạng thái'] || 'Chưa kích hoạt'}"></span>`;
+        
         return `
-            <tr data-id="${rowId}" class="clickable-row cursor-pointer">
+            <tr data-id="${rowId}" class="clickable-row cursor-pointer flex-center">
                 <td><small class="text-muted">${utils_formatVN(d['Thời điểm nhập'], 'date')}</small></td>
                 <td class="fw-bold text-dark">${utils_escapeHTML(d['Tên khách hàng'] || '')}</td>
-                <td><span class="badge bg-light text-dark border">${utils_escapeHTML(d['Loại hình dịch vụ'] || 'Cá nhân')}</span></td>
                 <td class="text-secondary"><small>${utils_escapeHTML((d['Số tài khoản'] || '').toString().replace(/^'/, ''))}</small></td>
-                <td class="d-none">${utils_escapeHTML(staffEmail)}</td>
+                <td>${statusDot} <span class="badge bg-light text-dark border">${utils_escapeHTML(d['Loại hình dịch vụ'] || 'Cá nhân')}</span></td>
+                <td><small>${utils_escapeHTML(d['Số điện thoại'] || '')}</small></td>
                 <td><small>${utils_escapeHTML(staffName)}</small></td>
                 <td class="text-end">
                     <button class="btn btn-sm btn-outline-primary px-2 btn-detail" title="Chi tiết">
-                        <i class="bx bx-info-circle"></i>
+                        <i class="bx bx-search-alt"></i>
                     </button>
                 </td>
             </tr>`;
@@ -137,7 +143,7 @@ function renderAdminTable(allData, allStaffs) {
     const selStaff = $('#filterStaffAdmin');
     if (selStaff.find('option').length <= 1 && allStaffs.length > 0) {
         allStaffs.sort((a,b) => (a.name||'').localeCompare(b.name||'')).forEach(st => {
-            selStaff.append(`<option value="${st.email}">${st.name}</option>`);
+            selStaff.append(`<option value="${st.name}">${st.name}</option>`);
         });
     }
 
@@ -157,7 +163,7 @@ function renderAdminTable(allData, allStaffs) {
                 columns: ':all',
                 format: {
                     header: function(data, col) {
-                        const hdrs = ['Thời gian', 'Họ Tên', 'Loại Hình', 'Số TK', 'Email CB', 'Cán Bộ', 'Thao tác'];
+                        const hdrs = ['Thời gian', 'Họ Tên', 'Số TK', 'Loại Hình', 'Số điện thoại', 'Cán Bộ', 'Thao tác'];
                         return hdrs[col] || data;
                     }
                 }
@@ -167,7 +173,6 @@ function renderAdminTable(allData, allStaffs) {
         language: { url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json" },
         search: { caseInsensitive: true, smart: true },
         columnDefs: [
-            { targets: [4], visible: false, searchable: true },   
             { targets: [6], orderable: false, searchable: false }  
         ]
     });
@@ -190,7 +195,7 @@ function renderAdminTable(allData, allStaffs) {
     $.fn.dataTable.ext.search.push(dateFilter);
 
     $('#filterStaffAdmin').off('change.tblKH').on('change.tblKH', function() {
-        dtAdmin.column(4).search($(this).val()).draw();
+        dtAdmin.column(5).search($(this).val()).draw();
     });
 
     $('#filterFromDate, #filterToDate').off('change.tblKH').on('change.tblKH', function() {

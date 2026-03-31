@@ -7,7 +7,7 @@
 const GAS_API_URL = "https://script.google.com/macros/s/AKfycbyXBMdJO2JmoaarxW9l7mg-l4tyN6BF1U01jaMPQ48xmVOZM9WFWLnOTIc9Wyf1OpFr/exec";
 
 const AppState = {
-    user: JSON.parse(localStorage.getItem('HOKINHDOANH_SESSION')) || null,
+    user: (typeof localStorage !== 'undefined') ? (JSON.parse(localStorage.getItem('HOKINHDOANH_SESSION')) || null) : null,
     VERSION: "2.1.2-STABLE",
     apiBase: "",
     lastActive: Date.now()
