@@ -36,6 +36,12 @@ async function initDashboard() {
     runAPI('api_getAdminDashboardData', { email: AppState.user.email }, (res) => {
         if (res.status === 'success') {
             const s = _parseStats(res);
+            // Fallback: GAS backend cũ (chưa deploy bản mới) không có activated/inactive trong statsPayload.
+            // Nếu cả 2 đều = 0 nhưng total > 0, tự tính từ allData để dashboard không bị trống.
+            if (s && s.allData && s.total > 0 && ((s.activated || 0) + (s.inactive || 0)) < s.total) {
+                s.activated = s.allData.filter(d => d['Trạng thái'] === 'Đã kích hoạt').length;
+                s.inactive  = s.total - s.activated;
+            }
             AppCache.set('adminDashboard', s);
             _renderAll(s);
         }
