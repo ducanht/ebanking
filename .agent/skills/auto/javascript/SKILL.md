@@ -1,6 +1,6 @@
 ---
 name: javascript
-description: "Javascript for ebanking. 3 gotchas, 23 conventions, 48 fixes."
+description: "Javascript for ebanking. 4 gotchas, 24 conventions, 50 fixes."
 domain: javascript
 triggers:
   - glob: "**/*.js"
@@ -11,7 +11,7 @@ enabled: true
 
 # Javascript
 
-Auto-compiled from **107 real patterns** in **ebanking**. This skill is auto-routed to agents when working on javascript files.
+Auto-compiled from **111 real patterns** in **ebanking**. This skill is auto-routed to agents when working on javascript files.
 
 ## ⚠️ Anti-Patterns & Gotchas
 
@@ -19,11 +19,45 @@ Auto-compiled from **107 real patterns** in **ebanking**. This skill is auto-rou
 
 | ❌ Don't | Details |
 |----------|----------|
+| ⚠️ GOTCHA: Fixed null crash in DataTable — wraps u | -         let html = ''; +         // P1-FIX: Sắp xếp theo thứ hạng giảm dần (tổng hồ sơ cao nhất lê |
 | ⚠️ GOTCHA: Added session cookies authentication —  | -  * NETLIFY HIGH-FIDELITY APP ENGINE (app.js) +  * MÃ NGUỒN FRONTEND CHÍNH (Đã được Module hóa) -   |
 | ⚠️ GOTCHA: Patched security issue VERSION — preven | -     VERSION: "2.1.1-PATCHED", +     VERSION: "2.1.2-STABLE", -  + // --- CẤU HÌNH EVENT DELEGATION |
 | ⚠️ GOTCHA: Patched security issue EVENT — prevents | -  + // --- CẤU HÌNH EVENT DELEGATION: XỬ LÝ CLICK XEM CHI TIẾT --- - /** + $(document).on('click',  |
 
 ## 🔧 Problem Playbooks
+
+### Fixed null crash in HTML — wraps unsafe operation in error boundary
+-             exportOptions: {
++             // P0-FIX: Chỉ export 6 cột dữ liệu, bỏ cột 6 (nút Chi tiết - có HTML)
+-                 columns: ':all',
++             exportOptions: {
+-                 format: {
++                 columns: [0, 1, 2, 3, 4, 5],
+-                     header: function(data, col) {
++                 format: {
+-                         const hdrs = ['Thời gian', 'Họ Tên', 
+
+**Actionable Steps:**
+1. Modified 1 files
+2. identifier: FIX
+3. identifier: Chi
+4. identifier: HTML
+5. identifier: Tho
+
+### Fixed null crash in Date — prevents XSS injection attacks
+-                     exportOptions: { columns: [0, 1, 2, 3, 4, 5, 6, 7, 8] },
++                     // P0-FIX: Chỉ export 5 cột dữ liệu (bỏ cột "Xem" - nút bấm)
+-                     title: 'Ho_So_Ca_Nhan_' + new Date().toISOString().slice(0,10)
++                     exportOptions: { columns: [0, 1, 2, 3, 4] },
+-                 }
++                     title: 'HoSo_CaNhan_YenTho_' + new Date().to
+
+**Actionable Steps:**
+1. Modified 1 files
+2. identifier: FIX
+3. identifier: Xem
+4. identifier: Date
+5. identifier: String
 
 ### Fixed null crash in Fallback — prevents XSS injection attacks
 -             AppCache.set('adminDashboard', s);
@@ -303,46 +337,6 @@ Auto-compiled from **107 real patterns** in **ebanking**. This skill is auto-rou
 2. identifier: COMPRESS
 3. identifier: Math
 4. identifier: Promise
-5. identifier: Timeout
-
-### Fixed null crash in Modal
--         $('#modalAllStaff').modal('show');
-+         const mEl = document.getElementById('modalAllStaff');
--     } catch(e) { console.error(e); }
-+         if (mEl) bootstrap.Modal.getOrCreateInstance(mEl).show();
-- }
-+     } catch(e) { console.error(e); }
-- 
-+ }
-- window.loadAdminData = () => {
-+ 
--     AppCache.clear('adminDashboard');
-+ window.loadAdminData = () => {
--     initDashboard();
-+ 
-
-**Actionable Steps:**
-1. Modified 1 files
-2. identifier: Modal
-3. identifier: AppCache
-
-### problem-fix in customer.js
--                 $('#modalEditCustomer').modal('hide');
-+                 const mEl = document.getElementById('modalEditCustomer');
--                 if (AppState.user && AppState.user.role !== 'Admin') {
-+                 if (mEl) bootstrap.Modal.getOrCreateInstance(mEl).hide();
--                     initMyCustomersList();
-+                 if (AppState.user && AppState.user.role !== 'Admin') {
-
-
-**Actionable Steps:**
-1. Modified 1 files
-
-### Fixed null crash in Modal — prevents null/undefined runtime crashes
--                 $('#modalChangePassword').modal('show');
-+                 const modalEl = document.getElementById('modalChangePassword');
--                 $('#pwdAlertForce').removeClass('initially-hidden').show();
-+                 if (modalEl) {
--
+5. ide
 
 ... [Truncated — see individual observations for full content]

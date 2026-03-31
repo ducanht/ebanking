@@ -176,16 +176,17 @@ function renderAdminTable(allData, allStaffs) {
             extend: 'excelHtml5',
             text: '<i class="bx bxs-file-export"></i> Xuất Excel',
             className: 'btn btn-sm btn-success shadow-sm',
+            // P0-FIX: Chỉ export 6 cột dữ liệu, bỏ cột 6 (nút Chi tiết - có HTML)
             exportOptions: {
-                columns: ':all',
+                columns: [0, 1, 2, 3, 4, 5],
                 format: {
                     header: function(data, col) {
-                        const hdrs = ['Thời gian', 'Họ Tên', 'Số TK', 'Loại Hình', 'Số điện thoại', 'Cán Bộ', 'Thao tác'];
+                        const hdrs = ['Thời gian', 'Họ Tên', 'Số TK', 'Loại Hình', 'Số Điện Thoại', 'Cán Bộ'];
                         return hdrs[col] || data;
                     }
                 }
             },
-            title: 'Bao_Cao_KH_YenTho_' + new Date().toISOString().slice(0,10)
+            title: 'BaoCao_MoTK_YenTho_' + new Date().toISOString().slice(0,10)
         }],
         language: { url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json" },
         search: { caseInsensitive: true, smart: true },
@@ -286,23 +287,43 @@ let dtAllStaffs = null;
 function showAllStaffModal() {
     try {
         const arr = window._adminRawStaffs || [];
+        // P1-FIX: Sắp xếp theo thứ hạng giảm dần (tổng hồ sơ cao nhất lên đầu)
+        const sorted = [...arr].sort((a, b) => (b.total || 0) - (a.total || 0));
         let html = '';
-        arr.forEach((st, idx) => {
-            html += `<tr><td>${idx+1}</td><td class="fw-bold">${st.name}</td><td>${st.department}</td><td>${st.total}</td><td>${st.caNhan||0}</td><td>${st.hkd||0}</td></tr>`;
+        sorted.forEach((st, idx) => {
+            let rankBadge = `<span class="fw-bold text-muted">${idx + 1}</span>`;
+            if (idx === 0) rankBadge = `<i class='bx bxs-trophy text-warning fs-5'></i>`;
+            else if (idx === 1) rankBadge = `<i class='bx bxs-medal text-secondary fs-5'></i>`;
+            else if (idx === 2) rankBadge = `<i class='bx bxs-medal fs-5' style="color:#cd7f32"></i>`;
+            html += `<tr>
+                <td class="text-center">${rankBadge}</td>
+                <td class="fw-bold">${st.name}</td>
+                <td class="text-secondary">${st.department || 'N/A'}</td>
+                <td class="fw-bold text-primary">${st.total}</td>
+                <td>${st.caNhan || 0}</td>
+                <td>${st.hkd || 0}</td>
+            </tr>`;
         });
-        $('#tblAllStaffs tbody').html(html);
-        if(dtAllStaffs) try { dtAllStaffs.destroy(); } catch(e){}
+        $('#tblAllStaffs tbody').html(html || '<tr><td colspan="6" class="text-center text-muted">Chưa có dữ liệu.</td></tr>');
+        if (dtAllStaffs) try { dtAllStaffs.destroy(); } catch(e) {}
         dtAllStaffs = $('#tblAllStaffs').DataTable({
             responsive: true,
+            order: [[3, 'desc']], // Mặc định sắp theo Tổng giảm dần
             dom: "<'row mb-2'<'col-sm-12 col-md-4 d-flex align-items-center justify-content-start'l><'col-sm-12 col-md-4 d-flex align-items-center justify-content-center'B><'col-sm-12 col-md-4 d-flex align-items-center justify-content-end'f>>" +
                  "<'row'<'col-sm-12'tr>>" +
                  "<'row mt-2'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
-            buttons: [{ extend: 'excelHtml5', text: '<i class="bx bxs-file-export"></i> Xuất Excel', className: 'btn btn-sm btn-success shadow-sm' }],
+            buttons: [{
+                extend: 'excelHtml5',
+                text: '<i class="bx bxs-file-export"></i> Xuất Excel',
+                className: 'btn btn-sm btn-success shadow-sm',
+                exportOptions: { columns: [0, 1, 2, 3, 4, 5] },
+                title: 'XepHang_ThiDua_YenTho_' + new Date().toISOString().slice(0, 10)
+            }],
             language: { url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json" }
         });
         const mEl = document.getElementById('modalAllStaff');
         if (mEl) bootstrap.Modal.getOrCreateInstance(mEl).show();
-    } catch(e) { console.error(e); }
+    } catch(e) { console.error('showAllStaffModal error:', e); }
 }
 
 window.loadAdminData = () => {

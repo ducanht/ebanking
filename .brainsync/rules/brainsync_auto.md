@@ -1,7 +1,7 @@
 
 
 # Project Memory — ebanking
-> 394 notes | Score threshold: >40
+> 402 notes | Score threshold: >40
 
 ## Safety — Never Run Destructive Commands
 
@@ -18,7 +18,12 @@
 
 **Stack:** Unknown stack
 
-## 📝 NOTE: 1 uncommitted file(s) in working tree.\n\n## Project Standards
+## 📝 NOTE: 1 uncommitted file(s) in working tree.\n\n## Important Warnings
+
+- **⚠️ GOTCHA: Fixed null crash in DataTable — wraps unsafe operation in error boundary** — -         let html = '';
++         // P1-FIX: Sắp xếp theo thứ hạng gi
+
+## Project Standards
 
 - Fixed null crash in AppState — offloads heavy computation off the main thread — confirmed 3x
 - Replaced auth Login — confirmed 3x

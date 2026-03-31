@@ -228,8 +228,9 @@ function renderMyCustomersTable(data) {
                     extend: 'excelHtml5', 
                     text: '<i class="bx bxs-file-export"></i> Xuất Excel', 
                     className: 'btn btn-sm btn-success shadow-sm',
-                    exportOptions: { columns: [0, 1, 2, 3, 4, 5, 6, 7, 8] },
-                    title: 'Ho_So_Ca_Nhan_' + new Date().toISOString().slice(0,10)
+                    // P0-FIX: Chỉ export 5 cột dữ liệu (bỏ cột "Xem" - nút bấm)
+                    exportOptions: { columns: [0, 1, 2, 3, 4] },
+                    title: 'HoSo_CaNhan_YenTho_' + new Date().toISOString().slice(0,10)
                 }
             ],
             language: { url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json" },
@@ -317,22 +318,25 @@ function openEditCustomerModal(id) {
         const status = row['Trạng thái'] || '';
         $('#edit_is_activated').prop('checked', status === 'Đã kích hoạt');
 
+        // P1-FIX: Tiêu đề modal đúng nghiệp vụ
+        const statusBadge = (status === 'Đã kích hoạt')
+            ? `<span class="badge bg-success small ms-2"><i class="bx bxs-check-circle"></i> Đã kích hoạt</span>`
+            : `<span class="badge bg-warning text-dark small ms-2"><i class="bx bx-time"></i> Chờ kích hoạt</span>`;
+
         if (AppState.user && AppState.user.role === 'Admin') {
             $('#btnSaveEdit').hide();
             $('#frmEditCustomer input').prop('readonly', true);
             $('#frmEditCustomer select, #frmEditCustomer input[type="checkbox"]').prop('disabled', true);
-            $('.modal-title').html(`<i class='bx bx-info-circle text-white'></i> Chi tiết hồ sơ khách hàng`);
+            $('#modalEditCustomer .modal-title').html(
+                `<i class='bx bx-info-circle text-white'></i> Chi Tiết Hồ Sơ Mở Tài Khoản ${statusBadge}`
+            );
         } else {
             $('#btnSaveEdit').show();
             $('#frmEditCustomer input').prop('readonly', false);
             $('#frmEditCustomer select, #frmEditCustomer input[type="checkbox"]').prop('disabled', false);
-            $('.modal-title').html(`<i class='bx bxs-edit-alt text-white'></i> Chi tiết & Chỉnh sửa hồ sơ`);
-        }
-        
-        if (status === 'Đã kích hoạt') {
-            $('.modal-title').append(` <span class="badge bg-success small ms-2"><i class="bx bxs-check-circle"></i> Đã kích hoạt</span>`);
-        } else {
-            $('.modal-title').append(` <span class="badge bg-warning text-dark small ms-2"><i class="bx bx-time"></i> Chờ kích hoạt</span>`);
+            $('#modalEditCustomer .modal-title').html(
+                `<i class='bx bxs-edit-alt text-white'></i> Chỉnh Sửa Hồ Sơ Mở Tài Khoản ${statusBadge}`
+            );
         }
 
         const infoHtml = `<div class="col-12 mb-2">
@@ -421,7 +425,10 @@ function handleEditCustomer(e) {
     runAPI('api_updatecustomer', payload, (res) => {
         btn.prop('disabled', false).html(oldHtml);
         if (res && res.status === 'success') {
-            AppCache.clear('myCustomers'); 
+            // P0-FIX: Clear cả 2 cache để đảm bảo Dashboard cập nhật chính xác sau kích hoạt
+            AppCache.clear('myCustomers');
+            AppCache.clear('adminDashboard');
+            window._adminAllData = null; // Reset data bộ nhớ để buộc tải lại từ server
             Swal.fire({
                 title: 'Lưu thành công!',
                 text: 'Hồ sơ đã được cập nhật.',
@@ -432,9 +439,11 @@ function handleEditCustomer(e) {
                 const mEl = document.getElementById('modalEditCustomer');
                 if (mEl) bootstrap.Modal.getOrCreateInstance(mEl).hide();
                 if (AppState.user && AppState.user.role !== 'Admin') {
+                    // Staff: reload danh sách hồ sơ cá nhân
                     initMyCustomersList();
                 } else if (AppState.user && AppState.user.role === 'Admin') {
-                    if (typeof initDashboard === 'function') initDashboard();
+                    // Admin: reload toàn bộ dashboard từ server (không dùng cache)
+                    if (typeof loadAdminData === 'function') loadAdminData();
                 }
             });
         } else {
@@ -442,6 +451,7 @@ function handleEditCustomer(e) {
         }
     }, () => {
         btn.prop('disabled', false).html(oldHtml);
+        showAlert('Lỗi kết nối', 'Không thể lưu hồ sơ. Vui lòng thử lại.', 'error');
     }, 'Đang lưu hồ sơ...');
 }
 

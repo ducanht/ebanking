@@ -80,10 +80,28 @@ async function handleRegistration(e) {
     const progressLabel = $('#compress-progress-label');
     const progressPct = $('#compress-progress-pct');
 
+    // P2-FIX: Re-trigger duplicate check cho tất cả fields quan trọng nếu chưa được check
+    // (Trường hợp user nhập nhanh + Enter mà chưa kịp blur)
+    const fieldsToValidate = ['cccd', 'sdt', 'so_tk'];
+    let hasInvalidPattern = false;
+    fieldsToValidate.forEach(fieldId => {
+        const el = document.getElementById(fieldId);
+        if (el && el.value.trim() && !el.checkValidity()) {
+            $(el).addClass('is-invalid');
+            hasInvalidPattern = true;
+        }
+    });
+
+    if (hasInvalidPattern) {
+        showAlert('Thông tin chưa hợp lệ', 'Vui lòng kiểm tra lại định dạng CCCD (12 số), SĐT (10 số bắt đầu 0), Số TK (9 số).', 'warning');
+        return;
+    }
+
+    // Kiểm tra có trường nào đang báo is-invalid (kể cả từ checkDuplicate) không
     const invalidFields = $('#frm-mo-tk .is-invalid');
     if (invalidFields.length > 0) {
         showAlert('Thông tin chưa khớp', 'Vui lòng kiểm tra lại các trường đang báo đỏ (có thể bị trùng dữ liệu).', 'warning');
-        btn.prop('disabled', false).html(oldBtn);
+        invalidFields.first().focus();
         return;
     }
 
@@ -162,7 +180,7 @@ async function handleRegistration(e) {
             data[slot.id] = await imageCompression.getDataUrlFromFile(compressed);
         } catch (err) {
             if (err.message === "TIMEOUT") {
-                console.warn(`Nén ${slotLabel} quá thời gian, dùng ảnh gốc.`);
+                console.warn(`Nén ${slot.label} quá thời gian, dùng ảnh gốc.`);
                 progressLabel.text(`Bỏ qua nén ${slot.label} (quá 15s)...`);
             } else {
                 console.error(`Lỗi nén ${slot.label}:`, err);
