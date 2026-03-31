@@ -1,6 +1,6 @@
 ---
 name: javascript
-description: "Javascript for ebanking. 3 gotchas, 22 conventions, 48 fixes."
+description: "Javascript for ebanking. 3 gotchas, 23 conventions, 48 fixes."
 domain: javascript
 triggers:
   - glob: "**/*.js"
@@ -11,7 +11,7 @@ enabled: true
 
 # Javascript
 
-Auto-compiled from **106 real patterns** in **ebanking**. This skill is auto-routed to agents when working on javascript files.
+Auto-compiled from **107 real patterns** in **ebanking**. This skill is auto-routed to agents when working on javascript files.
 
 ## ⚠️ Anti-Patterns & Gotchas
 

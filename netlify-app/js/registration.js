@@ -103,7 +103,6 @@ async function handleRegistration(e) {
     const getSafeVal = (id) => ($(`#${id}`).val() || "").trim();
 
     const data = {
-        action: "api_submitregistration",
         email: AppState.user.email,
         loai_hinh: $('#loai_hinh').val(),
         ten_kh: getSafeVal('ten_kh'),
