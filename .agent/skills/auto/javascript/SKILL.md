@@ -1,6 +1,6 @@
 ---
 name: javascript
-description: "Javascript for ebanking. 3 gotchas, 18 conventions, 33 fixes."
+description: "Javascript for ebanking. 3 gotchas, 18 conventions, 34 fixes."
 domain: javascript
 triggers:
   - glob: "**/*.js"
@@ -11,7 +11,7 @@ enabled: true
 
 # Javascript
 
-Auto-compiled from **80 real patterns** in **ebanking**. This skill is auto-routed to agents when working on javascript files.
+Auto-compiled from **82 real patterns** in **ebanking**. This skill is auto-routed to agents when working on javascript files.
 
 ## ⚠️ Anti-Patterns & Gotchas
 
@@ -24,6 +24,23 @@ Auto-compiled from **80 real patterns** in **ebanking**. This skill is auto-rout
 | ⚠️ GOTCHA: Patched security issue EVENT — prevents | -  + // --- CẤU HÌNH EVENT DELEGATION: XỬ LÝ CLICK XEM CHI TIẾT --- - /** + $(document).on('click',  |
 
 ## 🔧 Problem Playbooks
+
+### Patched security issue CORS — prevents XSS injection attacks
+-         const options = { maxSizeMB: 0.4, maxWidthOrHeight: 1200, useWebWorker: true };
++         const options = { 
+-         return Promise.race([
++             maxSizeMB: 0.4, 
+-             imageCompression(file, options),
++             maxWidthOrHeight: 1200, 
+-             new Promise((_, reject) => setTimeout(() => reject(new Error("TIMEOUT")), ms))
++             useWebWorker: false, // T
+
+**Actionable Steps:**
+1. Modified 1 files
+2. identifier: CORS
+3. identifier: Math
+4. identifier: Promise
+5. identifier: Error
 
 ### Fixed null crash in COMPRESS — offloads heavy computation off the main thread
 -     const compressWithTimeout = (file, slotLabel, ms = 25000) => {
@@ -320,29 +337,6 @@ Auto-compiled from **80 real patterns** in **ebanking**. This skill is auto-rout
 +         $('#edit_id').val(id);        const loaiHinh = row['Loại hình dịch vụ'] || 'Cá nhân';
 -         $('#edit_ten_kh').val(row['Tên khách hàng'] || '');
 +         const cccdVal = (row['Số CCCD'] || '').toString().replace(/^'/, '');
--         $('#edit_sdt').val((row['Số điện thoại'] || '').toString().replace(/^'/, ''));
-+         const trangThai = row['Trạng th
-
-**Actionable Steps:**
-1. Modified 1 files
-2. identifier: CCCD
-3. identifier: AppState
-4. identifier: Admin
-5. identifier: Chi
-
-### Patched security issue NONE — prevents XSS injection attacks
--     if (!val) {
-+     const lh = $('#loai_hinh').val(); // Lấy loại hình hiện tại
--         $(input).removeClass('is-invalid');
-+     if (!val) {
--         input.setCustomValidity('');
-+         $(input).removeClass('is-invalid');
--         return;
-+         input.setCustomValidity('');
--     }
-+         return;
--     
-+     }
--     if 
+-         $('#edit_sdt').val((row['Số điện thoại'] || '').toString().r
 
 ... [Truncated — see individual observations for full content]

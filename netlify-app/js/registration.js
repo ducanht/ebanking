@@ -61,11 +61,11 @@ function toggleFormFields() {
     
     if (isHKD) {
         targets.hide().removeClass('initially-hidden').fadeIn(400);
-        $('#dkkd, #img_dkkd, #ten_dang_nhap').prop('required', true);
+        $('#dkkd, #img_dkkd').prop('required', true); // Chỉ dkkd là bắt bắt buộc cho HKD
         $('#dkkd').addClass('border-primary shadow-sm');
     } else {
         targets.fadeOut(300);
-        $('#dkkd, #img_dkkd, #ten_dang_nhap').prop('required', false);
+        $('#dkkd, #img_dkkd').prop('required', false);
         $('#dkkd').removeClass('border-primary shadow-sm');
     }
 }
@@ -79,6 +79,13 @@ async function handleRegistration(e) {
     const progressBar = $('#compress-progress-bar');
     const progressLabel = $('#compress-progress-label');
     const progressPct = $('#compress-progress-pct');
+
+    const invalidFields = $('#frm-mo-tk .is-invalid');
+    if (invalidFields.length > 0) {
+        showAlert('Thông tin chưa khớp', 'Vui lòng kiểm tra lại các trường đang báo đỏ (có thể bị trùng dữ liệu).', 'warning');
+        btn.prop('disabled', false).html(oldBtn);
+        return;
+    }
 
     btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Đang xử lý...');
     progressWrapper.removeClass('initially-hidden').removeClass('d-none').show();
