@@ -1,6 +1,6 @@
 ---
 name: javascript
-description: "Javascript for ebanking. 3 gotchas, 22 conventions, 46 fixes."
+description: "Javascript for ebanking. 3 gotchas, 22 conventions, 47 fixes."
 domain: javascript
 triggers:
   - glob: "**/*.js"
@@ -11,7 +11,7 @@ enabled: true
 
 # Javascript
 
-Auto-compiled from **103 real patterns** in **ebanking**. This skill is auto-routed to agents when working on javascript files.
+Auto-compiled from **104 real patterns** in **ebanking**. This skill is auto-routed to agents when working on javascript files.
 
 ## ⚠️ Anti-Patterns & Gotchas
 
@@ -24,6 +24,25 @@ Auto-compiled from **103 real patterns** in **ebanking**. This skill is auto-rou
 | ⚠️ GOTCHA: Patched security issue EVENT — prevents | -  + // --- CẤU HÌNH EVENT DELEGATION: XỬ LÝ CLICK XEM CHI TIẾT --- - /** + $(document).on('click',  |
 
 ## 🔧 Problem Playbooks
+
+### Fixed null crash in HTML — prevents XSS injection attacks
+-     $('#db-total').text(s.total || 0);
++     const total    = s.total || 0;
+-     $('#db-ca-nhan-sub').text(s.caNhan || 0);
++     const caNhan   = s.caNhan || 0;
+-     $('#db-hkd-sub').text(s.hkd || 0);
++     const hkd      = s.hkd || 0;
+-     $('#db-ca-nhan').text(s.caNhan || 0);
++ 
+-     $('#db-hkd-count').text(s.hkd || 0);
++     // Cập nhật số liệu KPI cards — IDs phải khớp chính xác với inde
+
+**Actionable Steps:**
+1. Modified 1 files
+2. identifier: KPI
+3. identifier: IDs
+4. identifier: HTML
+5. identifier: Math
 
 ### Fixed null crash in AppState — prevents XSS injection attacks
 -         // Bỏ hoàn toàn việc khóa sửa. Mọi User (Staff/Admin) đều có thể sửa hồ sơ.
@@ -326,28 +345,6 @@ Auto-compiled from **103 real patterns** in **ebanking**. This skill is auto-rou
 -     } catch(err) { console.error(err); }
 +         if (!modalEl) {
 - }
-+             console.error("DEBUG: Không tìm thấy element modalEditCustomer");
-- 
-+             return;
-- function handleEditCustomer(e) {
-+         }
--     e.preventDefault(); 
-+         const modal = boo
-
-**Actionable Steps:**
-1. Modified 1 files
-2. identifier: DEBUG
-3. identifier: Modal
-4. identifier: AppState
-5. identifier: AppCache
-
-### Fixed null crash in Modal — prevents null/undefined runtime crashes
--     $('#pwdOld').val('');
-+     const modalEl = document.getElementById('modalChangePassword');
--     $('#pwdNew').val('');
-+     if (!modalEl) return;
--     $('#pwdNewConfirm').val('');
-+     
--     $('#pwdAlertForce')
++             console.error("DEBUG: Không tìm thấ
 
 ... [Truncated — see individual observations for full content]

@@ -43,13 +43,21 @@ async function initDashboard() {
 }
 
 function renderAdminStats(s) {
-    $('#db-total').text(s.total || 0);
-    $('#db-ca-nhan-sub').text(s.caNhan || 0);
-    $('#db-hkd-sub').text(s.hkd || 0);
-    $('#db-ca-nhan').text(s.caNhan || 0);
-    $('#db-hkd-count').text(s.hkd || 0);
+    const total    = s.total || 0;
+    const caNhan   = s.caNhan || 0;
+    const hkd      = s.hkd || 0;
+
+    // Cập nhật số liệu KPI cards — IDs phải khớp chính xác với index.html
+    $('#db-total').text(total);
     $('#db-activated').text(s.activated || 0);
     $('#db-inactive').text(s.inactive || 0);
+    $('#db-canhan').text(caNhan);   // ID trong HTML là db-canhan (không có dấu gạch)
+    $('#db-hkd').text(hkd);         // ID trong HTML là db-hkd
+
+    // Cập nhật thanh tiến trình phân bổ loại hình
+    const pct = total > 0 ? Math.round(caNhan / total * 100) : 50;
+    $('#db-prog-canhan').css('width', pct + '%').attr('aria-valuenow', pct);
+    $('#db-prog-hkd').css('width', (100 - pct) + '%').attr('aria-valuenow', 100 - pct);
 }
 
 function renderAdminTopStaff(allStaffs) {
@@ -122,11 +130,14 @@ function renderAdminTable(allData, allStaffs) {
         const isActivated = (d['Trạng thái'] === 'Đã kích hoạt');
         const statusDot = `<span class="status-dot ${isActivated ? 'active' : 'inactive'}" title="${d['Trạng thái'] || 'Chưa kích hoạt'}"></span>`;
         
+        // Số TK: GAS trả về field 'Số TK', fallback sang 'Số tài khoản' nếu có
+        const soTk = (d['Số TK'] || d['Số tài khoản'] || '').toString().replace(/^'/, '');
+
         return `
             <tr data-id="${rowId}" class="clickable-row cursor-pointer flex-center">
                 <td><small class="text-muted">${utils_formatVN(d['Thời điểm nhập'], 'date')}</small></td>
                 <td class="fw-bold text-dark">${utils_escapeHTML(d['Tên khách hàng'] || '')}</td>
-                <td class="text-secondary"><small>${utils_escapeHTML((d['Số tài khoản'] || '').toString().replace(/^'/, ''))}</small></td>
+                <td class="text-secondary"><small>${utils_escapeHTML(soTk)}</small></td>
                 <td>${statusDot} <span class="badge bg-light text-dark border">${utils_escapeHTML(d['Loại hình dịch vụ'] || 'Cá nhân')}</span></td>
                 <td><small>${utils_escapeHTML(d['Số điện thoại'] || '')}</small></td>
                 <td><small>${utils_escapeHTML(staffName)}</small></td>

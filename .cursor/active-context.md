@@ -1,475 +1,360 @@
 > **BrainSync Context Pumper** 🧠
-> Dynamically loaded for active file: `KIEN_TRUC_HE_THONG.md` (Domain: **Generic Logic**)
+> Dynamically loaded for active file: `netlify-app\js\# Nguyên tắc cốt lõi (Core Principles).ini` (Domain: **Config/Infrastructure**)
 
-### 🔴 Generic Logic Gotchas
-- **⚠️ GOTCHA: Patched security issue VERSION — prevents XSS injection attacks**: -     VERSION: "2.1.1-PATCHED",
-+     VERSION: "2.1.2-STABLE",
+### 📐 Config/Infrastructure Conventions & Fixes
+- **[what-changed] what-changed in # Nguyên tắc cốt lõi (Core Principles).ini**: File updated (external): netlify-app/js/# Nguyên tắc cốt lõi (Core Principles).ini
+
+Content summary (12 lines):
+# Nguyên tắc cốt lõi (Core Principles)
+
+Dưới đây là các nguyên tắc cốt lõi giúp Agent có thể tự phát triển và học hỏi trong quá trình tương tác:
+
+## 1. Tự Động Học Hỏi & Tiến Hóa (Auto-Evolution)
+Mỗi khi Agent trong quá trình chạy, debug, hoặc trò chuyện với User mà phát hiện ra một **quy luật (rule)**, **kinh nghiệm**, hoặc **phương pháp giải quyết vấn đề mới** mang tính chất quan trọng và có khả năng tái sử dụng cho các lần sau:
+- Agent **PHẢI** tạm dừng và cảnh báo tới User.
+- Agent **
+- **[problem-fix] Fixed null crash in HTML — prevents XSS injection attacks**: -     $('#db-total').text(s.total || 0);
++     const total    = s.total || 0;
+-     $('#db-ca-nhan-sub').text(s.caNhan || 0);
++     const caNhan   = s.caNhan || 0;
+-     $('#db-hkd-sub').text(s.hkd || 0);
++     const hkd      = s.hkd || 0;
+-     $('#db-ca-nhan').text(s.caNhan || 0);
++ 
+-     $('#db-hkd-count').text(s.hkd || 0);
++     // Cập nhật số liệu KPI cards — IDs phải khớp chính xác với index.html
+-     $('#db-activated').text(s.activated || 0);
++     $('#db-total').text(total);
+-     $('#db-inactive').text(s.inactive || 0);
++     $('#db-activated').text(s.activated || 0);
+- }
++     $('#db-inactive').text(s.inactive || 0);
 - 
-+ // --- CẤU HÌNH EVENT DELEGATION: XỬ LÝ CLICK XEM CHI TIẾT ---
-- /**
-+ $(document).on('click', '.clickable-row', function(e) {
--  * CACHE SYSTEM
-+     // Nếu click vào nút Chi tiết hoặc thành phần bên trong nút, dừng lại để tránh trigger 2 lần
--  */
-+     if ($(e.target).is('button') || $(e.target).closest('button').length) return;
-- const AppCache = {
-+     
--     data: {},
-+     const id = $(this).attr('data-id') || $(this).data('id');
--     timestamp: {},
-+     if (id) openEditCustomerModal(id);
--     TTL: 300000, // 5 phút (tăng từ 3 phút để giảm request lên Vercel)
-+ });
--     isFresh(key) {
++     $('#db-canhan').text(caNhan);   // ID trong HTML là db-canhan (không có dấu gạch)
+- function renderAdminTopStaff(allStaffs) {
++     $('#db-hkd').text(hkd);         // ID trong HTML là db-hkd
+-     if (!allStaffs || allStaffs.length === 0) {
 + 
--         if (!this.timestamp[key]) return false;
-+ // Xử lý riêng khi click trực tiếp vào nút Chi tiết
--         return (Date.now() - this.timestamp[key]) < this.TTL;
-+ $(document).on('click', '.btn-detail', function(e) {
--     },
-+     e.stopPropagation(); // Ngăn chặn sự kiện lan lên thẻ tr
--     set(key, val) {
-+     const id = $(this).closest('tr').attr('data-id') || $(this).closest('tr').data('id');
--         this.data[key] = val;
-+     if (id) openEditCustomerModal(id);
--         this.timestamp[key] = Date.now();
-+ });
--     },
-+ 
--     get(key) {
-+ 
--         return this.isFresh(key) ? this.data[key] : null;
-+ 
--     },
-+ /**
--     clear(key) {
-+  * CACHE SYSTEM
--         delete this.data[key];
-+  */
--         delete this.timestamp[key];
-+ const AppCache = {
--     },
-+     data: {},
--     clearAll() {
-+     timestamp: {},
--         this.data = {};
-+     TTL: 300000, // 5 phút (tăng từ 3 phút để giảm request lên Vercel)
--         this.timestamp = {};
-+     isFresh(key) {
+-         $('#db-topstaff').html('<div class="text-center text-muted small p-2">Không có dữ liệu cán bộ.</div>');
++     // Cập nhật thanh tiến trình phân bổ loại hình
+-         return;
++     const pct = total > 0 ? Math.round(caNhan / total * 100) : 50;
 -     }
-+         if (!this.timestamp[key]) return false;
-- };
-+         return (Date.now() - this.timestamp[key]) < this.TTL;
-- 
-+     },
-- /**
-+     set(key, val) {
--  * CORE API WRAPPER
-+         this.data[key] = val;
--  * Hardened with Timeout (30s) and Auto-Retry (Max 2)
-+         this.timestamp[key] = Date.now();
--  */
-+    
++     $('#db-prog-canhan').css('width', pct + '%').attr('aria-valuenow', pct);
+-     const sorted = [...allStaffs].sort((a,b) => (b.total || 0) - (a.total || 0)).slice(0, 5);
++     $('#db-prog-hkd').css('width', (100 - pct) + '%').attr('aria-valuenow', 100 - pct);
+-     let html = '';
++ }
+-     sorted.forEach((st, idx) => {
++ 
+-         let rankColor = 'text-secondary';
++ function renderAdminTopStaff(allStaffs) {
+-         let trophy = `<span class="fw-bold ms-2">${idx + 1}.</span>`;
++     if (!allStaffs || allStaffs.length === 0) {
+-         if (idx === 0) { rankColor = 'text-warning'; trophy = `<i class='bx bxs-trophy ms-1 fs-5 text-warning'></i>`; }
++         $('#db-topstaff').html('<div class="text-center text-muted small p-2">Không có dữ liệu cán bộ.</div>');
+-         else if (idx === 1) { rankColor = 'text-secondary'; trophy = `<
 … [diff truncated]
 
-📌 IDE AST Context: Modified symbols likely include [GAS_API_URL, AppState, INACTIVITY_LIMIT, checkInactivity, on('click keydown scroll mousedown touchstart') callback]
+📌 IDE AST Context: Modified symbols likely include [charts, _parseStats, initDashboard, renderAdminStats, renderAdminTopStaff]
+- **[convention] Fixed null crash in DataTable — prevents XSS injection attacks — confirmed 3x**: -                 <td>${statusDot} <span class="badge bg-light text-dark border">${utils_escapeHTML(d['Loại hình dịch vụ'] || 'Cá nhân')}</span></td>
++                 <td class="text-secondary"><small>${utils_escapeHTML((d['Số tài khoản'] || '').toString().replace(/^'/, ''))}</small></td>
+-                 <td class="text-secondary"><small>${utils_escapeHTML((d['Số tài khoản'] || '').toString().replace(/^'/, ''))}</small></td>
++                 <td>${statusDot} <span class="badge bg-light text-dark border">${utils_escapeHTML(d['Loại hình dịch vụ'] || 'Cá nhân')}</span></td>
+-                 <td><small>${utils_escapeHTML(staffName)}</small></td>
++                 <td><small>${utils_escapeHTML(d['Số điện thoại'] || '')}</small></td>
+-                 <td class="text-end">
++                 <td><small>${utils_escapeHTML(staffName)}</small></td>
+-                     <button class="btn btn-sm btn-outline-primary px-2 btn-detail" title="Chi tiết">
++                 <td class="text-end">
+-                         <i class="bx bx-search-alt"></i>
++                     <button class="btn btn-sm btn-outline-primary px-2 btn-detail" title="Chi tiết">
+-                     </button>
++                         <i class="bx bx-search-alt"></i>
+-                 </td>
++                     </button>
+-             </tr>`;
++                 </td>
+-     }).join('');
++             </tr>`;
+- 
++     }).join('');
+-     $('#tblKH tbody').html(html);
++ 
+- 
++     $('#tblKH tbody').html(html);
+-     const selStaff = $('#filterStaffAdmin');
++ 
+-     if (selStaff.find('option').length <= 1 && allStaffs.length > 0) {
++     const selStaff = $('#filterStaffAdmin');
+-         allStaffs.sort((a,b) => (a.name||'').localeCompare(b.name||'')).forEach(st => {
++     if (selStaff.find('option').length <= 1 && allStaffs.length > 0) {
+-             selStaff.append(`<option value="${st.email}">${st.name}</option>`);
++         allStaffs.sort((a,b) => (a.name||'').localeCompare(b.name||'')).forEach(st => {
 
-### 📐 Generic Logic Conventions & Fixes
-- **[what-changed] Added session cookies authentication**: -     user: JSON.parse(localStorage.getItem('HOKINHDOANH_SESSION')) || null,
-+     user: (typeof localStorage !== 'undefined') ? (JSON.parse(localStorage.getItem('HOKINHDOANH_SESSION')) || null) : null,
+… [diff truncated]
 
-📌 IDE AST Context: Modified symbols likely include [GAS_API_URL, AppState, INACTIVITY_LIMIT, checkInactivity, on('click keydown scroll mousedown touchstart') callback]
-- **[what-changed] what-changed in api_admin.gs**: -     let inactiveCount   = data.filter(d => d["Trạng thái"] === "Chưa kích hoạt" || d["Trạng thái"] === "Chưa hoàn thành").length;
-+     let inactiveCount   = data.filter(d => d["Trạng thái"] !== "Đã kích hoạt").length;
-- **[convention] Patched security issue Staff — prevents XSS injection attacks — confirmed 3x**: -         // Bỏ hoàn toàn việc khóa sửa. Mọi User (Staff/Admin) đều có thể sửa hồ sơ.
-+         // Phân quyền: Mật khẩu và chỉnh sửa chỉ khả dụng cho Staff
--         $('#btnSaveEdit').show();
-+         if (AppState.user && AppState.user.role === 'Admin') {
--         $('#frmEditCustomer input').prop('readonly', false);
-+             $('#btnSaveEdit').hide();
--         $('.modal-title').html(`<i class='bx bxs-edit-alt text-white'></i> Chi tiết & Chỉnh sửa hồ sơ`);
-+             $('#frmEditCustomer input').prop('readonly', true);
--         
-+             $('#frmEditCustomer select, #frmEditCustomer input[type="checkbox"]').prop('disabled', true);
--         if (status === 'Đã kích hoạt') {
-+             $('.modal-title').html(`<i class='bx bx-info-circle text-white'></i> Chi tiết hồ sơ khách hàng`);
--             $('.modal-title').append(` <span class="badge bg-success small"><i class="bx bxs-check-circle"></i> Đã kích hoạt</span>`);
-+         } else {
+📌 IDE AST Context: Modified symbols likely include [charts, _parseStats, initDashboard, renderAdminStats, renderAdminTopStaff]
+- **[what-changed] 🟢 Edited netlify-app/js/registration.js (7 changes, 15min)**: Active editing session on netlify-app/js/registration.js.
+7 content changes over 15 minutes.
+- **[what-changed] what-changed in customer.js**: -                                 ${isVerified ? '<span class="ms-auto badge rounded-pill bg-success-subtle text-success border border-success-subtle"><i class="bx bxs-check-circle"></i> Đã duyệt</span>' : ''}
++                                 ${status === 'Đã kích hoạt' ? '<span class="ms-auto badge rounded-pill bg-success-subtle text-success border border-success-subtle"><i class="bx bxs-check-circle"></i> Đã kích hoạt</span>' : ''}
+
+📌 IDE AST Context: Modified symbols likely include [initMyCustomersList, renderStaffDashboardLocal, updateStaffRankings, staffChartInstance, renderStaffLineChart]
+- **[what-changed] what-changed in customer.js**: - });
++ 
+- 
++     // Sửa lỗi: Lắng nghe sự kiện submit của form để ngăn trang bị reload
+- window.loadStaffMyCustomersView = () => { showView('view-my-customers'); initMyCustomersList(); };
++     $(document).on('submit', '#frmEditCustomer', handleEditCustomer);
+- window.openEditCustomerModal = openEditCustomerModal;
++ });
++ window.loadStaffMyCustomersView = () => { showView('view-my-customers'); initMyCustomersList(); };
++ window.openEditCustomerModal = openEditCustomerModal;
++ 
+
+📌 IDE AST Context: Modified symbols likely include [initMyCustomersList, renderStaffDashboardLocal, updateStaffRankings, staffChartInstance, renderStaffLineChart]
+- **[what-changed] what-changed in registration.js**: -             useWebWorker: true,
++             useWebWorker: false,
+
+📌 IDE AST Context: Modified symbols likely include [initMoTaiKhoanForm, toggleFormFields, handleRegistration, checkDuplicate, loadStaffOpenAccountView]
+- **[convention] Fixed null crash in AppState — offloads heavy computation off the main thread — confirmed 3x**: -     const targets = $('#div_dkkd, #div_img_dkkd, #div_ten_dang_nhap');
++     const targets = $('#div_dkkd, #div_img_dkkd, #div_ten_dang_nhap, #div_mat_khau');
+-         $('#dkkd, #img_dkkd').prop('required', true);
++         $('#dkkd, #img_dkkd, #ten_dang_nhap').prop('required', true);
+-         $('#dkkd, #img_dkkd').prop('required', false);
++         $('#dkkd, #img_dkkd, #ten_dang_nhap').prop('required', false);
+-     const data = {
++     const getSafeVal = (id) => ($(`#${id}`).val() || "").trim();
+-         action: "api_submitregistration",
++ 
+-         email: AppState.user.email,
++     const data = {
+-         loai_hinh: $('#loai_hinh').val(),
++         action: "api_submitregistration",
+-         ten_kh: $('#ten_kh').val().trim(),
++         email: AppState.user.email,
+-         cccd: $('#cccd').val().trim(),
++         loai_hinh: $('#loai_hinh').val(),
+-         dkkd: $('#dkkd').val().trim(),
++         ten_kh: getSafeVal('ten_kh'),
+-         sdt: $('#sdt').val().trim(),
++         cccd: getSafeVal('cccd'),
+-         so_tk: '3800200' + $('#so_tk').val().trim(),
++         dkkd: getSafeVal('dkkd'),
+-         ten_dang_nhap: $('#ten_dang_nhap').val().trim(),
++         sdt: getSafeVal('sdt'),
+-         ngay_mo: $('#ngay_mo').val(),
++         so_tk: '3800200' + getSafeVal('so_tk'),
+-         mat_khau: $('#mat_khau').val() || ""
++         ten_dang_nhap: getSafeVal('ten_dang_nhap'),
+-     };
++         ngay_mo: $('#ngay_mo').val(),
+- 
++         mat_khau: $('#mat_khau').val() || ""
+-     const filesToProcess = fileSlots.filter(s => document.getElementById(s.id) && document.getElementById(s.id).files[0]);
++     };
+-     const totalSteps = filesToProcess.length + 2; 
++ 
+-     let currentStep = 0;
++     const filesToProcess = fileSlots.filter(s => document.getElementById(s.id) && document.getElementById(s.id).files[0]);
+- 
++     const totalSteps = filesToProcess.length + 2; 
+-     const updateUIProgress = (msg, pct) => {
++     let currentStep = 0;
+-         progressLabel.text(
+… [diff truncated]
+
+📌 IDE AST Context: Modified symbols likely include [initMoTaiKhoanForm, toggleFormFields, handleRegistration, checkDuplicate, loadStaffOpenAccountView]
+- **[problem-fix] problem-fix in customer.js**: -                 $('#modalEditCustomer').modal('hide');
++                 const mEl = document.getElementById('modalEditCustomer');
+-                 if (AppState.user && AppState.user.role !== 'Admin') {
++                 if (mEl) bootstrap.Modal.getOrCreateInstance(mEl).hide();
+-                     initMyCustomersList();
++                 if (AppState.user && AppState.user.role !== 'Admin') {
+-                 } else if (AppState.user && AppState.user.role === 'Admin') {
++                     initMyCustomersList();
+-                     if (typeof initDashboard === 'function') initDashboard();
++                 } else if (AppState.user && AppState.user.role === 'Admin') {
+-                 }
++                     if (typeof initDashboard === 'function') initDashboard();
+-             });
++                 }
 -         } else {
-+             $('#btnSaveEdit').show();
--             $('.modal-title').append(` <span class="badge bg-warning text-dark small"><i class="bx bx-time"></i> Chờ kích hoạt</span>`);
-+             $('#frmEditCustomer input').prop('readonly', false);
++             });
+-             showAlert('Lỗi', (res && res.message) ? res.message : 'Không thể cập nhật hồ sơ. Vui lòng thử lại.', 'error');
++         } else {
 -         }
-+             $('#frmEditCustomer select, #frmEditCustomer input[type="checkbox"]').prop('disabled', false);
-- 
-+             $('.modal-title').html(`<i class='bx bxs-edit-alt text-white'></i> Chi tiết & Chỉnh sửa hồ sơ`);
--         const infoHtml = `<div class="col-12 mb-2">
++             showAlert('Lỗi', (res && res.message) ? res.message : 'Không thể cập nhật hồ sơ. Vui lòng thử lại.', 'error');
+-     }, () => {
 +         }
--                             <div class="p-2 bg-white rounded border d-flex gap-2 shadow-sm align-items-center">
+-         btn.prop('disabled', false).html(oldHtml);
++     }, () => {
+-     }, 'Đang lưu hồ sơ...');
++         btn.prop('disabled', false).html(oldHtml);
+- }
++     }, 'Đang lưu hồ sơ...');
+- 
++ }
+- // Cấu hình event delegation xử lý xem chi tiết
 + 
--                                 <span class="badge bg-primary">${utils_escapeHTML(loaiHinh)}</span>
-+         if (status === 'Đã kích hoạt') {
--                                 <span>CCCD: <b>${utils_escapeHTML(cccdVal)}</b></span>
-+             $('.modal-title').append(` <span class="badge bg-success small"><i class="bx bxs-check-circle"></i> Đã kíc
+- $(document).ready(() => {
++ // Cấu hình event delegation xử lý xem chi tiết
+-     $(document).on('click', '.clickable-row', function(e) {
++ $(document).ready(() => {
+-         if ($(e.target).is('button') || $(e.target).closest('button').length) return;
++     $(document).on('click', '.clickable-row', function(e) {
+-         const id = $(this).attr('data-id') || $(this).data('id');
++         if ($(e.target).is('button') || $(e.target).closest('button').length) return;
+-         if (id) openEditCustomerModal(id);
++         const id = $(this).attr('data-id') || $(this).data('
 … [diff truncated]
 
-📌 IDE AST Context: Modified symbols likely include [GAS_API_URL, AppState, INACTIVITY_LIMIT, checkInactivity, on('click keydown scroll mousedown touchstart') callback]
-- **[what-changed] 🟢 Edited api_admin.gs (6 changes, 124min)**: Active editing session on api_admin.gs.
-6 content changes over 124 minutes.
-- **[convention] Updated 1 database schema — confirmed 3x**: -     
-+ 
--     // Giữ nguyên trạng thái hiện tại hoặc cập nhật theo tính toán mới (không dùng Đã xác minh tự động)
-+     // Batch Update 1 row using setValues
--     const row = data[rowIndex];
-+     sheet.getRange(rowIndex + 1, 1, 1, data[rowIndex].length).setValues([data[rowIndex]]);
--     const haveId    = !!(row[colLh] === "Cá nhân" ? row[colCccd] : row[colDkkd]);
-+     SpreadsheetApp.flush(); 
--     const haveSdt   = !!(row[colSdt]);
-+ 
--     const haveTk    = !!(row[colSoTk] && row[colSoTk].toString().length >= 9);
-+     return { 
--     const haveImg   = !!(row[colImg]);
-+       status: "success", 
--     const newStatus = (haveId && haveSdt && haveTk && haveImg) ? "Chờ duyệt" : "Chưa hoàn thành";
-+       message: "Cập nhật thành công!"
--     data[rowIndex][colTrangThai] = newStatus;
-+     };
--     // Batch Update 1 row using setValues
-+   } catch (e) {
--     sheet.getRange(rowIndex + 1, 1, 1, data[rowIndex].length).setValues([data[rowIndex]]);
-+     return { status: "error", message: "Lỗi Server Update: " + e.message };
--     SpreadsheetApp.flush(); 
-+   } finally {
-- 
-+     lock.releaseLock();
--     return { 
-+   }
--       status: "success", 
-+ }
--       message: newStatus === "Chờ duyệt" ? "Cập nhật thành công! Hồ sơ đang ở trạng thái Chờ duyệt." : "Đã lưu điều chỉnh. Hồ sơ vẫn ở trạng thái Chưa hoàn thành." 
-+ 
--     };
-+ 
-- 
--   } catch (e) {
--     return { status: "error", message: "Lỗi Server Update: " + e.message };
--   } finally {
--     lock.releaseLock();
--   }
+📌 IDE AST Context: Modified symbols likely include [initMyCustomersList, renderStaffDashboardLocal, updateStaffRankings, staffChartInstance, renderStaffLineChart]
+- **[what-changed] Replaced auth Modal**: -             $('#modalChangePassword').modal('hide');
++             const modalEl = document.getElementById('modalChangePassword');
+-             handleLoginSuccess(false);
++             if (modalEl) bootstrap.Modal.getOrCreateInstance(modalEl).hide();
+-         } else {
++             handleLoginSuccess(false);
+-             showAlert('Lỗi', res.message, 'error');
++         } else {
+-         }
++             showAlert('Lỗi', res.message, 'error');
+-     });
++         }
 - }
++     });
 - 
-- 
-- **[convention] Fixed null crash in JSON — externalizes configuration for environment flexibi... — confirmed 5x**: -       pending: pendingAccounts,
-+       activated: activatedCount,
--       approved: approvedAccounts,
-+       inactive: inactiveCount,
--       activated: activatedCount,
-+       caNhan: caNhanCount,
--       inactive: inactiveCount,
-+       hkd: hkdCount,
--       caNhan: caNhanAccounts,
-+       loaiHinh: loaiHinhCount,
--       hkd: hkdAccounts,
-+       allStaffs: allStaffStats,
--       loaiHinh: loaiHinhCount,
-+       topStaffs: topStaffs,
--       allStaffs: allStaffStats,
-+       timelineDate: timelineByDate,
--       topStaffs: topStaffs,
-+       typeMonth: typeByMonth,
--       timelineDate: timelineByDate,
-+       allData: data 
--       typeMonth: typeByMonth,
-+     };
--       allData: data 
-+ 
--     };
-+     return {
-- 
-+       status: "success",
--     return {
-+       statsStr: JSON.stringify(statsPayload) // Serialize thủ công để tránh lỗi mất object của GAS
--       status: "success",
-+     };
--       statsStr: JSON.stringify(statsPayload) // Serialize thủ công để tránh lỗi mất object của GAS
-+ 
--     };
-+   } catch (e) {
-- 
-+     return { status: "error", message: "Lỗi lấy dữ liệu Admin: " + e.message };
--   } catch (e) {
-+   }
--     return { status: "error", message: "Lỗi lấy dữ liệu Admin: " + e.message };
 + }
--   }
+- // Global exposure
 + 
-- }
-+ /**
+- window.logout = logout;
++ // Global exposure
+- window.openChangePasswordModal = openChangePasswordModal;
++ window.logout = logout;
 - 
-+  * Xóa hồ sơ hoặc đổi trạng thái (chỉ Admin)
-- /**
-+  * Cần truyền đối tượng {id, newStatus}
--  * Xóa hồ sơ hoặc đổi trạng thái (chỉ Admin)
-+  */
--  * Cần truyền đối tượng {id, newStatus}
-+ function api_adminUpdateStatus(id, newStatus) {
--  */
-+   const lock = LockService.getScriptLock();
-- function api_adminUpdateStatus(id, newStatus) {
-+   try {
--   const lock = LockService.getScriptLock();
-+     lock.waitLock(10000);
--   try {
-+     const sheet = getSheetByName(CONFIG.SHEET_DATA);
--     lock.waitLock(10000);
-+     const data = sheet.getDataRange().getValues();
--     const sheet = getSheetByName(CONFIG.SHEET_DATA);
-+     const header = data[0];
--     const data = sheet.getDataRange().getValues();
++ window.openChangePasswordModal = openChangePasswordModal;
++ 
+
+📌 IDE AST Context: Modified symbols likely include [handleLogin, handleLoginSuccess, logout, openChangePasswordModal, handleChangePassword]
+- **[convention] Fixed null crash in CCCD — offloads heavy computation off the main thread — confirmed 7x**: -     $('#div_dkkd, #div_img_dkkd, #div_ten_dang_nhap').toggle(isHKD);
++     const targets = $('#div_dkkd, #div_img_dkkd, #div_ten_dang_nhap');
+-     $('#dkkd, #img_dkkd').prop('required', isHKD);
 +     
--     const header = 
-… [diff truncated]
-- **[convention] Patched security issue User — prevents XSS injection attacks — confirmed 3x**: -         if (status === 'Đã kích hoạt') {
-+         $('#edit_is_activated').prop('checked', status === 'Đã kích hoạt');
--             $('#edit_is_activated').prop('checked', true);
-+ 
--         } else {
-+         // Bỏ hoàn toàn việc khóa sửa. Mọi User (Staff/Admin) đều có thể sửa hồ sơ.
--             $('#edit_is_activated').prop('checked', false);
-+         $('#btnSaveEdit').show();
--         }
-+         $('#frmEditCustomer input').prop('readonly', false);
-- 
-+         $('.modal-title').html(`<i class='bx bxs-edit-alt text-white'></i> Chi tiết & Chỉnh sửa hồ sơ`);
--         const isVerified = (status === 'Đã xác minh' || status === 'Đã kích hoạt');
-+         
-- 
-+         if (status === 'Đã kích hoạt') {
--         // Theo yêu cầu mới, User tự quản lý sửa hồ sơ nên không khóa nút Lưu kể cả khi đã xác minh
-+             $('.modal-title').append(` <span class="badge bg-success small"><i class="bx bxs-check-circle"></i> Đã kích hoạt</span>`);
--         if (AppState.user && AppState.user.role === 'Admin') {
-+         } else {
--             $('#btnSaveEdit').hide();
-+             $('.modal-title').append(` <span class="badge bg-warning text-dark small"><i class="bx bx-time"></i> Chờ kích hoạt</span>`);
--             $('#frmEditCustomer input').prop('readonly', true);
-+         }
--             $('#edit_status_alert').removeClass('d-none');
-+ 
--             $('.modal-title').html(`<i class='bx bx-search-alt text-white'></i> Chi tiết Hồ sơ <span class="badge bg-info small ms-2">Chế độ xem</span>`);
-+         const infoHtml = `<div class="col-12 mb-2">
--         } else {
-+                             <div class="p-2 bg-white rounded border d-flex gap-2 shadow-sm align-items-center">
--             $('#btnSaveEdit').show();
-+                                 <span class="badge bg-primary">${utils_escapeHTML(loaiHinh)}</span>
--             $('#frmEditCustomer input').prop('readonly', false);
-+                                 <span>CCCD: <b>${utils_escapeHTML(cccdVal)}</b></span
-… [diff truncated]
-
-📌 IDE AST Context: Modified symbols likely include [GAS_API_URL, AppState, INACTIVITY_LIMIT, checkInactivity, on('click keydown scroll mousedown touchstart') callback]
-- **[what-changed] 🟢 Edited app.js (12 changes, 125min)**: Active editing session on app.js.
-12 content changes over 125 minutes.
-- **[convention] Fixed null crash in JSON — externalizes configuration for environment flexibi... — confirmed 3x**: -       caNhan: caNhanAccounts,
-+       activated: activatedCount,
--       hkd: hkdAccounts,
-+       inactive: inactiveCount,
--       loaiHinh: loaiHinhCount,
-+       caNhan: caNhanAccounts,
--       allStaffs: allStaffStats,
-+       hkd: hkdAccounts,
--       topStaffs: topStaffs,
-+       loaiHinh: loaiHinhCount,
--       timelineDate: timelineByDate,
-+       allStaffs: allStaffStats,
--       typeMonth: typeByMonth,
-+       topStaffs: topStaffs,
--       allData: data 
-+       timelineDate: timelineByDate,
--     };
-+       typeMonth: typeByMonth,
-- 
-+       allData: data 
--     return {
-+     };
--       status: "success",
-+ 
--       statsStr: JSON.stringify(statsPayload) // Serialize thủ công để tránh lỗi mất object của GAS
-+     return {
--     };
-+       status: "success",
-- 
-+       statsStr: JSON.stringify(statsPayload) // Serialize thủ công để tránh lỗi mất object của GAS
--   } catch (e) {
-+     };
--     return { status: "error", message: "Lỗi lấy dữ liệu Admin: " + e.message };
-+ 
--   }
-+   } catch (e) {
 - }
-+     return { status: "error", message: "Lỗi lấy dữ liệu Admin: " + e.message };
++     if (isHKD) {
 - 
-+   }
-- /**
-+ }
--  * Xóa hồ sơ hoặc đổi trạng thái (chỉ Admin)
-+ 
--  * Cần truyền đối tượng {id, newStatus}
-+ /**
--  */
-+  * Xóa hồ sơ hoặc đổi trạng thái (chỉ Admin)
-- function api_adminUpdateStatus(id, newStatus) {
-+  * Cần truyền đối tượng {id, newStatus}
--   const lock = LockService.getScriptLock();
-+  */
--   try {
-+ function api_adminUpdateStatus(id, newStatus) {
--     lock.waitLock(10000);
-+   const lock = LockService.getScriptLock();
--     const sheet = getSheetByName(CONFIG.SHEET_DATA);
-+   try {
--     const data = sheet.getDataRange().getValues();
-+     lock.waitLock(10000);
--     const header = data[0];
-+     const sheet = getSheetByName(CONFIG.SHEET_DATA);
++         targets.hide().removeClass('initially-hidden').fadeIn(400);
+- async function handleRegistration(e) {
++         $('#dkkd, #img_dkkd').prop('required', true);
+-     e.preventDefault();
++         $('#dkkd').addClass('border-primary shadow-sm');
+-     const btn = $('#btnSubmitAccount');
++     } else {
+-     const oldBtn = btn.html();
++         targets.fadeOut(300);
 -     
-+     const data = sheet.getDataRange().getValues();
--     // Ưu tiên cột "ID", sau đó là "Mã GD"
-+     const header = data[0];
--     let idIdx = header.indexOf("ID");
-+     
--     if (idIdx === -1) idIdx =
-… [diff truncated]
-- **[convention] Patched security issue Theo — prevents XSS injection attacks — confirmed 5x**: -         const trangThai = row['Trạng thái'] || 'Chưa hoàn thành';
-+         // Theo yêu cầu mới, User tự quản lý sửa hồ sơ nên không khóa nút Lưu kể cả khi đã xác minh
--         const isVerified = (trangThai === 'Đã xác minh');
-+         if (AppState.user && AppState.user.role === 'Admin') {
-- 
-+             $('#btnSaveEdit').hide();
--         // Theo yêu cầu mới, User tự quản lý sửa hồ sơ nên không khóa nút Lưu kể cả khi đã xác minh
-+             $('#frmEditCustomer input').prop('readonly', true);
--         if (AppState.user && AppState.user.role === 'Admin') {
-+             $('#edit_status_alert').removeClass('d-none');
--             $('#btnSaveEdit').hide();
-+             $('.modal-title').html(`<i class='bx bx-search-alt text-white'></i> Chi tiết Hồ sơ <span class="badge bg-info small ms-2">Chế độ xem</span>`);
--             $('#frmEditCustomer input').prop('readonly', true);
-+         } else {
--             $('#edit_status_alert').removeClass('d-none');
-+             $('#btnSaveEdit').show();
--             $('.modal-title').html(`<i class='bx bx-search-alt text-white'></i> Chi tiết Hồ sơ <span class="badge bg-info small ms-2">Chế độ xem</span>`);
-+             $('#frmEditCustomer input').prop('readonly', false);
--         } else {
-+             $('#edit_status_alert').addClass('d-none');
--             $('#btnSaveEdit').show();
-+             
--             $('#frmEditCustomer input').prop('readonly', false);
-+             if (isVerified) {
--             $('#edit_status_alert').addClass('d-none');
-+                 $('.modal-title').html(`<i class='bx bxs-check-shield text-success'></i> Chi tiết Hồ sơ <span class="badge bg-success small ms-2">Đã xác minh</span>`);
--             
-+             } else {
--             if (isVerified) {
-+                 $('.modal-title').html(`<i class='bx bxs-edit-alt text-white'></i> Chỉnh sửa Hồ sơ`);
--                 $('.modal-title').html(`<i class='bx bxs-check-shield text-success'></i> Chi tiết Hồ sơ <span class="badge bg-
-… [diff truncated]
-
-📌 IDE AST Context: Modified symbols likely include [GAS_API_URL, AppState, INACTIVITY_LIMIT, checkInactivity, on('click keydown scroll mousedown touchstart') callback]
-- **[what-changed] what-changed in vercel.json**: -     { "source": "/(.*)", "destination": "/index.html" }
-+     { "source": "/(app\\.js|style\\.css|logo\\.png)", "destination": "/netlify-app/$1" },
--   ]
-+     { "source": "/(.*)", "destination": "/netlify-app/index.html" }
-- }
-+   ]
-- 
-+ }
-+ 
-
-📌 IDE AST Context: Modified symbols likely include [version, name, cleanUrls, rewrites]
-- **[what-changed] Replaced auth Cache — adds runtime type validation before use**: -     <!-- Pre-load styles -->
-+     <!-- Cache Control -->
--     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-+     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
--     <link href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
-+     <meta http-equiv="Pragma" content="no-cache">
--     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
-+     <meta http-equiv="Expires" content="0">
--     <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet">
-+ 
--     <link href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css" rel="stylesheet">
-+     <!-- Pre-load styles -->
--     <link href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.bootstrap5.min.css" rel="stylesheet">
-+     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
--     <link href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" rel="stylesheet">
-+     <link href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
--     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
-+     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
--     <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet">
-+     <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet">
--     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-+     <link href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css" rel="stylesheet">
--     <link href="style.css" rel="stylesheet">
-+     <link href="https:
-… [diff truncated]
-
-📌 IDE AST Context: Modified symbols likely include [html]
-- **[what-changed] what-changed in style.css**: File updated (external): style.css
-
-Content summary (212 lines):
-:root {
-    --emerald: #10b981;
-    --emerald-dark: #059669;
-    --slate: #64748b;
-    --amber: #f59e0b;
-}
-
-body {
-    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-    min-height: 100vh;
-    font-family: 'Inter', sans-serif;
-    color: #1e293b;
-    margin: 0;
-    padding: 0;
-}
-
-.glass-card {
-    background: rgba(255, 255, 255, 0.85);
-    -webkit-backdrop-filter: blur(12px);
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.4);
-    border-radius: 1rem;
-- **[convention] Patched security issue CCCD — adds runtime type validation before use — confirmed 4x**: - function checkDuplicateAccount(cccd, dkkd, sdt, loaiHinh) {
-+ function checkDuplicateAccount(cccd, dkkd, sdt, loaiHinh, excludeId) {
--     // Chỉ báo trùng nếu CÙNG loại hình dịch vụ (Cá nhân vs Cá nhân, HKD vs HKD)
-+     
--     if (row["Loại hình dịch vụ"] === loaiHinh) {
-+     // Nếu có excludeId, bỏ qua dòng hiện tại (đang chỉnh sửa)
--       if (cccd && cccd !== "" && row["Số CCCD"] == cccd) return { isDup: true, msg: "Trùng Số CCCD/CMND với giao dịch trước đó của cùng loại hình khách hàng." };
-+     if (excludeId && row["ID"] && row["ID"].toString().replace(/^'/, '') === excludeId.toString().replace(/^'/, '')) {
--       if (dkkd && dkkd !== "" && row["Số DKKD"] == dkkd) return { isDup: true, msg: "Trùng Số Giấy phép ĐKKD với giao dịch trước đó của cùng loại hình khách hàng." };
-+       continue;
--       if (sdt && sdt !== "" && row["Số điện thoại"] == sdt) return { isDup: true, msg: "Trùng Số điện thoại giao dịch trước đó của cùng loại hình khách hàng." };
++         $('#dkkd, #img_dkkd').prop('required', false);
+-     const progressWrapper = $('#compress-progress-wrapper');
++         $('#dkkd').removeClass('border-primary shadow-sm');
+-     const progressBar = $('#compress-progress-bar');
 +     }
--     }
-+ 
--   }
-+     // Chỉ báo trùng nếu CÙNG loại hình dịch vụ (Cá nhân vs Cá nhân, HKD vs HKD)
--   return { isDup: false };
-+     if (row["Loại hình dịch vụ"] === loaiHinh) {
-- }
-+       if (cccd && cccd !== "" && row["Số CCCD"] == cccd) return { isDup: true, msg: "Trùng Số CCCD/CMND với giao dịch trước đó của cùng loại hình khách hàng." };
-- 
-+       if (dkkd && dkkd !== "" && row["Số DKKD"] == dkkd) return { isDup: true, msg: "Trùng Số Giấy phép ĐKKD với giao dịch trước đó của cùng loại hình khách hàng." };
-- /**
-+       if (sdt && sdt !== "" && row["Số điện thoại"] == sdt) return { isDup: true, msg: "Trùng Số điện thoại giao dịch trước đó của cùng loại hình khách hàng." };
--  * API Kiểm tra trùng lặp thời gian thực cho Frontend (CCCD, DKKD, SDT)
-+     }
--  */
-+   }
-- function api_validateDuplicate(field, value, loaiHinh) {
-+   return { isDup: false };
--   if (typeof field === 'object' && field !== null) {
+-     const progressLabel = $('#compress-progress-label');
 + }
--     value = field.value;
+-     const progressPct = $('#compress-progress-pct');
 + 
--     loaiHinh = field.loaiHinh;
-+ /**
--     field = f
+- 
++ async function handleRegistration(e) {
+-     btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Đang xử lý...');
++     e.preventDefault();
+-     progressWrapper.removeClass('initially-hidden').removeClass('d-none').show();
++     const btn = $('#btnSubmitAccount');
+-     progressBar.css('width', '0%');
++     const oldBtn = btn.html();
+-     progressPct.text('0%');
++     
+- 
++     const progressWrapper = $('#compress-progress-wrapper');
+-     const fileSlots = [
++     const progressBar = $('#compress-progress-bar');
+-         { id: 'img_truoc', label: 'CCCD Trước' },
++     const progressLabel = $('#compress-progress-label');
+-         { id: 'img_sau',   label: 'CCCD Sau' },
++     const progressPct = $('#compress-progress-pct');
+-         { id: 'img_dkkd',  label: 'Giấy phép' },
++ 
+-         { id: 'img_qr',    label: 'Mã QR' },
++     btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Đang xử lý...');
+-         { id: 'img_thuchien', l
 … [diff truncated]
+
+📌 IDE AST Context: Modified symbols likely include [initMoTaiKhoanForm, toggleFormFields, handleRegistration, checkDuplicate, loadStaffOpenAccountView]
+- **[what-changed] 🟢 Edited netlify-app/js/api.js (5 changes, 143min)**: Active editing session on netlify-app/js/api.js.
+5 content changes over 143 minutes.
+- **[decision] decision in registration.js**: -     const compressWithTimeout = (file, slotLabel, ms = 10000) => {
++     const compressWithTimeout = (file, slotLabel, ms = 25000) => {
+-         const options = { maxSizeMB: 0.4, maxWidthOrHeight: 1200, useWebWorker: true };
++         const options = { maxSizeMB: 0.4, maxWidthOrHeight: 1200, useWebWorker: false };
+
+📌 IDE AST Context: Modified symbols likely include [initMoTaiKhoanForm, toggleFormFields, handleRegistration, checkDuplicate, loadStaffOpenAccountView]
+- **[convention] Fixed null crash in Object — offloads heavy computation off the main thread — confirmed 4x**: -     flatpickr(".js-datepicker", { dateFormat: "Y-m-d", altInput: true, altFormat: "d/m/Y", defaultDate: "today" });
++     const fpEls = document.querySelectorAll('.js-datepicker');
+-     
++     fpEls.forEach(el => {
+-     $('#frm-mo-tk').off('submit').on('submit', handleRegistration);
++         if (!el._flatpickr) {
+-     $('#loai_hinh').on('change', toggleFormFields);
++             flatpickr(el, { dateFormat: "Y-m-d", altInput: true, altFormat: "d/m/Y", defaultDate: "today" });
+-     toggleFormFields(); 
++         }
+- 
++     });
+-     const camMap = {
++     
+-         'cam_truoc': 'img_truoc',
++     $('#frm-mo-tk').off('submit').on('submit', handleRegistration);
+-         'cam_sau':   'img_sau',
++     $('#loai_hinh').on('change', toggleFormFields);
+-         'cam_dkkd':  'img_dkkd',
++     toggleFormFields(); 
+-         'cam_qr':    'img_qr',
++ 
+-         'cam_thuchien': 'img_thuchien'
++     const camMap = {
+-     };
++         'cam_truoc': 'img_truoc',
+- 
++         'cam_sau':   'img_sau',
+-     const triggerProcessing = async (file, targetId) => {
++         'cam_dkkd':  'img_dkkd',
+-         if (!file) return;
++         'cam_qr':    'img_qr',
+-         showLoading('Phân tích ảnh...');
++         'cam_thuchien': 'img_thuchien'
+-         try {
++     };
+-             const processed = await processImageWithAI(file);
++ 
+-             startCroppingFlow(processed, targetId);
++     const triggerProcessing = async (file, targetId) => {
+-         } catch(e) {
++         if (!file) return;
+-             startCroppingFlow(file, targetId);
++         showLoading('Phân tích ảnh...');
+-         } finally {
++         try {
+-             hideLoading();
++             const processed = await processImageWithAI(file);
+-         }
++             startCroppingFlow(processed, targetId);
+-     };
++         } catch(e) {
+- 
++             startCroppingFlow(file, targetId);
+-     const uploadIds = ['img_truoc', 'img_sau', 'img_dkkd', 'img_qr', 'img_thuchien'];
++         } finally {
+-     upload
+… [diff truncated]
+
+📌 IDE AST Context: Modified symbols likely include [initMoTaiKhoanForm, toggleFormFields, handleRegistration, checkDuplicate, loadStaffOpenAccountView]
