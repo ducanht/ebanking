@@ -1,7 +1,7 @@
 
 
 # Project Memory — ebanking
-> 319 notes | Score threshold: >40
+> 324 notes | Score threshold: >40
 
 ## Safety — Never Run Destructive Commands
 
@@ -44,10 +44,10 @@
 
 ## Recent Decisions
 
+- decision in task.md
 - Optimized Modal — ensures atomic multi-step database operations
 - decision in index.html
 - decision in registration.js
-- Optimized Danh — ensures atomic multi-step database operations
 
 ## Verified Best Practices
 

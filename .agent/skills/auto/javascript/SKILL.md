@@ -1,6 +1,6 @@
 ---
 name: javascript
-description: "Javascript for ebanking. 3 gotchas, 18 conventions, 34 fixes."
+description: "Javascript for ebanking. 3 gotchas, 18 conventions, 35 fixes."
 domain: javascript
 triggers:
   - glob: "**/*.js"
@@ -11,7 +11,7 @@ enabled: true
 
 # Javascript
 
-Auto-compiled from **82 real patterns** in **ebanking**. This skill is auto-routed to agents when working on javascript files.
+Auto-compiled from **83 real patterns** in **ebanking**. This skill is auto-routed to agents when working on javascript files.
 
 ## ⚠️ Anti-Patterns & Gotchas
 
@@ -24,6 +24,20 @@ Auto-compiled from **82 real patterns** in **ebanking**. This skill is auto-rout
 | ⚠️ GOTCHA: Patched security issue EVENT — prevents | -  + // --- CẤU HÌNH EVENT DELEGATION: XỬ LÝ CLICK XEM CHI TIẾT --- - /** + $(document).on('click',  |
 
 ## 🔧 Problem Playbooks
+
+### Fixed null crash in CCCD — offloads heavy computation off the main thread
+-         $('#dkkd, #img_dkkd, #ten_dang_nhap').prop('required', true);
++         $('#dkkd, #img_dkkd').prop('required', true); // Chỉ dkkd là bắt bắt buộc cho HKD
+-         $('#dkkd, #img_dkkd, #ten_dang_nhap').prop('required', false);
++         $('#dkkd, #img_dkkd').prop('required', false);
+-     btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Đang xử lý..
+
+**Actionable Steps:**
+1. Modified 1 files
+2. identifier: HKD
+3. identifier: Vui
+4. identifier: CCCD
+5. identifier: Sau
 
 ### Patched security issue CORS — prevents XSS injection attacks
 -         const options = { maxSizeMB: 0.4, maxWidthOrHeight: 1200, useWebWorker: true };
@@ -323,20 +337,6 @@ Auto-compiled from **82 real patterns** in **ebanking**. This skill is auto-rout
 +     try {
 -             responsive: true,
 +         if (!id) return;
--             dom: "<'row mb-2'<'col-sm-12 col-md-4 d-flex align-items-center justify-content-start'l><'col-sm-12 col-md-4 d-fl
-
-**Actionable Steps:**
-1. Modified 1 files
-2. identifier: AppState
-3. identifier: Admin
-4. identifier: AppCache
-5. identifier: String
-
-### Patched security issue CCCD — prevents XSS injection attacks
--         $('#edit_id').val(id);
-+         $('#edit_id').val(id);        const loaiHinh = row['Loại hình dịch vụ'] || 'Cá nhân';
--         $('#edit_ten_kh').val(row['Tên khách hàng'] || '');
-+         const cccdVal = (row['Số CCCD'] || '').toString().replace(/^'/, '');
--         $('#edit_sdt').val((row['Số điện thoại'] || '').toString().r
+-             dom: "<'row mb-2'<'col-sm-12 col-md-4 d-flex align-ite
 
 ... [Truncated — see individual observations for full content]

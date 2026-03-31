@@ -1,6 +1,6 @@
 ---
 name: project
-description: "Project for ebanking. 19 gotchas, 41 conventions, 15 fixes."
+description: "Project for ebanking. 19 gotchas, 41 conventions, 16 fixes."
 domain: project
 triggers:
   - glob: "**/*"
@@ -10,7 +10,7 @@ enabled: true
 
 # Project
 
-Auto-compiled from **179 real patterns** in **ebanking**. This skill is auto-routed to agents when working on project files.
+Auto-compiled from **182 real patterns** in **ebanking**. This skill is auto-routed to agents when working on project files.
 
 ## ⚠️ Anti-Patterns & Gotchas
 
@@ -39,6 +39,22 @@ Auto-compiled from **179 real patterns** in **ebanking**. This skill is auto-rou
 | Never force push to main, master, or production br | Never force push to main, master, or production branches |
 
 ## 🔧 Problem Playbooks
+
+### Fixed null crash in User — adds runtime type validation before use
+-     // Tự động xác định Trạng thái
++     // Hợp nhất: Mặc định hồ sơ mới là "Chờ duyệt" để User có thể chỉnh sửa ngay lập tức tại Chi tiết
+-     const isCaNhan = formData.loai_hinh === "Cá nhân";
++     const trangThai = (hasMainId && hasContact && hasAccount && hasImages) ? "Chờ duyệt" : "Chưa hoàn thành";
+-     const hasMainId = !!(isCaNhan ? formData.cccd : formData.dkkd);
++     
+-     const h
+
+**Actionable Steps:**
+1. Modified 1 files
+2. identifier: User
+3. identifier: Chi
+4. identifier: Ghi
+5. identifier: Batch
 
 ### problem-fix in scratchpad_7neh669b.md
 - - [ ] Verify record in 'Hồ sơ'
@@ -278,12 +294,6 @@ Auto-compiled from **179 real patterns** in **ebanking**. This skill is auto-rou
 +     - [x] Back image: upload `test_cccd_pla
 - 📐 **Replaced auth Login — confirmed 3x** — - - [ ] Login as Staff: qtdyentho.thaobui@gmail.com / Qtd@2003
 + - [x] Login as Staff: qtdyentho.tha
-- 📐 **Added session cookies authentication — confirmed 3x** — - - [!] Test 'Chi tiết' button in 'Lịch Sử Mở Mới' (Dashboard) - FAILED (Element not found)
-+ - [!] 
-- 📐 **Patched security issue CCCD — adds runtime type validation before use — confirmed 4x** — - function checkDuplicateAccount(cccd, dkkd, sdt, loaiHinh) {
-+ function checkDuplicateAccount(cccd,
-- 📐 **problem-fix in task.md.resolved — confirmed 4x** — - - [ ] Cập nhật Backend (`api_admin.gs`): Bao gồm toàn bộ cán bộ trong bảng xếp hạng.
-+ - [x] Fix C
-- 📐 **Strengthened types Walkthrough** — - # Walkthrough - Hardening Search and Du
+- 📐 **A
 
 ... [Truncated — see individual observations for full content]
