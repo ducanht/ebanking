@@ -1,6 +1,6 @@
 ---
 name: project
-description: "Project for ebanking. 19 gotchas, 47 conventions, 17 fixes."
+description: "Project for ebanking. 19 gotchas, 49 conventions, 18 fixes."
 domain: project
 triggers:
   - glob: "**/*"
@@ -10,7 +10,7 @@ enabled: true
 
 # Project
 
-Auto-compiled from **201 real patterns** in **ebanking**. This skill is auto-routed to agents when working on project files.
+Auto-compiled from **218 real patterns** in **ebanking**. This skill is auto-routed to agents when working on project files.
 
 ## ⚠️ Anti-Patterns & Gotchas
 
@@ -39,6 +39,28 @@ Auto-compiled from **201 real patterns** in **ebanking**. This skill is auto-rou
 | Never force push to main, master, or production br | Never force push to main, master, or production branches |
 
 ## 🔧 Problem Playbooks
+
+### Patched security issue String — adds runtime type validation before use
+-   
++   else if (field === "so_tk") colName = "Số TK";
+-   if (!colName) return { isDup: false };
++   
+-   
++   if (!colName) return { isDup: false };
+-   // Tìm kiếm theo cả cột giá trị và loại hình dịch vụ
++   
+-   const found = data.find(row => 
++   // LUÔN LUÔN lọc theo Loại hình dịch vụ
+-     (row[colName] == value || row[colName] == "'" + value) && 
++   const found = data.find(row => 
+-    
+
+**Actionable Steps:**
+1. Modified 1 files
+2. identifier: String
+3. identifier: Submit
+4. identifier: Form
+5. identifier: API
 
 ### Fixed null crash in Kinh — filters out falsy/null values explicitly
 -     let pendingAccounts = data.filter(d => d["Trạng thái"] === "Chưa hoàn thành").length;
@@ -268,27 +290,6 @@ Auto-compiled from **201 real patterns** in **ebanking**. This skill is auto-rou
 +     field = field.field;
 -   if (field === "cccd") colName = "Số CCCD";
 +   }
--   else if (field === "dkkd") colName = "Số DKKD";
-+   if (!value || value === "") return { isDup: 
-
-**Actionable Steps:**
-1. Modified 1 files
-2. identifier: CONFIG
-3. identifier: CCCD
-4. identifier: DKKD
-5. identifier: Submit
-
-### Fixed null crash in Action — hardens HTTP security headers
--       "api_updatecustomer": api_updateMyCustomer
-+       "api_updatecustomer": api_updateMyCustomer,
--     };
-+       "api_validateduplicate": api_validateDuplicate
-- 
-+     };
--     // 3. Thực thi hàm tương ứng hoặc báo lỗi
-+ 
--     if (apiHandlers[rawAction]) {
-+     // 3. Thực thi hàm tương ứng hoặc báo lỗi
--    
+-   els
 
 ... [Truncated — see individual observations for full content]

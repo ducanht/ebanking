@@ -1,6 +1,6 @@
 ---
 name: javascript
-description: "Javascript for ebanking. 3 gotchas, 22 conventions, 47 fixes."
+description: "Javascript for ebanking. 3 gotchas, 22 conventions, 48 fixes."
 domain: javascript
 triggers:
   - glob: "**/*.js"
@@ -11,7 +11,7 @@ enabled: true
 
 # Javascript
 
-Auto-compiled from **104 real patterns** in **ebanking**. This skill is auto-routed to agents when working on javascript files.
+Auto-compiled from **106 real patterns** in **ebanking**. This skill is auto-routed to agents when working on javascript files.
 
 ## ⚠️ Anti-Patterns & Gotchas
 
@@ -24,6 +24,21 @@ Auto-compiled from **104 real patterns** in **ebanking**. This skill is auto-rou
 | ⚠️ GOTCHA: Patched security issue EVENT — prevents | -  + // --- CẤU HÌNH EVENT DELEGATION: XỬ LÝ CLICK XEM CHI TIẾT --- - /** + $(document).on('click',  |
 
 ## 🔧 Problem Playbooks
+
+### Fixed null crash in Fallback — prevents XSS injection attacks
+-             AppCache.set('adminDashboard', s);
++             // Fallback: GAS backend cũ (chưa deploy bản mới) không có activated/inactive trong statsPayload.
+-             _renderAll(s);
++             // Nếu cả 2 đều = 0 nhưng total > 0, tự tính từ allData để dashboard không bị trống.
+-         }
++             if (s && s.allData && s.total > 0 && ((s.activated || 0) + (s.inactive || 0)) < s.tot
+
+**Actionable Steps:**
+1. Modified 1 files
+2. identifier: Fallback
+3. identifier: GAS
+4. identifier: AppCache
+5. identifier: KPI
 
 ### Fixed null crash in HTML — prevents XSS injection attacks
 -     $('#db-total').text(s.total || 0);
@@ -328,23 +343,6 @@ Auto-compiled from **104 real patterns** in **ebanking**. This skill is auto-rou
 +                 const modalEl = document.getElementById('modalChangePassword');
 -                 $('#pwdAlertForce').removeClass('initially-hidden').show();
 +                 if (modalEl) {
--                 $('#modalChangePassword .btn-close').hide();
-+                     const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
--  
-
-**Actionable Steps:**
-1. Modified 1 files
-2. identifier: Modal
-3. identifier: AppState
-4. identifier: Admin
-5. identifier: AppCache
-
-### Fixed null crash in DEBUG — adds runtime type validation before use
--         $('#modalEditCustomer').modal('show');
-+         const modalEl = document.getElementById('modalEditCustomer');
--     } catch(err) { console.error(err); }
-+         if (!modalEl) {
-- }
-+             console.error("DEBUG: Không tìm thấ
+-
 
 ... [Truncated — see individual observations for full content]

@@ -3,7 +3,7 @@
  * Hardened with Timeout (35s) and Auto-Retry (Max 2)
  */
 
-const GAS_API_URL = "https://script.google.com/macros/s/AKfycbyXBMdJO2JmoaarxW9l7mg-l4tyN6BF1U01jaMPQ48xmVOZM9WFWLnOTIc9Wyf1OpFr/exec";
+const GAS_API_URL = "https://script.google.com/macros/s/AKfycbwewU3acuzWSY6_HwoVeP3XDJx876QqzDJiZ2_tL8HvsnsYQfTwzXfWiwcpaWm1zGMP/exec";
 
 async function runAPI(action, data = {}, successHandler, errorHandler, loadingMsg = 'Đang xử lý...', retryCount = 0) {
     if (loadingMsg !== 'NONE' && retryCount === 0) showLoading(loadingMsg);

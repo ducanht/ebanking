@@ -1,7 +1,7 @@
 
 
 # Project Memory — ebanking
-> 370 notes | Score threshold: >40
+> 390 notes | Score threshold: >40
 
 ## Safety — Never Run Destructive Commands
 
@@ -18,24 +18,36 @@
 
 **Stack:** Unknown stack
 
-## 📝 NOTE: 1 uncommitted file(s) in working tree.\n\n## Active: `netlify-app/js`
+## 📝 NOTE: 1 uncommitted file(s) in working tree.\n\n## Important Warnings
 
-- **Fixed null crash in DataTable — prevents XSS injection attacks — confirmed 3x**
-- **Fixed null crash in AppState — offloads heavy computation off the main thread — confirmed 3x**
-- **Fixed null crash in CCCD — offloads heavy computation off the main thread — confirmed 7x**
-- **Fixed null crash in Object — offloads heavy computation off the main thread — confirmed 4x**
-- **what-changed in # Nguyên tắc cốt lõi (Core Principles).ini**
+- **⚠️ GOTCHA: Added session cookies authentication — adds runtime type validation before use** — -  * NETLIFY HIGH-FIDELITY APP ENGINE (app.js)
++  * MÃ NGUỒN FRONTEND 
+- **⚠️ GOTCHA: Patched security issue EVENT — prevents XSS injection attacks** — - 
++ // --- CẤU HÌNH EVENT DELEGATION: XỬ LÝ CLICK XEM CHI TIẾT ---
+- 
+- **⚠️ GOTCHA: Patched security issue VERSION — prevents XSS injection attacks** — -     VERSION: "2.1.1-PATCHED",
++     VERSION: "2.1.2-STABLE",
+- 
++ //
+
+## Active: `netlify-app`
+
+- **⚠️ GOTCHA: Added session cookies authentication — adds runtime type validation before use**
+- **⚠️ GOTCHA: Patched security issue EVENT — prevents XSS injection attacks**
+- **🟢 Edited netlify-app/app.js (5 changes, 29min) — confirmed 3x**
+- **Patched security issue Normalization — prevents XSS injection attacks — confirmed 3x**
+- **Replaced auth Modules — confirmed 3x**
 
 ## Project Standards
 
-- Fixed null crash in DataTable — prevents XSS injection attacks — confirmed 3x
-- Fixed null crash in AppState — offloads heavy computation off the main thread — confirmed 3x
-- Fixed null crash in CCCD — offloads heavy computation off the main thread — confirmed 7x
-- Fixed null crash in Object — offloads heavy computation off the main thread — confirmed 4x
-- Patched security issue Staff — prevents XSS injection attacks — confirmed 3x
+- 🟢 Edited netlify-app/app.js (5 changes, 29min) — confirmed 3x
+- Patched security issue Normalization — prevents XSS injection attacks — confirmed 3x
 - Replaced auth Modules — confirmed 3x
-- Updated 1 database schema — confirmed 3x
 - what-changed in index.html — confirmed 3x
+- Patched security issue DataTable — prevents XSS injection attacks — confirmed 3x
+- Patched security issue Date — prevents XSS injection attacks — confirmed 3x
+- what-changed in app.js — confirmed 4x
+- Patched security issue Initialize — prevents XSS injection attacks — confirmed 3x
 
 ## Known Fixes
 
@@ -47,10 +59,10 @@
 
 ## Recent Decisions
 
-- decision in registration.js
-- decision in task.md
-- Optimized Modal — ensures atomic multi-step database operations
+- decision in app.js
 - decision in index.html
+- Optimized Vercel — offloads heavy computation off the main thread
+- decision in task.md
 
 ## Verified Best Practices
 

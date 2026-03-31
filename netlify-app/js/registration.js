@@ -243,6 +243,7 @@ function checkDuplicate(input) {
             if (input.id === 'cccd') $(input).siblings('.invalid-feedback').text('Căn cước công dân bắt buộc đúng 12 chữ số.');
             else if (input.id === 'sdt') $(input).siblings('.invalid-feedback').text('SĐT bắt buộc bắt đầu bằng 0 và đủ 10 chữ số.');
             else if (input.id === 'so_tk') $(input).siblings('.invalid-feedback').text('Cần nhập đúng 9 chữ số cuối.');
+            else if (input.id === 'dkkd') $(input).siblings('.invalid-feedback').text('Số giấy phép kinh doanh không hợp lệ.');
         }
     }, null, 'NONE');
 }
