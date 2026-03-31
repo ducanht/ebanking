@@ -113,7 +113,8 @@ async function handleRegistration(e) {
         so_tk: '3800200' + getSafeVal('so_tk'),
         ten_dang_nhap: getSafeVal('ten_dang_nhap'),
         ngay_mo: $('#ngay_mo').val(),
-        mat_khau: $('#mat_khau').val() || ""
+        mat_khau: $('#mat_khau').val() || "",
+        is_activated: $('#is_activated').is(':checked')
     };
 
     const filesToProcess = fileSlots.filter(s => document.getElementById(s.id) && document.getElementById(s.id).files[0]);

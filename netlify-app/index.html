@@ -332,6 +332,12 @@
 
 
                     <div class="mt-4 pt-3 text-center border-top">
+                        <div class="mb-3 d-flex justify-content-center">
+                            <div class="form-check form-switch bg-light p-2 px-4 rounded-pill border shadow-sm">
+                                <input class="form-check-input ms-0 me-2" type="checkbox" id="is_activated" style="width: 2.5em; height: 1.25em;">
+                                <label class="form-check-label fw-bold text-success" for="is_activated">KÍCH HOẠT HỒ SƠ NGAY</label>
+                            </div>
+                        </div>
                         <button type="submit" class="btn btn-primary btn-lg px-5 shadow-sm d-flex align-items-center mx-auto gap-2" id="btnSubmitAccount">
                             <i class='bx bx-send'></i> Gửi Hồ Sơ
                         </button>
@@ -360,27 +366,30 @@
             <div class="row g-3 mb-4" id="staff-dashboard-cards">
                 <div class="col-6 col-md-3">
                     <div class="glass-card p-3 text-center border-start border-4 border-primary h-100 shadow-sm align-content-center">
-                        <h6 class="text-muted mb-1 small text-uppercase">Tổng hồ sơ</h6>
+                        <h6 class="text-muted mb-1 small text-uppercase font-size-10">TỔNG HỒ SƠ</h6>
                         <h3 class="fw-bold text-primary mb-0" id="staffDash-total"><i class='bx bx-loader-alt bx-spin'></i></h3>
+                        <small class="text-secondary" style="font-size: 0.65rem;">
+                            <span id="staffDash-canhan" class="fw-bold text-info">0</span> Cá nhân | <span id="staffDash-hkd" class="fw-bold text-warning">0</span> Hộ KD
+                        </small>
                     </div>
                 </div>
                 <div class="col-6 col-md-3">
                     <div class="glass-card p-3 text-center border-start border-4 border-success h-100 shadow-sm align-content-center">
-                        <h6 class="text-muted mb-1 small text-uppercase">Đã kích hoạt</h6>
+                        <h6 class="text-muted mb-1 small text-uppercase font-size-10">ĐÃ KÍCH HOẠT</h6>
                         <h3 class="fw-bold text-success mb-0" id="staffDash-activated">0</h3>
                     </div>
                 </div>
                 <div class="col-6 col-md-3">
                     <div class="glass-card p-3 text-center border-start border-4 border-warning h-100 shadow-sm align-content-center">
-                        <h6 class="text-muted mb-1 small text-uppercase">Chưa kích hoạt</h6>
+                        <h6 class="text-muted mb-1 small text-uppercase font-size-10">CHƯA KÍCH HOẠT</h6>
                         <h3 class="fw-bold text-warning mb-0" id="staffDash-inactive">0</h3>
                     </div>
                 </div>
                 <div class="col-6 col-md-3">
                     <div class="glass-card p-2 text-center bg-white border border-danger h-100 shadow-sm align-content-center">
-                        <h6 class="text-muted mb-1 small text-uppercase"><i class='bx bxs-crown text-danger'></i> Top 1</h6>
-                        <p class="fw-bold text-dark mb-0 small text-truncate text-truncate-max" id="staffDash-top1Name">--</p>
-                        <span class="badge bg-danger rounded-pill mt-1" id="staffDash-top1Count">--</span>
+                        <h6 class="text-muted mb-1 small text-uppercase font-size-10"><i class='bx bxs-crown text-danger'></i> Hạng của tôi</h6>
+                        <h5 class="fw-bold text-dark mb-0" id="staffDash-rank">--</h5>
+                        <p class="mb-0 small text-secondary mt-1" id="staffDash-aboveRankInfo" style="font-size: 0.7rem;"></p>
                     </div>
                 </div>
             </div>
@@ -505,8 +514,11 @@
                 <div class="modal-body bg-light">
                     <form id="frmEditCustomer" class="card p-3 border-0 shadow-sm">
                         <input type="hidden" id="edit_id">
-                        <div id="edit_status_alert" class="alert alert-warning d-none py-2 mb-3 small shadow-sm">
-                            <i class='bx bx-lock-alt me-1'></i> <strong>Chỉ xem:</strong> Hồ sơ đã xác minh. Liên hệ Admin để sửa.
+                        <div class="mb-3 d-flex justify-content-center">
+                            <div class="form-check form-switch bg-white p-2 px-4 rounded-pill border shadow-sm">
+                                <input class="form-check-input ms-0 me-2" type="checkbox" id="edit_is_activated" style="width: 2.5em; height: 1.25em;">
+                                <label class="form-check-label fw-bold text-success" for="edit_is_activated">KÍCH HOẠT HỒ SƠ</label>
+                            </div>
                         </div>
                         <div class="row g-3">
                             <div class="col-md-6"><label class="form-label fw-semibold">Tên Khách Hàng</label><input type="text" class="form-control text-uppercase" id="edit_ten_kh" required></div>

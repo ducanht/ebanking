@@ -1,6 +1,6 @@
 ---
 name: project
-description: "Project for ebanking. 19 gotchas, 44 conventions, 16 fixes."
+description: "Project for ebanking. 19 gotchas, 45 conventions, 17 fixes."
 domain: project
 triggers:
   - glob: "**/*"
@@ -10,7 +10,7 @@ enabled: true
 
 # Project
 
-Auto-compiled from **186 real patterns** in **ebanking**. This skill is auto-routed to agents when working on project files.
+Auto-compiled from **190 real patterns** in **ebanking**. This skill is auto-routed to agents when working on project files.
 
 ## ⚠️ Anti-Patterns & Gotchas
 
@@ -39,6 +39,19 @@ Auto-compiled from **186 real patterns** in **ebanking**. This skill is auto-rou
 | Never force push to main, master, or production br | Never force push to main, master, or production branches |
 
 ## 🔧 Problem Playbooks
+
+### Fixed null crash in Kinh — filters out falsy/null values explicitly
+-     let pendingAccounts = data.filter(d => d["Trạng thái"] === "Chưa hoàn thành").length;
++     let activatedCount  = data.filter(d => d["Trạng thái"] === "Đã kích hoạt").length;
+-     let approvedAccounts = data.filter(d => d["Trạng thái"] === "Đã xác minh").length;
++     let inactiveCount   = data.filter(d => d["Trạng thái"] === "Chưa kích hoạt" || d["Trạng thái"] === "Chưa hoàn thành").length
+
+**Actionable Steps:**
+1. Modified 1 files
+2. identifier: Kinh
+3. identifier: Email
+4. identifier: Timeline
+5. identifier: Gom
 
 ### Fixed null crash in User — adds runtime type validation before use
 -     // Tự động xác định Trạng thái
@@ -276,23 +289,6 @@ Auto-compiled from **186 real patterns** in **ebanking**. This skill is auto-rou
 + 
 -     if (apiHandlers[rawAction]) {
 +     // 3. Thực thi hàm tương ứng hoặc báo lỗi
--       result = apiHandlers[rawAction](data);
-+     if (apiHandlers[rawAction]) {
--  
-
-**Actionable Steps:**
-1. Modified 1 files
-2. identifier: Action
-3. identifier: GAS
-4. identifier: Backend
-5. identifier: Error
-
-## 📐 Conventions & Best Practices
-
-### Project Conventions
-- 📐 **Updated Backend database schema — confirmed 3x** — - - [ ] Update Backend: Default status to "Chưa kích hoạt" in `api_account.gs`
-+ - [x] Update Backen
-- 📐 **Fixed null crash in JSON — externalizes configuration for environment flexibi... — confirmed 3x** — -       caNhan: caNhanAccounts,
-+       activated: activatedCoun
+-    
 
 ... [Truncated — see individual observations for full content]

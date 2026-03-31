@@ -1,6 +1,6 @@
 ---
 name: javascript
-description: "Javascript for ebanking. 3 gotchas, 19 conventions, 39 fixes."
+description: "Javascript for ebanking. 3 gotchas, 20 conventions, 43 fixes."
 domain: javascript
 triggers:
   - glob: "**/*.js"
@@ -11,7 +11,7 @@ enabled: true
 
 # Javascript
 
-Auto-compiled from **90 real patterns** in **ebanking**. This skill is auto-routed to agents when working on javascript files.
+Auto-compiled from **96 real patterns** in **ebanking**. This skill is auto-routed to agents when working on javascript files.
 
 ## ⚠️ Anti-Patterns & Gotchas
 
@@ -24,6 +24,79 @@ Auto-compiled from **90 real patterns** in **ebanking**. This skill is auto-rout
 | ⚠️ GOTCHA: Patched security issue EVENT — prevents | -  + // --- CẤU HÌNH EVENT DELEGATION: XỬ LÝ CLICK XEM CHI TIẾT --- - /** + $(document).on('click',  |
 
 ## 🔧 Problem Playbooks
+
+### Patched security issue Chart — prevents XSS injection attacks
+-     $('#db-total').text(s.total || 0);
++     $('#admin-total').text(s.total || 0);
+-     $('#db-activated').text(s.activated || 0);
++     $('#admin-canhan').text(s.caNhan || 0);
+-     $('#db-inactive').text(s.inactive || 0);
++     $('#admin-hkd').text(s.hkd || 0);
+-     $('#db-ca-nhan-sub').text(s.caNhan || 0);
++     $('#admin-activated').text(s.activated || 0);
+-     $('#db-hkd-sub').text(s.hkd
+
+**Actionable Steps:**
+1. Modified 1 files
+2. identifier: Chart
+3. identifier: DataTable
+4. identifier: Date
+5. identifier: Email
+
+### Fixed null crash in User — prevents XSS injection attacks
+-         if (status === 'Đã kích hoạt') {
++         $('#edit_is_activated').prop('checked', status === 'Đã kích hoạt');
+-             $('#edit_is_activated').prop('checked', true);
++ 
+-         } else {
++         // Bỏ hoàn toàn việc khóa sửa. Mọi User (Staff/Admin) đều có thể sửa hồ sơ.
+-             $('#edit_is_activated').prop('checked', false);
++         $('#btnSaveEdit').show();
+-         }
+
+
+**Actionable Steps:**
+1. Modified 1 files
+2. identifier: User
+3. identifier: Staff
+4. identifier: Admin
+5. identifier: Chi
+
+### Fixed null crash in String — prevents XSS injection attacks
+-             let strDate = `${String(rawDate.getDate()).padStart(2,"0")}/${String(rawDate.getMonth()+1).padStart(2,"0")}`;
++             let mm = String(rawDate.getMonth() + 1).padStart(2, "0");
+-             timeline[strDate] = (timeline[strDate] || 0) + 1;
++             let dd = String(rawDate.getDate()).padStart(2, "0");
+-         }
++             let strDate = `${dd}/${mm}`;
+-     });
++       
+
+**Actionable Steps:**
+1. Modified 1 files
+2. identifier: String
+3. identifier: Date
+4. identifier: Chart
+5. identifier: CCCD
+
+### Fixed null crash in COMPRESS — offloads heavy computation off the main thread
+-         mat_khau: $('#mat_khau').val() || ""
++         mat_khau: $('#mat_khau').val() || "",
+-     };
++         is_activated: $('#is_activated').is(':checked')
+- 
++     };
+-     const filesToProcess = fileSlots.filter(s => document.getElementById(s.id) && document.getElementById(s.id).files[0]);
++ 
+-     const totalSteps = filesToProcess.length + 2; 
++     const filesToProcess = fileSlots.filter
+
+**Actionable Steps:**
+1. Modified 1 files
+2. identifier: COMPRESS
+3. identifier: Math
+4. identifier: Promise
+5. identifier: Timeout
 
 ### Patched security issue Theo — prevents XSS injection attacks
 -         const trangThai = row['Trạng thái'] || 'Chưa hoàn thành';
@@ -267,81 +340,6 @@ Auto-compiled from **90 real patterns** in **ebanking**. This skill is auto-rout
 -     VERSION: "2.1.2-STABLE",
 +     const rawUser = localStorage.getItem('HOKINHDOANH_SESSION');
 -     apiBase: "",
-+     if (rawUser && rawUser !== 'undefined' && rawUser !== 'null') {
--     lastActive: Date.now()
-+         parsedUser = JSON.parse(rawUser);
-- };
-+   
 
-**Actionable Steps:**
-1. Modified 1 files
-2. identifier: JSON
-3. identifier: AppState
-4. identifier: VERSION
-5. identifier: STABLE
-
-### Fixed null crash in JSON — wraps unsafe operation in error boundary
--         const result = await response.json();
-+         let result;
--         
-+         const textRes = await response.text();
--         if (loadingMsg !== 'NONE') hideLoading();
-+         try {
--         if (successHandler) successHandler(result);
-+             result = JSON.parse(textRes);
--         return result;
-+         } catch (e) {
-- 
-+             console.error("Lỗi phân tích JSON từ S
-
-**Actionable Steps:**
-1. Modified 1 files
-2. identifier: JSON
-3. identifier: Server
-4. identifier: Error
-5. identifier: Vui
-
-### Fixed null crash in Must
--                 progressWrapper.fadeOut();
-+                 progressWrapper.addClass('initially-hidden').addClass('d-none').hide();
--         // Must use $.fn.DataTable (capital D) for extending type search properly
-+         const dtExt = $.fn.dataTable.ext;
--         const dtExt = $.fn.DataTable.ext;
-+         if (dtExt && dtExt.type && dtExt.type.search) {
--         if (dtExt && dtExt.type &
-
-**Actionable Steps:**
-1. Modified 1 files
-2. identifier: Must
-3. identifier: DataTable
-
-### Patched security issue NONE — prevents XSS injection attacks
--     progressWrapper.show();
-+     progressWrapper.removeClass('initially-hidden').removeClass('d-none').show();
--             progressWrapper.hide();
-+             progressWrapper.addClass('initially-hidden').hide();
-- 
-+ function checkDuplicate(input) {
-- /**
-+     if (!input || !input.value) return;
--  * STAFF CUSTOMER LOGIC
-+     const val = input.value.trim();
--  */
-+     const lh = $('#loai
-
-**Actionable Steps:**
-1. Modified 1 files
-2. identifier: NONE
-3. identifier: STAFF
-4. identifier: CUSTOMER
-5. identifier: LOGIC
-
-### Patched security issue Chuy — prevents XSS injection attacks
--         let row = null;
-+         
--         const sourceData = (AppState.user && AppState.user.role === 'Admin') ? (window._adminAllData || []) : ((AppCache.get('myCustomers') || {}).data || []);
-+         // Làm sạch ID: Chuyển về string, trim và bỏ dấu nháy đơn prefix (') thường gặp ở Google Sheets
--         
-+         cons
 
 ... [Truncated — see individual observations for full content]

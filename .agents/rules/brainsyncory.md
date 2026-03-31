@@ -1,7 +1,7 @@
 
 
 # Project Memory — ebanking
-> 337 notes | Score threshold: >40
+> 349 notes | Score threshold: >40
 
 ## Safety — Never Run Destructive Commands
 
@@ -20,19 +20,29 @@
 
 ## 📝 NOTE: 1 uncommitted file(s) in working tree.\n\n## Important Warnings
 
-- **⚠️ GOTCHA: Added session cookies authentication — adds runtime type validation before use** — -  * NETLIFY HIGH-FIDELITY APP ENGINE (app.js)
-+  * MÃ NGUỒN FRONTEND 
+- **⚠️ GOTCHA: Patched security issue VERSION — prevents XSS injection attacks** — -     VERSION: "2.1.1-PATCHED",
++     VERSION: "2.1.2-STABLE",
+- 
++ //
+
+## Active: `.`
+
+- **Fixed null crash in JSON — externalizes configuration for environment flexibi... — confirmed 5x**
+- **Fixed null crash in JSON — externalizes configuration for environment flexibi... — confirmed 3x**
+- **⚠️ GOTCHA: Patched security issue VERSION — prevents XSS injection attacks**
+- **Patched security issue User — prevents XSS injection attacks — confirmed 3x**
+- **Patched security issue Theo — prevents XSS injection attacks — confirmed 5x**
 
 ## Project Standards
 
+- Fixed null crash in JSON — externalizes configuration for environment flexibi... — confirmed 5x
+- Fixed null crash in JSON — externalizes configuration for environment flexibi... — confirmed 3x
+- Patched security issue User — prevents XSS injection attacks — confirmed 3x
 - Patched security issue Theo — prevents XSS injection attacks — confirmed 5x
-- Fixed null crash in AppState — offloads heavy computation off the main thread — confirmed 3x
-- what-changed in scratchpad_ic059k5m.md.resolved — confirmed 3x
-- Replaced auth Login — confirmed 3x
-- Added session cookies authentication — confirmed 3x
-- Fixed null crash in CCCD — offloads heavy computation off the main thread — confirmed 7x
-- Fixed null crash in Object — offloads heavy computation off the main thread — confirmed 4x
-- 🟢 Edited netlify-app/app.js (5 changes, 29min) — confirmed 3x
+- Patched security issue CCCD — adds runtime type validation before use — confirmed 4x
+- what-changed in app.js — confirmed 7x
+- what-changed in index.html — confirmed 6x
+- Fixed null crash in Array — wraps unsafe operation in error boundary — confirmed 3x
 
 ## Known Fixes
 

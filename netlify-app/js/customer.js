@@ -65,12 +65,16 @@ function renderStaffDashboardLocal(data) {
 
         let rawDate = new Date(d["Thời điểm nhập"]);
         if (!isNaN(rawDate)) {
-            let strDate = `${String(rawDate.getDate()).padStart(2,"0")}/${String(rawDate.getMonth()+1).padStart(2,"0")}`;
+            let mm = String(rawDate.getMonth() + 1).padStart(2, "0");
+            let dd = String(rawDate.getDate()).padStart(2, "0");
+            let strDate = `${dd}/${mm}`;
             timeline[strDate] = (timeline[strDate] || 0) + 1;
         }
     });
 
     $('#staffDash-total').text(total);
+    $('#staffDash-canhan').text(caNhan);
+    $('#staffDash-hkd').text(hkd);
     $('#staffDash-activated').text(activated);
     $('#staffDash-inactive').text(inactive);
 
@@ -307,37 +311,24 @@ function openEditCustomerModal(id) {
         $('#edit_mat_khau').val(row['Mật khẩu'] || '');
 
         const status = row['Trạng thái'] || '';
+        $('#edit_is_activated').prop('checked', status === 'Đã kích hoạt');
+
+        // Bỏ hoàn toàn việc khóa sửa. Mọi User (Staff/Admin) đều có thể sửa hồ sơ.
+        $('#btnSaveEdit').show();
+        $('#frmEditCustomer input').prop('readonly', false);
+        $('.modal-title').html(`<i class='bx bxs-edit-alt text-white'></i> Chi tiết & Chỉnh sửa hồ sơ`);
+        
         if (status === 'Đã kích hoạt') {
-            $('#edit_is_activated').prop('checked', true);
+            $('.modal-title').append(` <span class="badge bg-success small"><i class="bx bxs-check-circle"></i> Đã kích hoạt</span>`);
         } else {
-            $('#edit_is_activated').prop('checked', false);
-        }
-
-        const isVerified = (status === 'Đã xác minh' || status === 'Đã kích hoạt');
-
-        // Theo yêu cầu mới, User tự quản lý sửa hồ sơ nên không khóa nút Lưu kể cả khi đã xác minh
-        if (AppState.user && AppState.user.role === 'Admin') {
-            $('#btnSaveEdit').hide();
-            $('#frmEditCustomer input').prop('readonly', true);
-            $('#edit_status_alert').removeClass('d-none');
-            $('.modal-title').html(`<i class='bx bx-search-alt text-white'></i> Chi tiết Hồ sơ <span class="badge bg-info small ms-2">Chế độ xem</span>`);
-        } else {
-            $('#btnSaveEdit').show();
-            $('#frmEditCustomer input').prop('readonly', false);
-            $('#edit_status_alert').addClass('d-none');
-            
-            if (isVerified) {
-                $('.modal-title').html(`<i class='bx bxs-check-shield text-success'></i> Chi tiết Hồ sơ <span class="badge bg-success small ms-2">Đã xác minh</span>`);
-            } else {
-                $('.modal-title').html(`<i class='bx bxs-edit-alt text-white'></i> Chỉnh sửa Hồ sơ`);
-            }
+            $('.modal-title').append(` <span class="badge bg-warning text-dark small"><i class="bx bx-time"></i> Chờ kích hoạt</span>`);
         }
 
         const infoHtml = `<div class="col-12 mb-2">
                             <div class="p-2 bg-white rounded border d-flex gap-2 shadow-sm align-items-center">
                                 <span class="badge bg-primary">${utils_escapeHTML(loaiHinh)}</span>
                                 <span>CCCD: <b>${utils_escapeHTML(cccdVal)}</b></span>
-                                ${isVerified ? '<span class="ms-auto badge rounded-pill bg-success-subtle text-success border border-success-subtle"><i class="bx bxs-check-circle"></i> Đã duyệt</span>' : ''}
+                                ${status === 'Đã kích hoạt' ? '<span class="ms-auto badge rounded-pill bg-success-subtle text-success border border-success-subtle"><i class="bx bxs-check-circle"></i> Đã kích hoạt</span>' : ''}
                             </div>
                          </div>`;
                             
