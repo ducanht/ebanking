@@ -1506,25 +1506,28 @@ function openEditCustomerModal(id) {
         if (stk.length > 7 && stk.startsWith('3800200')) stk = stk.substring(7);
         $('#edit_so_tk').val(stk);
 
+        $('#edit_ten_dang_nhap').val((row['Tên đăng nhập'] || '').toString().replace(/^'/, ''));
+        $('#edit_mat_khau').val(row['Mật khẩu'] || '');
+
         const trangThai = row['Trạng thái'] || 'Chưa hoàn thành';
         const isVerified = (trangThai === 'Đã xác minh');
 
-        // Phân quyền và hiển thị tiêu đề
-        if ((AppState.user && AppState.user.role === 'Admin') || isVerified) {
+        // Theo yêu cầu mới, User tự quản lý sửa hồ sơ nên không khóa nút Lưu kể cả khi đã xác minh
+        if (AppState.user && AppState.user.role === 'Admin') {
             $('#btnSaveEdit').hide();
             $('#frmEditCustomer input').prop('readonly', true);
             $('#edit_status_alert').removeClass('d-none');
-            
-            if (isVerified) {
-                $('.modal-title').html(`<i class='bx bxs-check-shield text-success'></i> Chi tiết Hồ sơ <span class="badge bg-success small ms-2">Đã xác minh</span>`);
-            } else {
-                $('.modal-title').html(`<i class='bx bx-search-alt text-white'></i> Chi tiết Hồ sơ <span class="badge bg-info small ms-2">Chế độ xem</span>`);
-            }
+            $('.modal-title').html(`<i class='bx bx-search-alt text-white'></i> Chi tiết Hồ sơ <span class="badge bg-info small ms-2">Chế độ xem</span>`);
         } else {
             $('#btnSaveEdit').show();
             $('#frmEditCustomer input').prop('readonly', false);
             $('#edit_status_alert').addClass('d-none');
-            $('.modal-title').html(`<i class='bx bxs-edit-alt text-white'></i> Chỉnh sửa Hồ sơ`);
+            
+            if (isVerified) {
+                $('.modal-title').html(`<i class='bx bxs-check-shield text-success'></i> Chi tiết Hồ sơ <span class="badge bg-success small ms-2">Đã xác minh</span>`);
+            } else {
+                $('.modal-title').html(`<i class='bx bxs-edit-alt text-white'></i> Chỉnh sửa Hồ sơ`);
+            }
         }
 
         const infoHtml = `<div class="col-12 mb-2">
@@ -1722,7 +1725,9 @@ function handleEditCustomer(e) {
         cccd:      $('#edit_cccd').val().trim(),
         dkkd:      $('#edit_dkkd').val().trim(),
         ngay_mo:   $('#edit_ngay_mo').val(),
-        so_tk:     ($('#edit_so_tk').val().trim() ? '3800200' + $('#edit_so_tk').val().trim() : '')
+        so_tk:     ($('#edit_so_tk').val().trim() ? '3800200' + $('#edit_so_tk').val().trim() : ''),
+        ten_dang_nhap: $('#edit_ten_dang_nhap').val().trim(),
+        mat_khau:  $('#edit_mat_khau').val().trim()
     };
 
     runAPI('api_updatecustomer', payload, (res) => {

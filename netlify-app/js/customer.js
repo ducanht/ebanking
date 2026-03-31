@@ -442,6 +442,9 @@ $(document).ready(() => {
         const id = $(this).closest('tr').attr('data-id') || $(this).closest('tr').data('id');
         if (id) openEditCustomerModal(id);
     });
+
+    // Sửa lỗi: Lắng nghe sự kiện submit của form để ngăn trang bị reload
+    $(document).on('submit', '#frmEditCustomer', handleEditCustomer);
 });
 
 window.loadStaffMyCustomersView = () => { showView('view-my-customers'); initMyCustomersList(); };
