@@ -221,6 +221,23 @@ function initQuadInteraction() {
     }
 }
 
+function resizeCanvasIfNeed(srcCanvas, maxDim = 1280) {
+    let w = srcCanvas.width;
+    let h = srcCanvas.height;
+    if (w > maxDim || h > maxDim) {
+        const ratio = Math.min(maxDim / w, maxDim / h);
+        w = Math.round(w * ratio);
+        h = Math.round(h * ratio);
+        const resCanvas = document.createElement('canvas');
+        resCanvas.width = w;
+        resCanvas.height = h;
+        const ctx = resCanvas.getContext('2d');
+        ctx.drawImage(srcCanvas, 0, 0, srcCanvas.width, srcCanvas.height, 0, 0, w, h);
+        return resCanvas;
+    }
+    return srcCanvas;
+}
+
 function finishCropping() {
     const mat = imageMatStore[currentInputTargetId];
     if (!mat || !isCvReady) {
@@ -245,8 +262,13 @@ function finishCropping() {
         const M = cv.getPerspectiveTransform(srcCoords, dstCoords);
         const warpedMat = new cv.Mat();
         cv.warpPerspective(mat, warpedMat, M, new cv.Size(w, h), cv.INTER_LINEAR, cv.BORDER_CONSTANT, new cv.Scalar());
-        const outCanvas = document.createElement('canvas');
+        
+        let outCanvas = document.createElement('canvas');
         cv.imshow(outCanvas, warpedMat);
+        
+        // P1-FIX: Nén ảnh chống mập Base64 - Tối đa 1280px
+        outCanvas = resizeCanvasIfNeed(outCanvas, 1280);
+
         outCanvas.toBlob((blob) => {
             const file = new File([blob], `${currentInputTargetId}.jpg`, { type: "image/jpeg" });
             assignFileToInput(currentInputTargetId, file);
@@ -255,7 +277,8 @@ function finishCropping() {
             _cleanupMat(currentInputTargetId);
             const modalInst = bootstrap.Modal.getInstance(document.getElementById('cropModal'));
             if (modalInst) modalInst.hide();
-        }, 'image/jpeg', 0.82);
+        }, 'image/jpeg', 0.75); // quality 0.75 để tối ưu cho Base64 GAS
+        
         srcCoords.delete(); dstCoords.delete(); M.delete(); warpedMat.delete();
     } catch(e) {
         console.error('finishCropping error:', e);
@@ -266,9 +289,13 @@ function finishCropping() {
 function skipCropping() {
     const mat = imageMatStore[currentInputTargetId];
     if (mat && isCvReady) {
-        const outCanvas = document.createElement('canvas');
+        let outCanvas = document.createElement('canvas');
         try {
             cv.imshow(outCanvas, mat);
+            
+            // P1-FIX: Nén ảnh chống mập Base64 - Tối đa 1280px
+            outCanvas = resizeCanvasIfNeed(outCanvas, 1280);
+
             outCanvas.toBlob((blob) => {
                 const file = new File([blob], `${currentInputTargetId}_raw.jpg`, { type: "image/jpeg" });
                 assignFileToInput(currentInputTargetId, file);
@@ -276,7 +303,7 @@ function skipCropping() {
                 _cleanupMat(currentInputTargetId);
                 const modalInst = bootstrap.Modal.getInstance(document.getElementById('cropModal'));
                 if (modalInst) modalInst.hide();
-            }, 'image/jpeg', 0.85);
+            }, 'image/jpeg', 0.75); // quality 0.75
         } catch(e) {
             _cleanupMat(currentInputTargetId);
             const modalInst = bootstrap.Modal.getInstance(document.getElementById('cropModal'));

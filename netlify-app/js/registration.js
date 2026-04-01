@@ -147,8 +147,8 @@ async function handleRegistration(e) {
     const compressWithTimeout = (file, slotLabel, ms = 15000) => {
         console.log(`[COMPRESS] Bắt đầu nén ${slotLabel}...`);
         const options = {
-            maxSizeMB: 0.8,
-            maxWidthOrHeight: 2048,
+            maxSizeMB: 0.4, // P1-FIX: Giảm từ 0.8 xuống 0.4
+            maxWidthOrHeight: 1280, // P1-FIX: Giảm từ 2048 xuống 1280
             useWebWorker: false,
             onProgress: (pct) => {
                 const currentPct = Math.round(pct);
@@ -185,10 +185,31 @@ async function handleRegistration(e) {
             } else {
                 console.error(`Lỗi nén ${slot.label}:`, err);
             }
+            
+            // P1-FIX: Tuyệt đối KHÔNG gửi file gốc. Dùng Canvas chặn đứng file lớn.
             data[slot.id] = await new Promise(r => {
-                const reader = new FileReader();
-                reader.onload = (e) => r(e.target.result);
-                reader.readAsDataURL(file);
+                const img = new Image();
+                img.onload = () => {
+                    let w = img.width, h = img.height;
+                    const maxDim = 1280;
+                    if (w > maxDim || h > maxDim) {
+                        const ratio = Math.min(maxDim / w, maxDim / h);
+                        w = Math.round(w * ratio);
+                        h = Math.round(h * ratio);
+                    }
+                    const canvas = document.createElement('canvas');
+                    canvas.width = w; canvas.height = h;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, w, h);
+                    r(canvas.toDataURL('image/jpeg', 0.7)); // Nén 70%
+                };
+                img.onerror = () => {
+                    // Nếu lỗi đọc ảnh thì đành đọc raw fallback
+                    const reader = new FileReader();
+                    reader.onload = (e) => r(e.target.result);
+                    reader.readAsDataURL(file);
+                };
+                img.src = URL.createObjectURL(file);
             });
         }
     }

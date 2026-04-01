@@ -1,6 +1,6 @@
 ---
 name: javascript
-description: "Javascript for ebanking. 4 gotchas, 24 conventions, 50 fixes."
+description: "Javascript for ebanking. 4 gotchas, 24 conventions, 53 fixes."
 domain: javascript
 triggers:
   - glob: "**/*.js"
@@ -11,7 +11,7 @@ enabled: true
 
 # Javascript
 
-Auto-compiled from **111 real patterns** in **ebanking**. This skill is auto-routed to agents when working on javascript files.
+Auto-compiled from **114 real patterns** in **ebanking**. This skill is auto-routed to agents when working on javascript files.
 
 ## ⚠️ Anti-Patterns & Gotchas
 
@@ -25,6 +25,48 @@ Auto-compiled from **111 real patterns** in **ebanking**. This skill is auto-rou
 | ⚠️ GOTCHA: Patched security issue EVENT — prevents | -  + // --- CẤU HÌNH EVENT DELEGATION: XỬ LÝ CLICK XEM CHI TIẾT --- - /** + $(document).on('click',  |
 
 ## 🔧 Problem Playbooks
+
+### Patched security issue OPTIMISTIC — adds runtime type validation before use
+-             // P0-FIX: Clear cả 2 cache để đảm bảo Dashboard cập nhật chính xác sau kích hoạt
++             // =============================================
+-             AppCache.clear('myCustomers');
++             // OPTIMISTIC UI UPDATE — Cập nhật DOM ngay lập tức
+-             AppCache.clear('adminDashboard');
++             // Không cần chờ SweetAlert đóng hay round-trip API thứ 2
+-         
+
+**Actionable Steps:**
+1. Modified 1 files
+2. identifier: OPTIMISTIC
+3. identifier: UPDATE
+4. identifier: DOM
+5. identifier: SweetAlert
+
+### Fixed null crash in DataTable — prevents XSS injection attacks
+-         const isActivated = (d['Trạng thái'] === 'Đã kích hoạt');
++         const rawStatus = (d['Trạng thái'] || d['trang_thai'] || '').toString().trim();
+-         const statusDot = `<span class="status-dot ${isActivated ? 'active' : 'inactive'}" title="${d['Trạng thái'] || 'Chưa kích hoạt'}"></span>`;
++         const isActivated = rawStatus.toLowerCase().includes('đã kích hoạt') || rawStatus.
+
+**Actionable Steps:**
+1. Modified 1 files
+2. identifier: GAS
+3. identifier: Chi
+4. identifier: DataTable
+5. identifier: Excel
+
+### Fixed null crash in DataTable — prevents XSS injection attacks
+-         const isActivated = (d['Trạng thái'] === 'Đã kích hoạt');
++         const rawStatus = (d['Trạng thái'] || d['trang_thai'] || '').toString().trim();
+-         const statusDot = `<span class="status-dot ${isActivated ? 'active' : 'inactive'}" title="${d['Trạng thái'] || 'Chưa kích hoạt'}"></span>`;
++         const isActivated = rawStatus.toLowerCase().includes('đã kích hoạt') || rawStatus.
+
+**Actionable Steps:**
+1. Modified 1 files
+2. identifier: Xem
+3. identifier: Chi
+4. identifier: DataTable
+5. identifier: Excel
 
 ### Fixed null crash in HTML — wraps unsafe operation in error boundary
 -             exportOptions: {
@@ -287,56 +329,6 @@ Auto-compiled from **111 real patterns** in **ebanking**. This skill is auto-rou
 2. identifier: AppState
 3. identifier: Admin
 4. identifier: Chi
-5. identifier: CCCD
-
-### Fixed null crash in CCCD — offloads heavy computation off the main thread
--         $('#dkkd, #img_dkkd, #ten_dang_nhap').prop('required', true);
-+         $('#dkkd, #img_dkkd').prop('required', true); // Chỉ dkkd là bắt bắt buộc cho HKD
--         $('#dkkd, #img_dkkd, #ten_dang_nhap').prop('required', false);
-+         $('#dkkd, #img_dkkd').prop('required', false);
--     btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Đang xử lý..
-
-**Actionable Steps:**
-1. Modified 1 files
-2. identifier: HKD
-3. identifier: Vui
-4. identifier: CCCD
-5. identifier: Sau
-
-### Patched security issue CORS — prevents XSS injection attacks
--         const options = { maxSizeMB: 0.4, maxWidthOrHeight: 1200, useWebWorker: true };
-+         const options = { 
--         return Promise.race([
-+             maxSizeMB: 0.4, 
--             imageCompression(file, options),
-+             maxWidthOrHeight: 1200, 
--             new Promise((_, reject) => setTimeout(() => reject(new Error("TIMEOUT")), ms))
-+             useWebWorker: false, // T
-
-**Actionable Steps:**
-1. Modified 1 files
-2. identifier: CORS
-3. identifier: Math
-4. identifier: Promise
-5. identifier: Error
-
-### Fixed null crash in COMPRESS — offloads heavy computation off the main thread
--     const compressWithTimeout = (file, slotLabel, ms = 25000) => {
-+     const compressWithTimeout = (file, slotLabel, ms = 15000) => {
--         const options = {
-+         console.log(`[COMPRESS] Bắt đầu nén ${slotLabel}...`);
--             maxSizeMB: 0.8,
-+         const options = {
--             maxWidthOrHeight: 2048,
-+             maxSizeMB: 0.8,
--             useWebWorker: true,
-+        
-
-**Actionable Steps:**
-1. Modified 1 files
-2. identifier: COMPRESS
-3. identifier: Math
-4. identifier: Promise
-5. ide
+5. i
 
 ... [Truncated — see individual observations for full content]
