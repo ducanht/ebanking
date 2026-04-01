@@ -440,24 +440,63 @@ function handleEditCustomer(e) {
     runAPI('api_updatecustomer', payload, (res) => {
         btn.prop('disabled', false).html(oldHtml);
         if (res && res.status === 'success') {
-            // P0-FIX: Clear cả 2 cache để đảm bảo Dashboard cập nhật chính xác sau kích hoạt
+            // =============================================
+            // OPTIMISTIC UI UPDATE — Cập nhật DOM ngay lập tức
+            // Không cần chờ SweetAlert đóng hay round-trip API thứ 2
+            // =============================================
+            const newStatus   = payload.is_activated ? 'Đã kích hoạt' : 'Chưa kích hoạt';
+            const newDotClass = payload.is_activated ? 'active' : 'inactive';
+            const rowId       = String(payload.id).trim().replace(/^[']*/, '');
+
+            // 1. Cập nhật ngay chấm tròn trong bảng HTML (Staff & Admin)
+            const $row = $(`tr[data-id="${rowId}"]`);
+            if ($row.length) {
+                $row.find('.status-dot')
+                    .removeClass('active inactive')
+                    .addClass(newDotClass)
+                    .attr('title', newStatus);
+            }
+
+            // 2. Cập nhật in-memory cache Staff
+            const staffCache = AppCache.get('myCustomers');
+            if (staffCache && Array.isArray(staffCache.data)) {
+                const rec = staffCache.data.find(d =>
+                    String(d['ID'] || d['Mã GD'] || '').replace(/^[']*/, '') === rowId
+                );
+                if (rec) rec['Trạng thái'] = newStatus;
+            }
+
+            // 3. Cập nhật in-memory _adminAllData
+            if (window._adminAllData && Array.isArray(window._adminAllData)) {
+                const rec = window._adminAllData.find(d =>
+                    String(d['ID'] || d['Mã GD'] || '').replace(/^[']*/, '') === rowId
+                );
+                if (rec) rec['Trạng thái'] = newStatus;
+            }
+
+            // 4. Clear cache server-side để lần load sau lấy data mới
             AppCache.clear('myCustomers');
             AppCache.clear('adminDashboard');
-            window._adminAllData = null; // Reset data bộ nhớ để buộc tải lại từ server
+            // _adminAllData GIỮ LẠI (đã patch) để modal mở lại vẫn đúng trạng thái
+            // Sẽ invalidate khi đóng modal và chuyển view
+
+            // 5. Hiện thông báo thành công + đóng modal sau khi xác nhận
             Swal.fire({
                 title: 'Lưu thành công!',
-                text: 'Hồ sơ đã được cập nhật.',
+                text: `Hồ sơ đã được cập nhật — Trạng thái: ${newStatus}`,
                 icon: 'success',
                 confirmButtonColor: '#10b981',
-                confirmButtonText: 'Đóng'
+                confirmButtonText: 'Đóng',
+                timer: 2500,
+                timerProgressBar: true
             }).then(() => {
                 const mEl = document.getElementById('modalEditCustomer');
                 if (mEl) bootstrap.Modal.getOrCreateInstance(mEl).hide();
+                // Reload ngầm sau khi đóng modal để đồng bộ hoàn toàn với server
+                window._adminAllData = null;
                 if (AppState.user && AppState.user.role !== 'Admin') {
-                    // Staff: reload danh sách hồ sơ cá nhân
                     initMyCustomersList();
                 } else if (AppState.user && AppState.user.role === 'Admin') {
-                    // Admin: reload toàn bộ dashboard từ server (không dùng cache)
                     if (typeof loadAdminData === 'function') loadAdminData();
                 }
             });
