@@ -1,6 +1,6 @@
 ---
 name: project
-description: "Project for ebanking. 20 gotchas, 51 conventions, 23 fixes."
+description: "Project for ebanking. 21 gotchas, 54 conventions, 26 fixes."
 domain: project
 triggers:
   - glob: "**/*"
@@ -10,7 +10,7 @@ enabled: true
 
 # Project
 
-Auto-compiled from **250 real patterns** in **ebanking**. This skill is auto-routed to agents when working on project files.
+Auto-compiled from **267 real patterns** in **ebanking**. This skill is auto-routed to agents when working on project files.
 
 ## ⚠️ Anti-Patterns & Gotchas
 
@@ -18,6 +18,7 @@ Auto-compiled from **250 real patterns** in **ebanking**. This skill is auto-rou
 
 | ❌ Don't | Details |
 |----------|----------|
+| ⚠️ GOTCHA: Fixed null crash in Expand | -     // Tìm cột Đối tượng: Nếu index -1, thử fallback sang cột 19 (index 18) nếu bảng đủ rộng +     |
 | gotcha in implementation_plan.md.resolved | - # Xử lý Lỗi Cấp Quyền Camera (Screen Overlay Detected) trên Android + # Nâng cấp Thuật toán Nhận d |
 | Agent: follow existing project patterns — don't in | Agent: follow existing project patterns — don't introduce a different style |
 | Agent: don't generate code with "any" type — defin | Agent: don't generate code with "any" type — define proper TypeScript types |
@@ -40,6 +41,45 @@ Auto-compiled from **250 real patterns** in **ebanking**. This skill is auto-rou
 | Never force push to main, master, or production br | Never force push to main, master, or production branches |
 
 ## 🔧 Problem Playbooks
+
+### Added error handling DKKD — externalizes configuration for environment flexib...
+-           "qtdyentho",                // Mật khẩu
++           fullName.replace(/\s/g, '').toLowerCase(), // Tên đăng nhập (giả định)
+-           "https://via.placeholder.com/150", // Mặt trước
++           "qtdyentho",                // Mật khẩu
+-           "https://via.placeholder.com/150", // Mặt sau
++           "https://via.placeholder.com/150", // Mặt trước
+-           isCaNhan ? "" : "https:
+
+**Actionable Steps:**
+1. Modified 1 files
+2. identifier: DKKD
+3. identifier: URL
+4. identifier: Ngo
+5. identifier: CCCD
+
+### Fixed null crash in String
+-     const headers = data[0];
++     const headers = data[0].map(h => String(h).trim()); // Normalize headers (trim)
+-     const colDoiTuong = headers.indexOf("Đối tượng");
++     
+-     
++     // Tìm cột Đối tượng: Nếu index -1, thử fallback sang cột 19 (index 18) nếu bảng đủ rộng
+-     let rowIndex = -1;
++     let colDoiTuong = headers.indexOf("Đối tượng");
+-     for (let i = 1; i < data.length; 
+
+**Actionable Steps:**
+1. Modified 1 files
+2. identifier: String
+3. identifier: Normalize
+4. identifier: Index
+5. identifier: Update
+
+### Sửa lỗi màng lọc theo Cán bộ Admin trên Dashboard
+**Lỗi chức năng màng lọc Cán bộ Admin không hoạt động**: Khi lọc nhân viên trên Dashboard History, kết quả luôn trống. Nguyên nhân là vì DataTables nhắm sai column index (`column(5)` là Số Điện Thoại thay vì `column(6)` là Cán bộ) và cũng set `searchable: false` lên `column(6)` thay vì ở nút "Chi tiết" `column(7)`. **Cách sửa**: Sửa lại `columnDefs` target thành `7`, và lệnh search nhắm vào `dtAdm
+
+**Actionable Step:** Follow standard architecture implementation for this fix.
 
 ### Fixed null crash in Kinh — filters out falsy/null values explicitly
 -     let loaiHinhCount = {"Cá nhân": 0, "Hộ kinh doanh": 0};
@@ -230,50 +270,6 @@ Auto-compiled from **250 real patterns** in **ebanking**. This skill is auto-rou
 4. identifier: Gom
 5. identifier: Date
 
-### problem-fix in task.md.resolved
-- - [x] Fix Customer Info Display in `netlify-app/app.js`
-+ - [ ] Cập nhật Backend (`api_admin.gs`): Bao gồm toàn bộ cán bộ trong bảng xếp hạng.
--     - [x] Initialize `js-datepicker-edit` for the modal.
-+ - [ ] Cập nhật Frontend (`netlify-app/app.js`):
--     - [x] Harden `openEditCustomerModal` to handle ID matching better.
-+     - [ ] Thêm Huy chương/Cúp cho Top 3 trong Hạng của tôi.
--     - [x]
-
-**Actionable Steps:**
-1. Modified 1 files
-
-### problem-fix in task.md
-- - [ ] Fix Customer Info Display in `netlify-app/app.js`
-+ - [x] Fix Customer Info Display in `netlify-app/app.js`
--     - [ ] Initialize `js-datepicker-edit` for the modal.
-+     - [x] Initialize `js-datepicker-edit` for the modal.
--     - [ ] Harden `openEditCustomerModal` to handle ID matching better.
-+     - [x] Harden `openEditCustomerModal` to handle ID matching better.
--     - [ ] Add erro
-
-**Actionable Steps:**
-1. Modified 1 files
-
-### problem-fix in task.md.resolved
-- - [ ] Fix Customer Info Display in `netlify-app/app.js`
-+ - [x] Fix Customer Info Display in `netlify-app/app.js`
--     - [ ] Initialize `js-datepicker-edit` for the modal.
-+     - [x] Initialize `js-datepicker-edit` for the modal.
--     - [ ] Harden `openEditCustomerModal` to handle ID matching better.
-+     - [x] Harden `openEditCustomerModal` to handle ID matching better.
--     - [ ] Add erro
-
-**Actionable Steps:**
-1. Modified 1 files
-
-### problem-fix in task.md.resolved
-- - [x] Hardening Search Logic in Netlify App (`netlify-app/app.js`)
-+ - [ ] Fix Customer Info Display in `netlify-app/app.js`
--     - [x] Update `renderMyCustomersTable` to include `caseInsensitive: true`.
-+     - [ ] Initialize `js-datepicker-edit` for the modal.
--     - [x] Update `renderAdminTable` to ensure `caseInsensitive` search is explicitly enabled and robust.
-+     - [ ] Harden `openEdi
-
-**Actionable 
+### problem-fix in task.md.res
 
 ... [Truncated — see individual observations for full content]

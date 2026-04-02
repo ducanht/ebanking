@@ -1,31 +1,31 @@
 {
   "project": {
     "enabled": true,
-    "lastGenerated": "2026-04-02T00:46:12.906Z",
-    "observationCount": 250,
+    "lastGenerated": "2026-04-02T02:46:38.320Z",
+    "observationCount": 267,
     "skillCount": 0,
     "domain": "project",
     "triggerGlobs": [
       "**/*"
     ],
-    "description": "Project for ebanking. 20 gotchas, 51 conventions, 23 fixes."
+    "description": "Project for ebanking. 21 gotchas, 54 conventions, 26 fixes."
   },
   "javascript": {
     "enabled": true,
-    "lastGenerated": "2026-04-02T00:46:12.907Z",
-    "observationCount": 121,
+    "lastGenerated": "2026-04-02T02:46:38.321Z",
+    "observationCount": 123,
     "skillCount": 0,
     "domain": "javascript",
     "triggerGlobs": [
       "**/*.js",
       "**/*.jsx"
     ],
-    "description": "Javascript for ebanking. 4 gotchas, 26 conventions, 58 fixes."
+    "description": "Javascript for ebanking. 4 gotchas, 26 conventions, 60 fixes."
   },
   "html": {
     "enabled": true,
-    "lastGenerated": "2026-04-02T00:46:12.908Z",
-    "observationCount": 67,
+    "lastGenerated": "2026-04-02T02:46:38.323Z",
+    "observationCount": 69,
     "skillCount": 0,
     "domain": "html",
     "triggerGlobs": [
@@ -35,7 +35,7 @@
   },
   "css": {
     "enabled": true,
-    "lastGenerated": "2026-04-02T00:46:12.909Z",
+    "lastGenerated": "2026-04-02T02:46:38.324Z",
     "observationCount": 8,
     "skillCount": 0,
     "domain": "css",
@@ -47,7 +47,7 @@
   },
   "config": {
     "enabled": true,
-    "lastGenerated": "2026-04-02T00:46:12.909Z",
+    "lastGenerated": "2026-04-02T02:46:38.326Z",
     "observationCount": 4,
     "skillCount": 0,
     "domain": "config",
@@ -61,13 +61,13 @@
   },
   "problem-fix": {
     "enabled": true,
-    "lastGenerated": "2026-04-02T00:46:12.910Z",
+    "lastGenerated": "2026-04-02T02:46:38.327Z",
     "observationCount": 0,
     "skillCount": 1,
     "domain": "problem-fix",
     "triggerGlobs": [
       "**/*"
     ],
-    "description": "Problem Fix for ebanking. 5 error→fix pairs."
+    "description": "Problem Fix for ebanking. 6 error→fix pairs."
   }
 }

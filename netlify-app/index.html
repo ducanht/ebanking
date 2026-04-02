@@ -30,7 +30,7 @@
         <h5 class="mt-3 fw-bold text-secondary">Đang kết nối hệ thống...</h5>
     </div>
 
-    <div id="app-container" class="container py-4 mb-5">
+    <div id="app-container" class="container pt-1 pt-md-2 pb-5">
         <!-- VIEW: LOGIN -->
         <section id="view-login" class="view-section">
             <div class="container d-flex justify-content-center align-items-center min-vh-80">
@@ -76,11 +76,11 @@
         <section id="view-dashboard" class="view-section d-none">
             <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
                 <div>
-                    <h4 class="fw-bold text-primary mb-0 d-flex align-items-center gap-2">
+                    <h4 class="fw-bold text-primary mt-0 mb-0 d-flex align-items-center gap-2">
                         <img src="logo.png" class="app-logo" alt="Logo Quỹ Yên Thọ" title="Logo Quỹ Yên Thọ">
                         <i class='bx bxs-dashboard text-warning app-icon'></i> Bảng Điều Khiển Quản Trị
                     </h4>
-                    <p class="text-muted mb-0 small mt-1">Xin chào, <span id="user-name-display-admin" class="fw-bold text-dark"></span>! Theo dõi tiến độ KPIs toàn hệ thống theo thời gian thực.</p>
+                    <p class="text-muted mb-0 small mt-0">Xin chào, <span id="user-name-display-admin" class="fw-bold text-dark"></span>! Theo dõi tiến độ KPIs toàn hệ thống theo thời gian thực.</p>
                 </div>
                 <div class="d-flex gap-2">
                     <button class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1 shadow-sm px-3" onclick="openChangePasswordModal()">
@@ -125,14 +125,22 @@
                 </div>
                 <div class="col-6 col-md-3">
                     <div class="glass-card p-3 border-start border-info border-4 h-100 shadow-sm">
-                        <h6 class="text-muted mb-2 small text-uppercase fw-bold">PHÂN BỔ LOẠI HÌNH</h6>
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                            <span class="small fw-semibold"><i class="bx bx-user text-info"></i> Cá nhân: <span id="db-canhan" class="fw-bold">0</span></span>
-                            <span class="small fw-semibold"><i class="bx bx-store text-warning"></i> Hộ KD: <span id="db-hkd" class="fw-bold">0</span></span>
+                        <h6 class="text-muted mb-2 small text-uppercase fw-bold">PHÂN BỔ CHI TIÊU</h6>
+                        <div class="d-flex justify-content-between align-items-center mb-1" style="font-size: 0.65rem;">
+                            <span>Cá nhân: <b id="db-canhan">0</b></span>
+                            <span>Hộ KD: <b id="db-hkd">0</b></span>
                         </div>
-                        <div class="progress mt-2" style="height: 6px; border-radius: 10px;">
+                        <div class="progress mb-2" style="height: 6px; border-radius: 10px;">
                             <div id="db-prog-canhan" class="progress-bar bg-info" role="progressbar" style="width: 50%"></div>
                             <div id="db-prog-hkd" class="progress-bar bg-warning" role="progressbar" style="width: 50%"></div>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-1" style="font-size: 0.65rem;">
+                            <span>Thành viên: <b id="db-thanhvien">0</b></span>
+                            <span>Ngoài TV: <b id="db-ngoaithanhvien">0</b></span>
+                        </div>
+                        <div class="progress" style="height: 6px; border-radius: 10px;">
+                            <div id="db-prog-thanhvien" class="progress-bar bg-primary" role="progressbar" style="width: 50%"></div>
+                            <div id="db-prog-ngoai" class="progress-bar bg-secondary" role="progressbar" style="width: 50%"></div>
                         </div>
                     </div>
                 </div>
@@ -395,9 +403,17 @@
                             <div id="staffDash-prog-canhan" class="progress-bar bg-info" role="progressbar" style="width: 50%"></div>
                             <div id="staffDash-prog-hkd" class="progress-bar bg-warning" role="progressbar" style="width: 50%"></div>
                         </div>
-                        <div class="d-flex justify-content-between mt-1" style="font-size: 0.65rem;">
+                        <div class="d-flex justify-content-between mt-1 mb-2" style="font-size: 0.65rem;">
                             <span>Cá nhân: <b id="staffDash-canhan">0</b></span>
                             <span>Hộ KD: <b id="staffDash-hkd">0</b></span>
+                        </div>
+                        <div class="progress" style="height: 4px;">
+                            <div id="staffDash-prog-thanhvien" class="progress-bar bg-primary" role="progressbar" style="width: 50%"></div>
+                            <div id="staffDash-prog-ngoai" class="progress-bar bg-secondary" role="progressbar" style="width: 50%"></div>
+                        </div>
+                        <div class="d-flex justify-content-between mt-1" style="font-size: 0.65rem;">
+                            <span>Thành viên: <b id="staffDash-thanhvien">0</b></span>
+                            <span>Ngoài TV: <b id="staffDash-ngoaithanhvien">0</b></span>
                         </div>
                     </div>
                 </div>

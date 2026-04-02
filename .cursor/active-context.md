@@ -1,528 +1,290 @@
 > **BrainSync Context Pumper** 🧠
-> Dynamically loaded for active file: `api_admin.gs` (Domain: **Generic Logic**)
+> Dynamically loaded for active file: `netlify-app\index.html` (Domain: **Generic Logic**)
 
 ### 📐 Generic Logic Conventions & Fixes
-- **[convention] Fixed null crash in Kinh — filters out falsy/null values explicitly — confirmed 3x**: -     data.forEach(d => {
-+     });
--       let lh = d["Loại hình dịch vụ"];
-+     
--       if(lh) {
-+     // Tổng hợp đối tượng (Thành viên / Ngoài thành viên)
--         loaiHinhCount[lh] = (loaiHinhCount[lh] || 0) + 1;
-+     let doiTuongCount = {"Thành viên": 0, "Ngoài thành viên": 0};
--       }
-+     data.forEach(d => {
--     });
-+       let dt = d["Đối tượng"] || "Ngoài thành viên";
-- 
-+       if (dt === "Thành viên") doiTuongCount["Thành viên"]++;
--     // Thống kê nhân viên xuất sắc — phân loại Cá nhân / Kinh doanh
-+       else doiTuongCount["Ngoài thành viên"]++;
--     let staffCount = {};
-+     });
--     data.forEach(d => {
-+ 
--       let e = d["Cán bộ thực hiện"];
-+     // Thống kê nhân viên xuất sắc — phân loại Cá nhân / Kinh doanh
--       let lh = d["Loại hình dịch vụ"];
-+     let staffCount = {};
--       if(e) {
-+     data.forEach(d => {
--         if (!staffCount[e]) staffCount[e] = { total: 0, caNhan: 0, hkd: 0 };
-+       let e = d["Cán bộ thực hiện"];
--         staffCount[e].total++;
-+       let lh = d["Loại hình dịch vụ"];
--         if (lh === "Cá nhân") staffCount[e].caNhan++;
-+       if(e) {
--         else if (lh === "Hộ kinh doanh") staffCount[e].hkd++;
-+         if (!staffCount[e]) staffCount[e] = { total: 0, caNhan: 0, hkd: 0 };
--       }
-+         staffCount[e].total++;
--     });
-+         if (lh === "Cá nhân") staffCount[e].caNhan++;
-- 
-+         else if (lh === "Hộ kinh doanh") staffCount[e].hkd++;
--     let allStaffStats = staffs.map(s => {
-+       }
--       let email = s["Email"];
-+     });
--       let stats = staffCount[email] || { total: 0, caNhan: 0, hkd: 0 };
-+ 
--       return {
-+     let allStaffStats = staffs.map(s => {
--         email: email,
-+       let email = s["Email"];
--         name: s["Họ tên"],
-+       let stats = staffCount[email] || { total: 0, caNhan: 0, hkd: 0 };
--         department: s["Bộ phận"] || "",
-+       return {
--         total: stats.total,
-+         email: email,
--         caNhan: stats.caNhan,
-+         name: s
-… [diff truncated]
-- **[what-changed] what-changed in api_admin.gs**: -     let inactiveCount   = data.filter(d => d["Trạng thái"] === "Chưa kích hoạt" || d["Trạng thái"] === "Chưa hoàn thành").length;
-+     let inactiveCount   = data.filter(d => d["Trạng thái"] !== "Đã kích hoạt").length;
-- **[what-changed] 🟢 Edited api_admin.gs (6 changes, 124min)**: Active editing session on api_admin.gs.
-6 content changes over 124 minutes.
-- **[convention] Fixed null crash in JSON — externalizes configuration for environment flexibi... — confirmed 5x**: -       pending: pendingAccounts,
-+       activated: activatedCount,
--       approved: approvedAccounts,
-+       inactive: inactiveCount,
--       activated: activatedCount,
-+       caNhan: caNhanCount,
--       inactive: inactiveCount,
-+       hkd: hkdCount,
--       caNhan: caNhanAccounts,
-+       loaiHinh: loaiHinhCount,
--       hkd: hkdAccounts,
-+       allStaffs: allStaffStats,
--       loaiHinh: loaiHinhCount,
-+       topStaffs: topStaffs,
--       allStaffs: allStaffStats,
-+       timelineDate: timelineByDate,
--       topStaffs: topStaffs,
-+       typeMonth: typeByMonth,
--       timelineDate: timelineByDate,
-+       allData: data 
--       typeMonth: typeByMonth,
-+     };
--       allData: data 
-+ 
--     };
-+     return {
-- 
-+       status: "success",
--     return {
-+       statsStr: JSON.stringify(statsPayload) // Serialize thủ công để tránh lỗi mất object của GAS
--       status: "success",
-+     };
--       statsStr: JSON.stringify(statsPayload) // Serialize thủ công để tránh lỗi mất object của GAS
-+ 
--     };
-+   } catch (e) {
-- 
-+     return { status: "error", message: "Lỗi lấy dữ liệu Admin: " + e.message };
--   } catch (e) {
-+   }
--     return { status: "error", message: "Lỗi lấy dữ liệu Admin: " + e.message };
-+ }
--   }
-+ 
-- }
-+ /**
-- 
-+  * Xóa hồ sơ hoặc đổi trạng thái (chỉ Admin)
-- /**
-+  * Cần truyền đối tượng {id, newStatus}
--  * Xóa hồ sơ hoặc đổi trạng thái (chỉ Admin)
-+  */
--  * Cần truyền đối tượng {id, newStatus}
-+ function api_adminUpdateStatus(id, newStatus) {
--  */
-+   const lock = LockService.getScriptLock();
-- function api_adminUpdateStatus(id, newStatus) {
-+   try {
--   const lock = LockService.getScriptLock();
-+     lock.waitLock(10000);
--   try {
-+     const sheet = getSheetByName(CONFIG.SHEET_DATA);
--     lock.waitLock(10000);
-+     const data = sheet.getDataRange().getValues();
--     const sheet = getSheetByName(CONFIG.SHEET_DATA);
-+     const header = data[0];
--     const data = sheet.getDataRange().getValues();
-+     
--     const header = 
-… [diff truncated]
-- **[convention] Fixed null crash in JSON — externalizes configuration for environment flexibi... — confirmed 3x**: -       caNhan: caNhanAccounts,
-+       activated: activatedCount,
--       hkd: hkdAccounts,
-+       inactive: inactiveCount,
--       loaiHinh: loaiHinhCount,
-+       caNhan: caNhanAccounts,
--       allStaffs: allStaffStats,
-+       hkd: hkdAccounts,
--       topStaffs: topStaffs,
-+       loaiHinh: loaiHinhCount,
--       timelineDate: timelineByDate,
-+       allStaffs: allStaffStats,
--       typeMonth: typeByMonth,
-+       topStaffs: topStaffs,
--       allData: data 
-+       timelineDate: timelineByDate,
--     };
-+       typeMonth: typeByMonth,
-- 
-+       allData: data 
--     return {
-+     };
--       status: "success",
-+ 
--       statsStr: JSON.stringify(statsPayload) // Serialize thủ công để tránh lỗi mất object của GAS
-+     return {
--     };
-+       status: "success",
-- 
-+       statsStr: JSON.stringify(statsPayload) // Serialize thủ công để tránh lỗi mất object của GAS
--   } catch (e) {
-+     };
--     return { status: "error", message: "Lỗi lấy dữ liệu Admin: " + e.message };
-+ 
--   }
-+   } catch (e) {
-- }
-+     return { status: "error", message: "Lỗi lấy dữ liệu Admin: " + e.message };
-- 
-+   }
-- /**
-+ }
--  * Xóa hồ sơ hoặc đổi trạng thái (chỉ Admin)
-+ 
--  * Cần truyền đối tượng {id, newStatus}
-+ /**
--  */
-+  * Xóa hồ sơ hoặc đổi trạng thái (chỉ Admin)
-- function api_adminUpdateStatus(id, newStatus) {
-+  * Cần truyền đối tượng {id, newStatus}
--   const lock = LockService.getScriptLock();
-+  */
--   try {
-+ function api_adminUpdateStatus(id, newStatus) {
--     lock.waitLock(10000);
-+   const lock = LockService.getScriptLock();
--     const sheet = getSheetByName(CONFIG.SHEET_DATA);
-+   try {
--     const data = sheet.getDataRange().getValues();
-+     lock.waitLock(10000);
--     const header = data[0];
-+     const sheet = getSheetByName(CONFIG.SHEET_DATA);
--     
-+     const data = sheet.getDataRange().getValues();
--     // Ưu tiên cột "ID", sau đó là "Mã GD"
-+     const header = data[0];
--     let idIdx = header.indexOf("ID");
-+     
--     if (idIdx === -1) idIdx =
-… [diff truncated]
-- **[what-changed] 🟢 Edited KIEN_TRUC_HE_THONG.md (5 changes, 154min)**: Active editing session on KIEN_TRUC_HE_THONG.md.
-5 content changes over 154 minutes.
-- **[decision] Optimized Ebanking — hardens HTTP security headers**: - # Kiến Trúc Hệ Thống: Ebanking Quỹ TDND Yên Thọ
-+ # Kiến Trúc Hệ Thống: Ebanking Quỹ TDND Yên Thọ
-- 
-+ 
-- > [!IMPORTANT]
-+ > [!IMPORTANT]
-- > Đây là tài liệu cốt lõi **(Blueprint)** ghi nhận toàn bộ kiến trúc, quy trình CI/CD, cấu trúc CSDL và bảo mật của hệ thống Quản lý Chỉ Tiêu Mở Tài Khoản Ebanking. **Phải đọc trước khi thực hiện bất kỳ thay đổi nào.**
-+ > Đây là tài liệu cốt lõi **(Blueprint)** ghi nhận toàn bộ kiến trúc, quy trình CI/CD, cấu trúc CSDL và bảo mật của hệ thống Quản lý Chỉ Tiêu Mở Tài Khoản Ebanking. **Phải đọc trước khi thực hiện bất kỳ thay đổi nào.**
-- >
-+ >
-- > Hệ thống chạy hoàn toàn tự động: **GitHub → Vercel/Netlify (Frontend)** kết nối với **Google Apps Script (Backend API)**.
-+ > Hệ thống chạy hoàn toàn tự động: **GitHub → Vercel/Netlify (Frontend)** kết nối với **Google Apps Script (Backend API)**.
-- 
-+ 
-- ---
-+ ---
-- 
-+ 
-- ## 1. Kiến Trúc Tổng Quan (Architecture)
-+ ## 1. Kiến Trúc Tổng Quan (Architecture)
-- 
-+ 
-- ### 1.1 Mô hình SPA (Single Page Application)
-+ ### 1.1 Mô hình SPA (Single Page Application)
-- 
-+ 
-- ```
-+ ```
-- ┌──────────────────────────────────────────────────────────────┐
-+ ┌──────────────────────────────────────────────────────────────┐
-- │                    GITHUB REPOSITORY                          │
-+ │                    GITHUB REPOSITORY                          │
-- │               github.com/ducanht/ebanking                    │
-+ │               github.com/ducanht/ebanking                    │
-- └──────────────────┬──────────────────────────────┬───────────┘
-+ └──────────────────┬──────────────────────────────┬───────────┘
--                    │ git push (auto trigger)        │ git push
-+                    │ git push (auto trigger)        │ git push
--                    ▼                               ▼
-+                    ▼                               ▼
-- ┌──────────────────────────┐      ┌────────────────────────────┐
-+ ┌──────────────────────────┐      ┌────────────────────────────
-… [diff truncated]
-
-📌 IDE AST Context: Modified symbols likely include [# Kiến Trúc Hệ Thống: Ebanking Quỹ TDND Yên Thọ]
-- **[what-changed] Updated schema KINH**: + ---
-+ 
-+ ## 11. BÀI HỌC KINH NGHIỆM & QUY TẮC DỰ ÁN MỚI (SYSTEM RULES)
-+ 
-+ Nếu khởi tạo một dự án WebApp vận hành theo kiến trúc Serverless (Frontend tự do + Google Apps Script Backend), BẮT BUỘC phải áp dụng bộ quy tắc (RULES) sau đây vào System Prompt cho AI để tránh các lỗi chí mạng đã được giải quyết:
-+ 
-+ ### 11.1 Giới hạn của Hệ sinh thái Google (GAS)
-+ - **LockService chống Race-Condition:** Mọi thao tác GHI/SỬA (Insert/Update) dữ liệu bắt buộc phải bọc trong `LockService.getScriptLock().waitLock(15000)` và kết thúc bằng `SpreadsheetApp.flush()`. Nếu không, nhiều user submit cùng lúc sẽ chép đè dữ liệu lên nhau.
-+ - **Micro-database Performance (Batch Ops):** Tuyệt đối cấm dùng vòng lặp thiết lập `.appendRow()` hay `.setValue()`. Mọi thao tác phải đọc nguyên cục mảng 2 chiều bằng `.getValues()`, xử lý trên RAM, sau đó đẩy ngược lại bằng `.setValues()` trong 1 lần gọi API duy nhất.
-+ - **Lưu trữ số:** Để Google Sheets không tự format các số điện thoại/số TK làm mất số 0 ở đầu, trước khi ghi phải tự chèn dấu nháy đơn trước chuỗi (Ví dụ: `"'0987654321"`).
-+ 
-+ ### 11.2 Giao diện và API Call
-+ - **Lỗi Bút Toán Kép (Double-click):** 100% các nút "Lưu/Submit" thao tác ghi dữ liệu đều phải bị `.prop('disabled', true)` ngay ở mili-giây đầu tiên khi user click và hiện Spinner (VD: Đang lưu...).
-+ - **Giảm tải Payload bằng Native Compression:** Kích thước tải trọng qua AppScript có giới hạn chặt chẽ/thời gian Timeout ngắn. Ảnh trước khi mã hoá Base64 phải chạy qua `browser-image-compression` để ép xuống dưới `1MB`.
-+ 
-+ ### 11.3 Tương thích Phần Cứng: Camera vs Mobile
-+ - **Lỗi Lớp Phủ Màn Hình (Screen Overlay):** Cấm gọi WebRTC (`navigator.mediaDevices.getUserMedia`) trên Mobile Devices, đặc biệt là Android do hệ điều hành hay chặn cấp quyền trình duyệt khi có bong bóng chat.
-+ - **Rule Xử Lý Camera:** Viết code lọc theo User-Agent: Nếu `isMobile`, bypass hoàn toàn WebRTC bằng cách dùng `Native Camera Picker`: `<input type="file" capture="environment">`. Laptop/PC 
-… [diff truncated]
-
-📌 IDE AST Context: Modified symbols likely include [# Kiến Trúc Hệ Thống: Ebanking Quỹ TDND Yên Thọ]
-- **[decision] Optimized Blueprint — hardens HTTP security headers**: - > Đây là tài liệu cốt lõi (Blueprint) ghi nhận quy trình, kiến trúc, cấu trúc cơ sở dữ liệu và bảo mật của Ứng dụng Quản lý Khách hàng / Mở tài khoản Ebanking. Tài liệu này cần được trích xuất và tham chiếu trước khi thực hiện bất cứ cập nhật, bảo trì nào.
-+ > Đây là tài liệu cốt lõi **(Blueprint)** ghi nhận toàn bộ kiến trúc, quy trình CI/CD, cấu trúc CSDL và bảo mật của hệ thống Quản lý Chỉ Tiêu Mở Tài Khoản Ebanking. **Phải đọc trước khi thực hiện bất kỳ thay đổi nào.**
-- > 
-+ >
-- > Hệ thống được vận hành tự động qua **Vercel (Frontend)** kết nối tới **Google Apps Script (Backend API)**.
-+ > Hệ thống chạy hoàn toàn tự động: **GitHub → Vercel/Netlify (Frontend)** kết nối với **Google Apps Script (Backend API)**.
-- ### 1.1 Khái quát (SPA Architecture)
-+ ### 1.1 Mô hình SPA (Single Page Application)
-- Ứng dụng được xây dựng theo mô hình **Single Page Application (SPA)**:
-+ 
-- - **Frontend (Deploy Vercel)**: Xây dựng bằng Thuần HTML, CSS (Bootstrap 5), JS (ES6+ jQuery) ở mục `netlify-app/`.
-+ ```
-- - **Backend (Serverless API)**: Sử dụng Google Apps Script (GAS) làm nền tảng xử lý dữ liệu và lưu trữ vào Google Drive / Sheets.
-+ ┌──────────────────────────────────────────────────────────────┐
-- - **Micro-database**: Google Sheets (2 bảng: `DATA` + `STAFFS`).
-+ │                    GITHUB REPOSITORY                          │
-- - **URL Production**: [qtd-ebanking.vercel.app](https://qtd-ebanking.vercel.app/)
-+ │               github.com/ducanht/ebanking                    │
-- 
-+ └──────────────────┬──────────────────────────────┬───────────┘
-- ### 1.2 Giao tiếp Dữ liệu (Networking & Protocol)
-+                    │ git push (auto trigger)        │ git push
-- - Tương tác qua **chuẩn REST-like API (doPost)** trả về JSON từ GAS.
-+                    ▼                               ▼
-- - Frontend sử dụng hàm Wrapper API tự tạo (`runAPI`) trong `js/api.js` với cơ chế:
-+ ┌──────────────────────────┐      ┌────────────────────────────┐
--   - Timeout: `35000` ms (35s) cho th
-… [diff truncated]
-
-📌 IDE AST Context: Modified symbols likely include [# Kiến Trúc Hệ Thống: Ebanking Quỹ TDND Yên Thọ]
-- **[what-changed] Replaced auth Admin — adds runtime type validation before use**: -                         <div id="edit_status_alert" class="alert alert-warning d-none py-2 mb-3 small shadow-sm">
-+                         <div id="edit_status_alert" class="alert alert-warning d-none py-2 mb-3 small shadow-sm" style="display:none !important;">
--                         <h6 class="fw-bold text-secondary mt-4 mb-3 border-bottom pb-2">Chứng từ đính kèm</h6>
-+         <!-- Thêm trường ẩn cho Admin view -->
--                         <div class="row g-3" id="edit_images_container"></div>
-+                         <div class="col-md-12 mt-3" id="edit_activate_group">
--                         <div class="mt-4 text-end">
-+                             <div class="form-check form-switch d-flex align-items-center gap-3 p-3 bg-white rounded-3 border shadow-sm">
--                             <button type="button" class="btn btn-secondary px-4 me-2 rounded-pill" data-bs-dismiss="modal">Đóng</button>
-+                                 <input class="form-check-input" type="checkbox" id="edit_is_activated" role="switch" style="width:3rem;height:1.5rem;">
--                             <button type="submit" class="btn btn-success px-4 rounded-pill shadow-sm" id="btnSaveEdit">Lưu thay đổi</button>
-+                                 <label class="form-check-label fw-bold text-dark" for="edit_is_activated">
--                         </div>
-+                                     <i class='bx bx-power-off text-success'></i> KÍCH HOẠT HỒ SƠ
--                     </form>
-+                                 </label>
+- **[what-changed] Replaced auth GIAN — adds runtime type validation before use**: -                         <div class="d-flex justify-content-between mt-1" style="font-size: 0.65rem;">
++                         <div class="d-flex justify-content-between mt-1 mb-2" style="font-size: 0.65rem;">
+-                     </div>
++                         <div class="progress" style="height: 4px;">
 -                 </div>
-+                             </div>
--             </div>
++                             <div id="staffDash-prog-thanhvien" class="progress-bar bg-primary" role="progressbar" style="width: 50%"></div>
+-                 <div class="col-6 col-md-3">
++                             <div id="staffDash-prog-ngoai" class="progress-bar bg-secondary" role="progressbar" style="width: 50%"></div>
+-                     <div class="glass-card p-3 border-start border-4 border-success h-100 shadow-sm d-flex flex-column justify-content-center">
 +                         </div>
--         </div>
-+                         <div class="col-md-6 initially-hidden" id="edit_login_group">
--     </div>
-+                             <label class="form-label fw-semibold">Tên đăng nhập</label>
-- 
-+                             <input type="text" class="form-control" id="edit_ten_dang_nhap" placeholder="Tên đăng nhập">
--     <!-- Modal Xe
+-                         <div class="d-flex align-items-center gap-2 mb-1">
++                         <div class="d-flex justify-content-between mt-1" style="font-size: 0.65rem;">
+-                             <div class="icon-box-sm bg-success-subtle text-success"><i class="bx bx-check-circle"></i></div>
++                             <span>Thành viên: <b id="staffDash-thanhvien">0</b></span>
+-                             <h6 class="text-muted mb-0 small text-uppercase fw-bold">ĐÃ KÍCH HOẠT</h6>
++                             <span>Ngoài TV: <b id="staffDash-ngoaithanhvien">0</b></span>
+-                         <h3 class="fw-bold text-success mb-0" id="staffDash-activated">0</h3>
++                     </div>
+-                     </div>
++                 </div>
+-                 </div>
++                 <div class="col-6 col-md-3">
+-                 <div class="col-6 col-md-3">
++                     <div class="glass-card p-3 border-start border-4 border-success h-100 shadow-sm d-flex flex-column justify-content-center">
+-                     <div class="glass-card p-3 border-start border-4 border-warning h-100 s
 … [diff truncated]
 
 📌 IDE AST Context: Modified symbols likely include [html]
-- **[what-changed] Updated schema Vercel**: - - [ ] Cập nhật URL API mới nhất vào `api.js` (Vercel/Netlify)
-+ - [x] Cập nhật URL API mới nhất vào `api.js` (Vercel/Netlify)
-- - [ ] Sửa Frontend: Kiểm trùng ngay khi nhập (onblur) + Gửi kèm Loại hình
-+ - [x] Sửa Frontend: Kiểm trùng ngay khi nhập (onblur) + Gửi kèm Loại hình
-- - [ ] Sửa Backend: `api_validateDuplicate` lọc theo Loại hình
-+ - [x] Sửa Backend: `api_validateDuplicate` lọc theo Loại hình
-- - [ ] Đồng bộ 18 cột dữ liệu trong `api_submitAccountForm`
-+ - [x] Đồng bộ 18 cột dữ liệu trong `api_submitAccountForm`
-- - [ ] Đồng bộ 18 cột dữ liệu trong `api_updateMyCustomer` 
-+ - [x] Đồng bộ 18 cột dữ liệu trong `api_updateMyCustomer` 
-- - [ ] Cập nhật `KIEN_TRUC_HE_THONG.md`
-+ - [x] Cập nhật `KIEN_TRUC_HE_THONG.md`
-- - [ ] Đẩy code lên GAS và kiểm tra toàn diện
-+ - [x] Đẩy code lên GAS và kiểm tra toàn diện
+- **[what-changed] what-changed in index.html**: -                     <h4 class="fw-bold text-primary mb-0 d-flex align-items-center gap-2">
++                     <h4 class="fw-bold text-primary mt-0 mb-0 d-flex align-items-center gap-2">
+-                     <p class="text-muted mb-0 small mt-1">Xin chào, <span id="user-name-display-admin" class="fw-bold text-dark"></span>! Theo dõi tiến độ KPIs toàn hệ thống theo thời gian thực.</p>
++                     <p class="text-muted mb-0 small mt-0">Xin chào, <span id="user-name-display-admin" class="fw-bold text-dark"></span>! Theo dõi tiến độ KPIs toàn hệ thống theo thời gian thực.</p>
 
-📌 IDE AST Context: Modified symbols likely include [# TIẾN ĐỘ THỰC HIỆN]
-- **[what-changed] Replaced auth Frontend — externalizes configuration for environment flexibility**: - 2. Frontend `checkDuplicate()` gọi `api_checkDuplicate` — kiểm tra trùng **CCCD/SĐT trong cùng Loại hình** (Cá nhân riêng, HKD riêng).
-+ 2. **Frontend `checkDuplicate()`:** Kiểm tra trùng **CCCD/SĐT trong cùng Loại hình** (Cá nhân riêng, HKD riêng) ngay khi nhập xong (`onblur`).
-- 4. Package ảnh dưới dạng Base64 → Submit `api_submitAccountForm`.
-+ 4. **Package ảnh:** Dưới dạng Base64 → Submit `api_submitAccountForm`.
-- 5. GAS upload ảnh Base64 lên Google Drive → lấy Link ID.
-+ 5. **GAS Upload:** Tải Base64 lên Google Drive → lấy Link ID.
-- 6. GAS ghi hồ sơ vào Sheet với `LockService.waitLock(10000)` → `SpreadsheetApp.flush()`.
-+ 6. **GAS Database Sync (18 Cột):** Ghi hồ sơ vào Sheet với `LockService.waitLock(10000)` → `SpreadsheetApp.flush()`.
-- 
-+    - **Thứ tự Cột (A -> R):** ID, Thời điểm, Cán bộ, Tên KH, CCCD, DKKD, SĐT, Loại hình, Ngày mở, Số TK (CIF), Tên đăng nhập, Mật khẩu, Ảnh CCCD Trước, Ảnh CCCD Sau, Ảnh GP DKKD, Ảnh QR, Ảnh Thực Hiện, Trạng thái.
-- ### 3.2 Luồng Caching & Hiệu Suất
-+ 
-- - **AppCache** (JavaScript in-memory): TTL `300,000ms = 5 phút`.
-+ ### 3.2 Luồng Caching & Hiệu Suất
--   - Admin: Key `adminDashboard` — lưu toàn bộ `statsPayload`.
-+ - **AppCache** (JavaScript in-memory): TTL `300,000ms = 5 phút`.
--   - Staff: Key `myDashboard` — lưu dữ liệu cá nhân.
-+   - Admin: Key `adminDashboard` — lưu toàn bộ `statsPayload`.
-- - Khi cache hết hạn hoặc dữ liệu mới được ghi → `AppCache.clear()` invalidate → gọi lại API.
-+   - Staff: Key `myDashboard` — lưu dữ liệu cá nhân.
-- - **Fallback Stats (v2.1.8+):** Nếu GAS backend cũ không trả về `activated/inactive` trong `statsPayload`, frontend tự tính từ `allData`:
-+ - Khi cache hết hạn hoặc dữ liệu mới được ghi → `AppCache.clear()` invalidate → gọi lại API.
--   ```js
-+ - **Fallback Stats (v2.1.8+):** Nếu GAS backend cũ không trả về `activated/inactive` trong `statsPayload`, frontend tự tính từ `allData`:
--   if (s && s.allData && s.total > 0 && ((s.activated || 0) + (s.inactive || 0)) < s.total) {
-+   `
+📌 IDE AST Context: Modified symbols likely include [html]
+- **[what-changed] what-changed in index.html**: -     <div id="app-container" class="container py-4 mb-5">
++     <div id="app-container" class="container pt-1 pt-md-2 pb-5">
+
+📌 IDE AST Context: Modified symbols likely include [html]
+- **[convention] Replaced auth VIEW — adds runtime type validation before use — confirmed 3x**: -                                         <th>SỐ ĐIỆN THOẠI</th>
++                                         <th>ĐỐI TƯỢNG</th>
+-                                         <th>CÁN BỘ</th>
++                                         <th>SỐ ĐIỆN THOẠI</th>
+-                                         <th class="text-end">CHI TIẾT</th>
++                                         <th>CÁN BỘ</th>
+-                                     </tr>
++                                         <th class="text-end">CHI TIẾT</th>
+-                                 </thead>
++                                     </tr>
+-                                 <tbody></tbody>
++                                 </thead>
+-                             </table>
++                                 <tbody></tbody>
+-                         </div>
++                             </table>
+-                     </div>
++                         </div>
+-                 </div>
++                     </div>
+-                 <div class="col-12 col-xl-4 d-flex flex-column gap-4">
++                 </div>
+-                     <div class="glass-card p-4">
++                 <div class="col-12 col-xl-4 d-flex flex-column gap-4">
+-                         <h6 class="fw-bold mb-3 text-secondary text-uppercase d-flex justify-content-between align-items-center">
++                     <div class="glass-card p-4">
+-                             <span>Top 5 Cán Bộ</span>
++                         <h6 class="fw-bold mb-3 text-secondary text-uppercase d-flex justify-content-between align-items-center">
+-                             <button class="btn btn-sm btn-outline-primary" onclick="showAllStaffModal()">Chi tiết</button>
++                             <span>Top 5 Cán Bộ</span>
+-                         </h6>
++                             <button class="btn btn-sm btn-outline-primary" onclick="showAllStaffModal()">Chi tiết</button>
+-                         <div id="db-topstaff" class="d-flex flex-column g
 … [diff truncated]
 
-📌 IDE AST Context: Modified symbols likely include [# Kiến Trúc Hệ Thống: Ebanking Quỹ TDND Yên Thọ]
-- **[what-changed] Updated column database schema**: - # TASK LOG — Ebanking QTD Yên Thọ
-+ # TIẾN ĐỘ THỰC HIỆN
-- > Lần cập nhật cuối: 2026-03-31 | Phiên bản: v2.1.8
-+ 
-- 
-+ - [ ] Cập nhật URL API mới nhất vào `api.js` (Vercel/Netlify)
-- ---
-+ - [ ] Sửa Frontend: Kiểm trùng ngay khi nhập (onblur) + Gửi kèm Loại hình
-- 
-+ - [ ] Sửa Backend: `api_validateDuplicate` lọc theo Loại hình
-- ## ✅ ĐÃ HOÀN THÀNH
-+ - [ ] Đồng bộ 18 cột dữ liệu trong `api_submitAccountForm`
-- 
-+ - [ ] Đồng bộ 18 cột dữ liệu trong `api_updateMyCustomer` 
-- ### [BUG-001] Dashboard Admin: Cá nhân/Hộ KD hiển thị số 0
-+ - [ ] Cập nhật `KIEN_TRUC_HE_THONG.md`
-- - **Nguyên nhân:** `renderAdminStats()` trong `dashboard.js` dùng sai ID HTML: `#db-ca-nhan`, `#db-hkd-count` — nhưng HTML thực tế có `id="db-canhan"` và `id="db-hkd"` (không có dấu gạch giữa).
-+ - [ ] Đẩy code lên GAS và kiểm tra toàn diện
-- - **Fix:** Sửa lại IDs + thêm cập nhật progress bar (`#db-prog-canhan`, `#db-prog-hkd`).
-+ 
-- - **File:** `netlify-app/js/dashboard.js` — hàm `renderAdminStats()`
-- - **Commit:** `f265b2a` – "Fix Admin Readonly permission, Dashboard table column rendering..."
-- - **Đã verify:** ✅ Admin Dashboard hiển thị đúng: Tổng 153, KH 75, CKH 78, CN 116, HKD 37
-- 
-- ---
-- 
-- ### [BUG-002] Bảng Lịch Sử Mở Mới (Admin): Cột "Số Tài Khoản" trống
-- - **Nguyên nhân:** `renderAdminTable()` dùng `d['Số tài khoản']` nhưng GAS trả về field là `d['Số TK']` theo header thực tế trong Google Sheets.
-- - **Fix:** Sửa thành `d['Số TK'] || d['Số tài khoản'] || ''` để fallback an toàn.
-- - **File:** `netlify-app/js/dashboard.js` — hàm `renderAdminTable()`
-- - **Commit:** `f265b2a`
-- - **Đã verify:** ✅ Cột Số Tài Khoản hiển thị đầy đủ (VD: `3800200287895453`)
-- 
-- ---
-- 
-- ### [BUG-003] Dashboard Admin: Đã Kích Hoạt / Chưa Kích Hoạt = 0
-- - **Nguyên nhân:** GAS backend phiên bản cũ (chưa được re-deploy) không có trường `activated` và `inactive` trong `statsPayload`. Frontend nhận được `undefined || 0 = 0`.
-- - **Fix:** Thêm fallback trong `initDashboard()`: nếu `(activated + inactive) < t
+📌 IDE AST Context: Modified symbols likely include [html]
+- **[convention] what-changed in index.html — confirmed 3x**: -                         <thead><tr><th>THỜI GIAN</th><th>HỌ TÊN</th><th>SỐ TÀI KHOẢN</th><th>LOẠI HÌNH</th><th>SỐ ĐIỆN THOẠI</th><th class="text-end">XEM</th></tr></thead>
++                         <thead><tr><th>THỜI GIAN</th><th>HỌ TÊN</th><th>SỐ TÀI KHOẢN</th><th>LOẠI HÌNH</th><th>ĐỐI TƯỢNG</th><th>SỐ ĐIỆN THOẠI</th><th class="text-end">XEM</th></tr></thead>
+
+📌 IDE AST Context: Modified symbols likely include [html]
+- **[what-changed] Replaced auth Email — adds runtime type validation before use**: - <<<<<<< HEAD
++                                     <input type="email" class="form-control border-start-0 ps-0" id="loginEmail" placeholder="Nhập Email" required>
+-                                     <input type="email" class="form-control border-start-0 ps-0" id="loginEmail" placeholder="Nhập Email" required>
++                                 </div>
+- =======
++                             </div>
+-                                     <input type="email" class="form-control border-start-0 ps-0" id="loginEmail" placeholder="nhập email" required>
++                             <div class="mb-4">
+- >>>>>>> 3620f29 (Fix(P0): Nâng cấp thuật toán Camera (OpenCV) trên Mobile và cập nhật tài liệu Kiến trúc)
++                                 <label for="loginPassword" class="form-label fw-semibold text-secondary">Mật khẩu (<span class="text-danger">*</span>)</label>
+-                                 </div>
++                                 <div class="input-group">
+-                             </div>
++                                     <span class="input-group-text bg-white border-end-0"><i class='bx bx-lock-alt text-muted'></i></span>
+-                             <div class="mb-4">
++                                     <input type="password" class="form-control border-start-0 ps-0" id="loginPassword" placeholder="••••••••" required>
+-                                 <label for="loginPassword" class="form-label fw-semibold text-secondary">Mật khẩu (<span class="text-danger">*</span>)</label>
++                                 </div>
+-                                 <div class="input-group">
++                             </div>
+-                                     <span class="input-group-text bg-white border-end-0"><i class='bx bx-lock-alt text-muted'></i></span>
++                             <button type="submit" class="btn btn-primary w-100 py-2 fs-5 d-flex align-items-center justify-content-center gap-2">
+-                                     <
 … [diff truncated]
 
-📌 IDE AST Context: Modified symbols likely include [# TIẾN ĐỘ THỰC HIỆN]
-- **[what-changed] Updated schema BACKEND — evolves the database schema to support new requirements**: - # Ignore specific other files
-+ # === PHÂN TÁCH GAS BACKEND vs NETLIFY FRONTEND ===
-- .git/**
-+ # Các file .js dưới đây là FRONTEND (Netlify) — KHÔNG push lên GAS
-- node_modules/**
-+ # GAS chỉ dùng file .gs — jQuery ($) không tồn tại trong GAS server context
-- README.md
-+ app.js
-- MIGRATION_PLAN.md
-+ 
-- DANHGIA.md
-+ # Ignore binary and style files (GAS không dùng)
-- KINH_NGHIEM.md
-+ style.css
-- task.md
-+ logo.png
-- implementation_plan.md
-+ *.png
-- walkthrough.md
-+ *.jpg
-- netlify.toml
-+ *.jpeg
-- vercel.json
-+ 
-- .agent/**
-+ # Ignore tài liệu và config Netlify/Vercel
-- .agent-mem/**
-+ .git/**
-- .agents/**
-+ node_modules/**
-- .brainsync/**
-+ README.md
-- .cursor/**
-+ MIGRATION_PLAN.md
-- .vscode/**
-+ DANHGIA.md
-- .windsurfrules
-+ KINH_NGHIEM.md
-- AGENT.md
-+ KINHNGHIEM.md
-- CLAUDE.md
-+ BAOCAO_KIEMTRA_TOANDIEN.md
-- MOTA.md
-+ task.md
-- TIENDO.md
-+ TASK.md
-- NOTES.md
-+ KIEN_TRUC_HE_THONG.md
-- DE_AN_HOAN_THIEN.md
-+ implementation_plan.md
-- DANHGIA.md
-+ walkthrough.md
-- KINH_NGHIEM.md
-+ netlify.toml
-- MIGRATION_PLAN.md
-+ vercel.json
+📌 IDE AST Context: Modified symbols likely include [html]
+- **[what-changed] Replaced auth DOCTYPE — adds runtime type validation before use**: - <!DOCTYPE html>
++ <!DOCTYPE html>
+- <html lang="vi">
++ <html lang="vi">
+- <head>
++ <head>
+-     <meta charset="UTF-8">
++     <meta charset="UTF-8">
+-     <meta name="viewport" content="width=device-width, initial-scale=1.0">
++     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+-     <title>Hệ Thống Quản Lý Chỉ Tiêu Mở Tài Khoản - Yên Thọ</title>
++     <title>Hệ Thống Quản Lý Chỉ Tiêu Mở Tài Khoản - Yên Thọ</title>
 - 
-+ .agent/**
-+ .agent-mem/**
-+ .agents/**
-+ .brainsync/**
-+ .cursor/**
-+ .vscode/**
-+ .vercel/**
-+ .windsurfrules
-+ AGENT.md
-+ CLAUDE.md
-+ MOTA.md
-+ TIENDO.md
-+ NOTES.md
-+ DE_AN_HOAN_THIEN.md
 + 
-- **[decision] Optimized Vercel — offloads heavy computation off the main thread**: - > Hệ thống được vận hành tự động qua **Vercel/Netlify (Frontend)** kết nối tới **Google Apps Script (Backend API)**.
-+ > Hệ thống được vận hành tự động qua **Vercel (Frontend)** kết nối tới **Google Apps Script (Backend API)**.
-- ## 1. Kiến Trúc Tổng Quyết (Architecture)
-+ ---
-- ### 1.1 Khái quát (SPA Architecture)
-+ ## 1. Kiến Trúc Tổng Quan (Architecture)
-- Ứng dụng được xây dựng theo mô hình **Single Page Application (SPA)**:
-+ 
-- - **Frontend (Ứng dụng biên dịch qua Vercel)**: Xây dựng bằng Thuần HTML, CSS (Bootstrap 5), JS (ES6+ JQuery) ở mục `netlify-app/`.
-+ ### 1.1 Khái quát (SPA Architecture)
-- - **Backend (Serverless API)**: Sử dụng Google Apps Script (GAS) làm nền tảng xử lý dữ liệu và lưu trữ vào Google Drive / Sheets.
-+ Ứng dụng được xây dựng theo mô hình **Single Page Application (SPA)**:
-- - **Micro-database**: Google Sheets.
-+ - **Frontend (Deploy Vercel)**: Xây dựng bằng Thuần HTML, CSS (Bootstrap 5), JS (ES6+ jQuery) ở mục `netlify-app/`.
+-     <!-- Cache Control -->
++     <!-- Cache Control -->
+-     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
++     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+-     <meta http-equiv="Pragma" content="no-cache">
++     <meta http-equiv="Pragma" content="no-cache">
+-     <meta http-equiv="Expires" content="0">
++     <meta http-equiv="Expires" content="0">
 - 
-+ - **Backend (Serverless API)**: Sử dụng Google Apps Script (GAS) làm nền tảng xử lý dữ liệu và lưu trữ vào Google Drive / Sheets.
-- ### 1.2 Giao tiếp Dữ liệu (Networking & Protocol)
-+ - **Micro-database**: Google Sheets (2 bảng: `DATA` + `STAFFS`).
-- - Tương tác qua **chuẩn REST-like API (doPost)** trả về JSON từ GAS.
-+ - **URL Production**: [qtd-ebanking.vercel.app](https://qtd-ebanking.vercel.app/)
-- - Frontend sử dụng hàm Wrapper API tự tạo (`runAPI`) với cơ chế:
 + 
--   - Timeout: `35000` ms (35s) cho thao tác phức tạp như Base64 Upload Ảnh.
-+ ### 1.2 Giao tiếp Dữ liệu (Networking & Protocol)
--   - AbortController giúp ngắt tiến trình nếu sập mạng.
-+ - Tương tác qua **chuẩn REST-like API (doPost)** trả về JSON từ GAS.
--   - Chống SPAM: Tự khóa nút bấm (`disabled`), hiện Overlay Spinner ngay khi Request bắn đi.
-+ - Frontend sử dụng hàm Wrapper API tự tạo (`runAPI`) trong `js/api.js` với cơ chế:
-- 
-+   - Timeout: `35000` ms (35s) cho thao tác phức tạp như Base64 Upload Ảnh.
-- ---
-+   - AbortController giúp
+-     <!-- Pre-load styles -->
++     <!-- Pre-load styles -->
+-     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
++     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+-     <link href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
++     <link href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+-     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
++     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+-     <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet">
++     <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+-     <link href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css" rel="stylesheet">
++     <link href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.boo
 … [diff truncated]
 
-📌 IDE AST Context: Modified symbols likely include [# Kiến Trúc Hệ Thống: Ebanking Quỹ TDND Yên Thọ]
+📌 IDE AST Context: Modified symbols likely include [html]
+- **[what-changed] Replaced auth index**: -                                     <input type="email" class="form-control border-start-0 ps-0" id="loginEmail" placeholder="nhập email" required>
++                                     <input type="email" class="form-control border-start-0 ps-0" id="loginEmail" placeholder="Nhập email" required>
+
+📌 IDE AST Context: Modified symbols likely include [html]
+- **[what-changed] Replaced auth index**: -                                     <input type="email" class="form-control border-start-0 ps-0" id="loginEmail" placeholder="abc.nguyen@yentho.com" required>
++                                     <input type="email" class="form-control border-start-0 ps-0" id="loginEmail" placeholder="nhập email" required>
+
+📌 IDE AST Context: Modified symbols likely include [html]
+- **[convention] Replaced auth TDND — confirmed 3x**: -                             <p class="mb-0 text-white-50 small">Quỹ TDND Yên Thọ &copy; 2026. Phiên bản hệ thống v2.1.9-FIX</p>
++                             <p class="mb-0 text-white-50 small">Quỹ TDND Yên Thọ &copy; 2026. Phiên bản hệ thống v2.2.0-HOTFIX</p>
+-     <!-- Modules (v2.1.9-FIX) -->
++     <!-- Modules (v2.2.0-HOTFIX) -->
+-     <script src="js/utils.js?v=2.1.9-fix"></script>
++     <script src="js/utils.js?v=2.2.0-hotfix"></script>
+-     <script src="js/api.js?v=2.1.9-fix"></script>
++     <script src="js/api.js?v=2.2.0-hotfix"></script>
+-     <script src="js/state.js?v=2.1.9-fix"></script>
++     <script src="js/state.js?v=2.2.0-hotfix"></script>
+-     <script src="js/auth.js?v=2.1.9-fix"></script>
++     <script src="js/auth.js?v=2.2.0-hotfix"></script>
+-     <script src="js/camera.js?v=2.1.9-fix"></script>
++     <script src="js/camera.js?v=2.2.0-hotfix"></script>
+-     <script src="js/registration.js?v=2.1.9-fix"></script>
++     <script src="js/registration.js?v=2.2.0-hotfix"></script>
+-     <script src="js/customer.js?v=2.1.9-fix"></script>
++     <script src="js/customer.js?v=2.2.0-hotfix"></script>
+-     <script src="js/dashboard.js?v=2.1.9-fix"></script>
++     <script src="js/dashboard.js?v=2.2.0-hotfix"></script>
+-     <script src="app.js?v=2.1.9-fix"></script>
++     <script src="app.js?v=2.2.0-hotfix"></script>
+
+📌 IDE AST Context: Modified symbols likely include [html]
+- **[convention] Replaced auth Modules — confirmed 3x**: -     <!-- Modules (v2.1.4-STABLE) -->
++     <!-- Modules (v2.1.8-PATCH) -->
+-     <script src="js/utils.js?v=2.1.5"></script>
++     <script src="js/utils.js?v=2.1.8-patch"></script>
+-     <script src="js/api.js?v=2.1.5"></script>
++     <script src="js/api.js?v=2.1.8-patch"></script>
+-     <script src="js/state.js?v=2.1.5"></script>
++     <script src="js/state.js?v=2.1.8-patch"></script>
+-     <script src="js/auth.js?v=2.1.5"></script>
++     <script src="js/auth.js?v=2.1.8-patch"></script>
+-     <script src="js/camera.js?v=2.1.5"></script>
++     <script src="js/camera.js?v=2.1.8-patch"></script>
+-     <script src="js/registration.js?v=2.1.5"></script>
++     <script src="js/registration.js?v=2.1.8-patch"></script>
+-     <script src="js/customer.js?v=2.1.5"></script>
++     <script src="js/customer.js?v=2.1.8-patch"></script>
+-     <script src="js/dashboard.js?v=2.1.5"></script>
++     <script src="js/dashboard.js?v=2.1.8-patch"></script>
+-     <script src="app.js?v=2.1.5"></script>
++     <script src="app.js?v=2.1.8-patch"></script>
+
+📌 IDE AST Context: Modified symbols likely include [html]
+- **[convention] what-changed in index.html — confirmed 3x**: -                     <h5 class="fw-bold text-primary mb-2">QUỸ TÍN DỤNG NHÂN DÂN YÊN THỌ</h5>
++                     <h5 class="fw-bold mb-1" style="color: var(--primary-color);">QUỸ TÍN DỤNG NHÂN DÂN <br>YÊN THỌ</h5>
+
+📌 IDE AST Context: Modified symbols likely include [html]
+- **[what-changed] Replaced auth Theo — adds runtime type validation before use**: -                     <h3 class="fw-bold text-primary">QUỸ TÍN DỤNG NHÂN DÂN YÊN THỌ</h3>
++                     <h5 class="fw-bold text-primary mb-2">QUỸ TÍN DỤNG NHÂN DÂN YÊN THỌ</h5>
+-                     <p class="text-muted small">Hệ Thống Quản Lý</p>
++                     <div class="login-badge shadow-sm">Hệ Thống Quản Lý Chỉ Tiêu Mở Tài Khoản</div>
+-                 </div>            <p class="text-secondary small">Hệ thống QL Chỉ tiêu Mở Tài khoản</p>
++                 </div>
+-                 <div class="col-12 col-md-3">
++                 <div class="col-6 col-md-3">
+-                     <div class="glass-card p-3 border-start border-primary border-4 h-100 d-flex flex-column justify-content-center shadow-sm">
++                     <div class="glass-card p-3 border-start border-primary border-4 h-100 shadow-sm">
+-                         <p class="text-muted mb-1 fw-semibold small text-uppercase">TỔNG TÀI KHOẢN</p>
++                         <div class="d-flex align-items-center gap-2 mb-2">
+-                         <h3 class="fw-bold text-primary mb-0" id="db-total">0</h3>
++                             <div class="icon-box-sm bg-primary-subtle text-primary"><i class="bx bx-collection"></i></div>
+-                         <small class="text-secondary mt-1"><span id="db-ca-nhan-sub" class="fw-bold text-info">0</span> Cá nhân | <span id="db-hkd-sub" class="fw-bold text-warning">0</span> Hộ KD</small>
++                             <h6 class="text-muted mb-0 small text-uppercase">TỔNG HỒ SƠ</h6>
+-                     </div>
++                         </div>
+-                 </div>
++                         <h3 class="fw-bold text-primary mb-0" id="db-total">0</h3>
+-                 <div class="col-12 col-md-3">
++                     </div>
+-                     <div class="glass-card p-3 border-start border-success border-4 h-100 d-flex flex-column justify-content-center shadow-sm">
++                 </div>
+-                         <p class="text-muted mb-1 f
+… [diff truncated]
+
+📌 IDE AST Context: Modified symbols likely include [html]
+- **[what-changed] Replaced auth NGAY — adds runtime type validation before use**: -                         <button type="submit" class="btn btn-primary btn-lg px-5 shadow-sm d-flex align-items-center mx-auto gap-2" id="btnSubmitAccount">
++                         <div class="mb-3 d-flex justify-content-center">
+-                             <i class='bx bx-send'></i> Gửi Hồ Sơ
++                             <div class="form-check form-switch bg-light p-2 px-4 rounded-pill border shadow-sm">
+-                         </button>
++                                 <input class="form-check-input ms-0 me-2" type="checkbox" id="is_activated" style="width: 2.5em; height: 1.25em;">
+-                         <small class="d-block mt-2 text-muted">* Mọi ảnh tải lên sẽ tự động đi qua thuật toán Crop &amp; Compress tối ưu dung lượng (&lt; 500KB).</small>
++                                 <label class="form-check-label fw-bold text-success" for="is_activated">KÍCH HOẠT HỒ SƠ NGAY</label>
+-                     </div>
++                             </div>
+-                 </form>
++                         </div>
+-             </div>
++                         <button type="submit" class="btn btn-primary btn-lg px-5 shadow-sm d-flex align-items-center mx-auto gap-2" id="btnSubmitAccount">
+-         </section>
++                             <i class='bx bx-send'></i> Gửi Hồ Sơ
+- 
++                         </button>
+-         <!-- VIEW: HỒ SƠ CỦA TÔI (STAFF) -->
++                         <small class="d-block mt-2 text-muted">* Mọi ảnh tải lên sẽ tự động đi qua thuật toán Crop &amp; Compress tối ưu dung lượng (&lt; 500KB).</small>
+-         <section id="view-my-customers" class="view-section d-none">
++                     </div>
+-              <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
++                 </form>
+-                 <h4 class="fw-bold text-primary mb-0"><i class='bx bx-list-ul'></i> Hồ Sơ Của Tôi</h4>
++             </div>
+-                 <div class="d-flex gap-2 align-items-center">
++         </section>
+-       
+… [diff truncated]
+
+📌 IDE AST Context: Modified symbols likely include [html]
+- **[what-changed] Replaced auth Placeholder — adds runtime type validation before use**: -                 <div class="col-12 col-md-4">
++                 <div class="col-12 col-md-3">
+-                     <div class="glass-card p-3 border-start border-primary border-4 h-100 d-flex flex-column justify-content-center">
++                     <div class="glass-card p-3 border-start border-primary border-4 h-100 d-flex flex-column justify-content-center shadow-sm">
+-                         <h2 class="fw-bold text-primary mb-0" id="db-total">0</h2>
++                         <h3 class="fw-bold text-primary mb-0" id="db-total">0</h3>
+-                 <div class="col-12 col-md-4">
++                 <div class="col-12 col-md-3">
+-                     <div class="glass-card p-3 border-start border-info border-4 h-100 d-flex flex-column justify-content-center">
++                     <div class="glass-card p-3 border-start border-success border-4 h-100 d-flex flex-column justify-content-center shadow-sm">
+-                         <p class="text-muted mb-1 fw-semibold small text-uppercase">TK CÁ NHÂN</p>
++                         <p class="text-muted mb-1 fw-semibold small text-uppercase">ĐÃ KÍCH HOẠT</p>
+-                         <h2 class="fw-bold text-info mb-0" id="db-ca-nhan">0</h2>
++                         <h3 class="fw-bold text-success mb-0" id="db-activated">0</h3>
+-                 <div class="col-12 col-md-4">
++                 <div class="col-12 col-md-3">
+-                     <div class="glass-card p-3 border-start border-warning border-4 h-100 d-flex flex-column justify-content-center">
++                     <div class="glass-card p-3 border-start border-warning border-4 h-100 d-flex flex-column justify-content-center shadow-sm">
+-                         <p class="text-muted mb-1 fw-semibold small text-uppercase">TK HỘ KINH DOANH</p>
++                         <p class="text-muted mb-1 fw-semibold small text-uppercase">CHƯA KÍCH HOẠT</p>
+-                         <h2 class="fw-bold text-warning mb-0" id="db-hkd-count">0</h2>
++                    
+… [diff truncated]
+
+📌 IDE AST Context: Modified symbols likely include [html]

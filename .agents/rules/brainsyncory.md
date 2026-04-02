@@ -1,7 +1,7 @@
 
 
 # Project Memory — ebanking
-> 450 notes | Score threshold: >40
+> 474 notes | Score threshold: >40
 
 ## Safety — Never Run Destructive Commands
 
@@ -20,19 +20,33 @@
 
 ## 📝 NOTE: 1 uncommitted file(s) in working tree.\n\n## Important Warnings
 
+- **⚠️ GOTCHA: Added session cookies authentication — adds runtime type validation before use** — -  * NETLIFY HIGH-FIDELITY APP ENGINE (app.js)
++  * MÃ NGUỒN FRONTEND 
+- **⚠️ GOTCHA: Fixed null crash in Expand** — -     // Tìm cột Đối tượng: Nếu index -1, thử fallback sang cột 19 (in
 - **gotcha in implementation_plan.md.resolved** — - # Xử lý Lỗi Cấp Quyền Camera (Screen Overlay Detected) trên Android
 
+- **⚠️ GOTCHA: Patched security issue EVENT — prevents XSS injection attacks** — - 
++ // --- CẤU HÌNH EVENT DELEGATION: XỬ LÝ CLICK XEM CHI TIẾT ---
+- 
+
+## Active: `netlify-app`
+
+- **Replaced auth VIEW — adds runtime type validation before use — confirmed 3x**
+- **what-changed in index.html — confirmed 3x**
+- **⚠️ GOTCHA: Added session cookies authentication — adds runtime type validation before use**
+- **Replaced auth TDND — confirmed 3x**
+- **Replaced auth Modules — confirmed 3x**
 
 ## Project Standards
 
-- Fixed null crash in Kinh — filters out falsy/null values explicitly — confirmed 3x
 - Replaced auth VIEW — adds runtime type validation before use — confirmed 3x
 - what-changed in index.html — confirmed 3x
-- Fixed null crash in COMPRESS — offloads heavy computation off the main thread — confirmed 3x
-- Fixed null crash in Canvas — confirmed 4x
-- Patched security issue Khai — prevents XSS injection attacks — confirmed 3x
 - Replaced auth TDND — confirmed 3x
-- decision in style.css — confirmed 3x
+- Replaced auth Modules — confirmed 3x
+- what-changed in index.html — confirmed 3x
+- what-changed in index.html — confirmed 3x
+- Strengthened types Admin — adds runtime type validation before use
+- what-changed in index.html — confirmed 3x
 
 ## Known Fixes
 
@@ -44,10 +58,10 @@
 
 ## Recent Decisions
 
+- decision in index.html
 - Optimized Ebanking — hardens HTTP security headers
 - decision in walkthrough.md.resolved
-- Optimized Blueprint — hardens HTTP security headers
-- Optimized Vercel — offloads heavy computation off the main thread
+- decision in app.js
 
 ## Learned Patterns
 

@@ -52,6 +52,7 @@ async function initMyCustomersList() {
 function renderStaffDashboardLocal(data) {
     let caNhan = 0, hkd = 0, total = 0;
     let activated = 0, inactive = 0;
+    let thanhVien = 0, ngoaiThanhVien = 0;
     let timeline = {};
 
     data.forEach(d => {
@@ -62,6 +63,10 @@ function renderStaffDashboardLocal(data) {
         const status = d['Trạng thái'] || '';
         if (status === 'Đã kích hoạt') activated++;
         else inactive++;
+        
+        const dt = d['Đối tượng'] || d['doi_tuong'] || 'Ngoài thành viên';
+        if (dt === 'Thành viên') thanhVien++;
+        else ngoaiThanhVien++;
 
         let rawDate = new Date(d["Thời điểm nhập"]);
         if (!isNaN(rawDate)) {
@@ -77,6 +82,8 @@ function renderStaffDashboardLocal(data) {
     $('#staffDash-hkd').text(hkd);
     $('#staffDash-activated').text(activated);
     $('#staffDash-inactive').text(inactive);
+    $('#staffDash-thanhvien').text(thanhVien);
+    $('#staffDash-ngoaithanhvien').text(ngoaiThanhVien);
 
     // Update progress bars
     const t = total || 1;
@@ -84,6 +91,10 @@ function renderStaffDashboardLocal(data) {
     const hkdPct = 100 - cnPct;
     $('#staffDash-prog-canhan').css('width', cnPct + '%').attr('aria-valuenow', cnPct);
     $('#staffDash-prog-hkd').css('width', hkdPct + '%').attr('aria-valuenow', hkdPct);
+    
+    const tvPct = Math.round(thanhVien / t * 100);
+    $('#staffDash-prog-thanhvien').css('width', tvPct + '%').attr('aria-valuenow', tvPct);
+    $('#staffDash-prog-ngoai').css('width', (100 - tvPct) + '%').attr('aria-valuenow', 100 - tvPct);
 
     renderStaffLineChart(timeline);
 }
@@ -451,15 +462,25 @@ function handleEditCustomer(e) {
             // =============================================
             const newStatus   = payload.is_activated ? 'Đã kích hoạt' : 'Chưa kích hoạt';
             const newDotClass = payload.is_activated ? 'active' : 'inactive';
+            const newDoiTuong = payload.doi_tuong; // 'Thành viên' hoặc 'Ngoài thành viên'
             const rowId       = String(payload.id).trim().replace(/^[']*/, '');
 
-            // 1. Cập nhật ngay chấm tròn trong bảng HTML (Staff & Admin)
+            // 1. Cập nhật ngay chấm tròn (Trạng thái) và Badge (Đối tượng) trong bảng HTML
             const $row = $(`tr[data-id="${rowId}"]`);
             if ($row.length) {
+                // Cập nhật chấm tròn trạng thái
                 $row.find('.status-dot')
                     .removeClass('active inactive')
                     .addClass(newDotClass)
                     .attr('title', newStatus);
+
+                // Cập nhật Badge Đối tượng (Cột index 4)
+                const isMember = newDoiTuong === 'Thành viên';
+                const badgeClass = isMember ? 'bg-primary-subtle text-primary border border-primary-subtle' : 'bg-secondary-subtle text-secondary border border-secondary-subtle';
+                $row.find('td:nth-child(5) .badge')
+                    .removeClass('bg-primary-subtle text-primary bg-secondary-subtle text-secondary border border-primary-subtle border-secondary-subtle')
+                    .addClass(badgeClass)
+                    .text(newDoiTuong);
             }
 
             // 2. Cập nhật in-memory cache Staff
@@ -468,7 +489,12 @@ function handleEditCustomer(e) {
                 const rec = staffCache.data.find(d =>
                     String(d['ID'] || d['Mã GD'] || '').replace(/^[']*/, '') === rowId
                 );
-                if (rec) rec['Trạng thái'] = newStatus;
+                if (rec) {
+                    rec['Trạng thái'] = newStatus;
+                    rec['trang_thai'] = newStatus;
+                    rec['Đối tượng'] = newDoiTuong;
+                    rec['doi_tuong'] = newDoiTuong;
+                }
             }
 
             // 3. Cập nhật in-memory _adminAllData
@@ -476,7 +502,12 @@ function handleEditCustomer(e) {
                 const rec = window._adminAllData.find(d =>
                     String(d['ID'] || d['Mã GD'] || '').replace(/^[']*/, '') === rowId
                 );
-                if (rec) rec['Trạng thái'] = newStatus;
+                if (rec) {
+                    rec['Trạng thái'] = newStatus;
+                    rec['trang_thai'] = newStatus;
+                    rec['Đối tượng'] = newDoiTuong;
+                    rec['doi_tuong'] = newDoiTuong;
+                }
             }
 
             // 4. Clear cache server-side để lần load sau lấy data mới

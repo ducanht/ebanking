@@ -1,6 +1,6 @@
 ---
 name: javascript
-description: "Javascript for ebanking. 4 gotchas, 26 conventions, 58 fixes."
+description: "Javascript for ebanking. 4 gotchas, 26 conventions, 60 fixes."
 domain: javascript
 triggers:
   - glob: "**/*.js"
@@ -11,7 +11,7 @@ enabled: true
 
 # Javascript
 
-Auto-compiled from **121 real patterns** in **ebanking**. This skill is auto-routed to agents when working on javascript files.
+Auto-compiled from **123 real patterns** in **ebanking**. This skill is auto-routed to agents when working on javascript files.
 
 ## ⚠️ Anti-Patterns & Gotchas
 
@@ -25,6 +25,43 @@ Auto-compiled from **121 real patterns** in **ebanking**. This skill is auto-rou
 | ⚠️ GOTCHA: Patched security issue EVENT — prevents | -  + // --- CẤU HÌNH EVENT DELEGATION: XỬ LÝ CLICK XEM CHI TIẾT --- - /** + $(document).on('click',  |
 
 ## 🔧 Problem Playbooks
+
+### Patched security issue Array — adds runtime type validation before use
+-                     rec['Đối tượng'] = newDoiTuong;
++                     rec['trang_thai'] = newStatus;
+-                 }
++                     rec['Đối tượng'] = newDoiTuong;
+-             }
++                     rec['doi_tuong'] = newDoiTuong;
+- 
++                 }
+-             // 3. Cập nhật in-memory _adminAllData
++             }
+-             if (window._adminAllData && Array.isArray(w
+
+**Actionable Steps:**
+1. Modified 1 files
+2. identifier: Array
+3. identifier: String
+4. identifier: Clear
+5. identifier: AppCache
+
+### Patched security issue String — adds runtime type validation before use
+-             const rowId       = String(payload.id).trim().replace(/^[']*/, '');
++             const newDoiTuong = payload.doi_tuong; // 'Thành viên' hoặc 'Ngoài thành viên'
+- 
++             const rowId       = String(payload.id).trim().replace(/^[']*/, '');
+-             // 1. Cập nhật ngay chấm tròn trong bảng HTML (Staff & Admin)
++ 
+-             const $row = $(`tr[data-id="${rowId}"]`);
++    
+
+**Actionable Steps:**
+1. Modified 1 files
+2. identifier: Ngo
+3. identifier: String
+4. identifier: Badge
+5. identifier: HTML
 
 ### Fixed null crash in AppCache — prevents XSS injection attacks
 -             AppCache.set('adminDashboard', s);
@@ -300,42 +337,6 @@ Auto-compiled from **121 real patterns** in **ebanking**. This skill is auto-rou
 
 ### Fixed null crash in User — prevents XSS injection attacks
 -         if (status === 'Đã kích hoạt') {
-+         $('#edit_is_activated').prop('checked', status === 'Đã kích hoạt');
--             $('#edit_is_activated').prop('checked', true);
-+ 
--         } else {
-+         // Bỏ hoàn toàn việc khóa sửa. Mọi User (Staff/Admin) đều có thể sửa hồ sơ.
--             $('#edit_is_activated').prop('checked', false);
-+         $('#btnSaveEdit').show();
--         }
-
-
-**Actionable Steps:**
-1. Modified 1 files
-2. identifier: User
-3. identifier: Staff
-4. identifier: Admin
-5. identifier: Chi
-
-### Fixed null crash in String — prevents XSS injection attacks
--             let strDate = `${String(rawDate.getDate()).padStart(2,"0")}/${String(rawDate.getMonth()+1).padStart(2,"0")}`;
-+             let mm = String(rawDate.getMonth() + 1).padStart(2, "0");
--             timeline[strDate] = (timeline[strDate] || 0) + 1;
-+             let dd = String(rawDate.getDate()).padStart(2, "0");
--         }
-+             let strDate = `${dd}/${mm}`;
--     });
 +       
-
-**Actionable Steps:**
-1. Modified 1 files
-2. identifier: String
-3. identifier: Date
-4. identifier: Chart
-5. identifier: CCCD
-
-### Fixed null crash in COMPRESS — offloads heavy computation off the main thread
--         mat_khau: $('#mat_khau').val() || ""
-+         mat_k
 
 ... [Truncated — see individual observations for full content]

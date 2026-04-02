@@ -61,17 +61,29 @@ function renderAdminStats(s) {
     const caNhan   = s.caNhan || 0;
     const hkd      = s.hkd || 0;
 
+    // Đối tượng
+    const dtCount = s.doiTuongCount || { 'Thành viên': 0, 'Ngoài thành viên': 0 };
+    const thanhVien = dtCount['Thành viên'] || 0;
+    const ngoaiTV   = dtCount['Ngoài thành viên'] || 0;
+
     // Cập nhật số liệu KPI cards — IDs phải khớp chính xác với index.html
     $('#db-total').text(total);
     $('#db-activated').text(s.activated || 0);
     $('#db-inactive').text(s.inactive || 0);
-    $('#db-canhan').text(caNhan);   // ID trong HTML là db-canhan (không có dấu gạch)
-    $('#db-hkd').text(hkd);         // ID trong HTML là db-hkd
+    $('#db-canhan').text(caNhan);   
+    $('#db-hkd').text(hkd);         
+    $('#db-thanhvien').text(thanhVien);
+    $('#db-ngoaithanhvien').text(ngoaiTV);
 
-    // Cập nhật thanh tiến trình phân bổ loại hình
-    const pct = total > 0 ? Math.round(caNhan / total * 100) : 50;
-    $('#db-prog-canhan').css('width', pct + '%').attr('aria-valuenow', pct);
-    $('#db-prog-hkd').css('width', (100 - pct) + '%').attr('aria-valuenow', 100 - pct);
+    // Cập nhật thanh tiến trình phân bổ
+    const t = total || 1;
+    const cnPct = Math.round(caNhan / t * 100);
+    $('#db-prog-canhan').css('width', cnPct + '%').attr('aria-valuenow', cnPct);
+    $('#db-prog-hkd').css('width', (100 - cnPct) + '%').attr('aria-valuenow', 100 - cnPct);
+
+    const tvPct = Math.round(thanhVien / t * 100);
+    $('#db-prog-thanhvien').css('width', tvPct + '%').attr('aria-valuenow', tvPct);
+    $('#db-prog-ngoai').css('width', (100 - tvPct) + '%').attr('aria-valuenow', 100 - tvPct);
 }
 
 function renderAdminTopStaff(allStaffs) {
@@ -229,7 +241,7 @@ function renderAdminTable(allData, allStaffs) {
         language: { url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json" },
         search: { caseInsensitive: true, smart: true },
         columnDefs: [
-            { targets: [6], orderable: false, searchable: false }  
+            { targets: [7], orderable: false, searchable: false }  
         ]
     });
 
@@ -251,7 +263,7 @@ function renderAdminTable(allData, allStaffs) {
     $.fn.dataTable.ext.search.push(dateFilter);
 
     $('#filterStaffAdmin').off('change.tblKH').on('change.tblKH', function() {
-        dtAdmin.column(5).search($(this).val()).draw();
+        dtAdmin.column(6).search($(this).val()).draw();
     });
 
     $('#filterFromDate, #filterToDate').off('change.tblKH').on('change.tblKH', function() {
