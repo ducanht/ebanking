@@ -320,3 +320,26 @@ Badge trạng thái hiển thị động:
 | Trình duyệt vẫn tải JS cũ | Cache trình duyệt | Cập nhật `?v=` trong tất cả `<script src>` |
 | Form submit dù có lỗi trùng | `checkDuplicate` async chưa kịp chạy | `handleRegistration` giờ check `is-invalid` trước khi submit |
 | `localStorage is not defined` | Code GAS cố đọc `localStorage` | Tất cả session phải ở frontend JS, không ở GAS |
+
+---
+
+## 11. BÀI HỌC KINH NGHIỆM & QUY TẮC DỰ ÁN MỚI (SYSTEM RULES)
+
+Nếu khởi tạo một dự án WebApp vận hành theo kiến trúc Serverless (Frontend tự do + Google Apps Script Backend), BẮT BUỘC phải áp dụng bộ quy tắc (RULES) sau đây vào System Prompt cho AI để tránh các lỗi chí mạng đã được giải quyết:
+
+### 11.1 Giới hạn của Hệ sinh thái Google (GAS)
+- **LockService chống Race-Condition:** Mọi thao tác GHI/SỬA (Insert/Update) dữ liệu bắt buộc phải bọc trong `LockService.getScriptLock().waitLock(15000)` và kết thúc bằng `SpreadsheetApp.flush()`. Nếu không, nhiều user submit cùng lúc sẽ chép đè dữ liệu lên nhau.
+- **Micro-database Performance (Batch Ops):** Tuyệt đối cấm dùng vòng lặp thiết lập `.appendRow()` hay `.setValue()`. Mọi thao tác phải đọc nguyên cục mảng 2 chiều bằng `.getValues()`, xử lý trên RAM, sau đó đẩy ngược lại bằng `.setValues()` trong 1 lần gọi API duy nhất.
+- **Lưu trữ số:** Để Google Sheets không tự format các số điện thoại/số TK làm mất số 0 ở đầu, trước khi ghi phải tự chèn dấu nháy đơn trước chuỗi (Ví dụ: `"'0987654321"`).
+
+### 11.2 Giao diện và API Call
+- **Lỗi Bút Toán Kép (Double-click):** 100% các nút "Lưu/Submit" thao tác ghi dữ liệu đều phải bị `.prop('disabled', true)` ngay ở mili-giây đầu tiên khi user click và hiện Spinner (VD: Đang lưu...).
+- **Giảm tải Payload bằng Native Compression:** Kích thước tải trọng qua AppScript có giới hạn chặt chẽ/thời gian Timeout ngắn. Ảnh trước khi mã hoá Base64 phải chạy qua `browser-image-compression` để ép xuống dưới `1MB`.
+
+### 11.3 Tương thích Phần Cứng: Camera vs Mobile
+- **Lỗi Lớp Phủ Màn Hình (Screen Overlay):** Cấm gọi WebRTC (`navigator.mediaDevices.getUserMedia`) trên Mobile Devices, đặc biệt là Android do hệ điều hành hay chặn cấp quyền trình duyệt khi có bong bóng chat.
+- **Rule Xử Lý Camera:** Viết code lọc theo User-Agent: Nếu `isMobile`, bypass hoàn toàn WebRTC bằng cách dùng `Native Camera Picker`: `<input type="file" capture="environment">`. Laptop/PC thì dùng WebRTC bình thường.
+
+### 11.4 Computer Vision - Tunning OpenCV.js
+- Khi xây dựng một clone của *CamScanner* chạy client-side, thẻ nhựa ép plastic rất dễ tạo dải lóa sáng (Glare) gây cắt đứt nét Canny Edge khiến thuật toán dò hình 4 góc vỡ nát. Bắt buộc dùng `cv.dilate` (Làm phình viền) trước khi tìm góc.
+- **Rule tìm Hình tứ giác:** `cv.approxPolyDP` rất kém khi gặp góc CCCD bo tròn. Thay vào đó, sau khi lấy được khối viền lớn nhất, dùng Thuật toán **Cực trị Toạ độ** để tìm 4 đỉnh (Top-Left: Min $(X+Y)$, Bottom-Right: Max $(X+Y)$, Top-Right: Max $(X-Y)$, Bottom-Left: Min $(X-Y)$). Nó đảm bảo ôm chặt đối tượng 99%.

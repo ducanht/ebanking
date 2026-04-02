@@ -1,6 +1,6 @@
 ---
 name: javascript
-description: "Javascript for ebanking. 4 gotchas, 24 conventions, 53 fixes."
+description: "Javascript for ebanking. 4 gotchas, 26 conventions, 58 fixes."
 domain: javascript
 triggers:
   - glob: "**/*.js"
@@ -11,7 +11,7 @@ enabled: true
 
 # Javascript
 
-Auto-compiled from **114 real patterns** in **ebanking**. This skill is auto-routed to agents when working on javascript files.
+Auto-compiled from **121 real patterns** in **ebanking**. This skill is auto-routed to agents when working on javascript files.
 
 ## ⚠️ Anti-Patterns & Gotchas
 
@@ -25,6 +25,97 @@ Auto-compiled from **114 real patterns** in **ebanking**. This skill is auto-rou
 | ⚠️ GOTCHA: Patched security issue EVENT — prevents | -  + // --- CẤU HÌNH EVENT DELEGATION: XỬ LÝ CLICK XEM CHI TIẾT --- - /** + $(document).on('click',  |
 
 ## 🔧 Problem Playbooks
+
+### Fixed null crash in AppCache — prevents XSS injection attacks
+-             AppCache.set('adminDashboard', s);
++             if (s && s.allData) {
+-             _renderAll(s);
++                 s.doiTuongCount = { 'Thành viên': 0, 'Ngoài thành viên': 0 };
+-         }
++                 s.allData.forEach(d => {
+-     });
++                     const dt = d['Đối tượng'] || d['doi_tuong'] || 'Ngoài thành viên';
+- }
++                     if (dt === 'Thành viên') s
+
+**Actionable Steps:**
+1. Modified 1 files
+2. identifier: Ngo
+3. identifier: AppCache
+4. identifier: KPI
+5. identifier: IDs
+
+### Fixed null crash in OPENCV — wraps unsafe operation in error boundary
+- /**
++ /**
+-  * OPENCV & IMAGE PROCESSING
++  * OPENCV & IMAGE PROCESSING
+-  * Hardened version based on GAS production frmMoTaiKhoan.html.
++  * Hardened version based on GAS production frmMoTaiKhoan.html.
+-  */
++  */
+- let isCvReady = false;
++ let isCvReady = false;
+- let currentInputTargetId = null;
++ let currentInputTargetId = null;
+- let quadPoints = [ {x:0.1, y:0.1}, {x:0.9, y:0.1}, {x:
+
+**Actionable Steps:**
+1. Modified 1 files
+2. identifier: OPENCV
+3. identifier: IMAGE
+4. identifier: PROCESSING
+5. identifier: Hardened
+
+### Fixed null crash in Point — wraps unsafe operation in error boundary
+-                 contours = new cv.MatVector();
++                 
+-                 hierarchy = new cv.Mat();
++                 let M = cv.Mat.ones(5, 5, cv.CV_8U);
+-                 cv.findContours(dst, contours, hierarchy, cv.RETR_LIST, cv.CHAIN_APPROX_SIMPLE);
++                 cv.dilate(dst, dst, M, new cv.Point(-1, -1), 1);
+-                 let maxArea = 0;
++                 M.delete();
+- 
+
+**Actionable Steps:**
+1. Modified 1 files
+2. identifier: Mat
+3. identifier: Point
+4. identifier: MatVector
+5. identifier: Math
+
+### problem-fix in registration.js
+-             maxSizeMB: 0.4, // P1-FIX: Giảm từ 0.8 xuống 0.4
++             maxSizeMB: 0.8,
+-             maxWidthOrHeight: 1280, // P1-FIX: Giảm từ 2048 xuống 1280
++             maxWidthOrHeight: 2048,
+
+📌 IDE AST Context: Modified symbols likely include [initMoTaiKhoanForm, toggleFormFields, handleRegistration, checkDuplicate, loadStaffOpenAccountView]
+
+**Actionable Steps:**
+1. Modified 1 files
+
+### Fixed null crash in Math — wraps unsafe operation in error boundary
+- function finishCropping() {
++ function resizeCanvasIfNeed(srcCanvas, maxDim = 1280) {
+-     const mat = imageMatStore[currentInputTargetId];
++     let w = srcCanvas.width;
+-     if (!mat || !isCvReady) {
++     let h = srcCanvas.height;
+-         skipCropping();
++     if (w > maxDim || h > maxDim) {
+-         return;
++         const ratio = Math.min(maxDim / w, maxDim / h);
+-     }
++         w = 
+
+**Actionable Steps:**
+1. Modified 1 files
+2. identifier: Math
+3. identifier: Mat
+4. identifier: Size
+5. identifier: Scalar
 
 ### Patched security issue OPTIMISTIC — adds runtime type validation before use
 -             // P0-FIX: Clear cả 2 cache để đảm bảo Dashboard cập nhật chính xác sau kích hoạt
@@ -245,90 +336,6 @@ Auto-compiled from **114 real patterns** in **ebanking**. This skill is auto-rou
 
 ### Fixed null crash in COMPRESS — offloads heavy computation off the main thread
 -         mat_khau: $('#mat_khau').val() || ""
-+         mat_khau: $('#mat_khau').val() || "",
--     };
-+         is_activated: $('#is_activated').is(':checked')
-- 
-+     };
--     const filesToProcess = fileSlots.filter(s => document.getElementById(s.id) && document.getElementById(s.id).files[0]);
-+ 
--     const totalSteps = filesToProcess.length + 2; 
-+     const filesToProcess = fileSlots.filter
-
-**Actionable Steps:**
-1. Modified 1 files
-2. identifier: COMPRESS
-3. identifier: Math
-4. identifier: Promise
-5. identifier: Timeout
-
-### Patched security issue Theo — prevents XSS injection attacks
--         const trangThai = row['Trạng thái'] || 'Chưa hoàn thành';
-+         const status = row['Trạng thái'] || '';
--         const isVerified = (trangThai === 'Đã xác minh');
-+         if (status === 'Đã kích hoạt') {
-- 
-+             $('#edit_is_activated').prop('checked', true);
--         // Theo yêu cầu mới, User tự quản lý sửa hồ sơ nên không khóa nút Lưu kể cả khi đã xác minh
-+         } e
-
-**Actionable Steps:**
-1. Modified 1 files
-2. identifier: Theo
-3. identifier: User
-4. identifier: AppState
-5. identifier: Admin
-
-### Patched security issue Chart — prevents XSS injection attacks
--     $('#db-ca-nhan-sub').text(s.caNhan || 0);
-+     $('#db-activated').text(s.activated || 0);
--     $('#db-hkd-sub').text(s.hkd || 0);
-+     $('#db-inactive').text(s.inactive || 0);
--     $('#db-ca-nhan').text(s.caNhan || 0);
-+     $('#db-ca-nhan-sub').text(s.caNhan || 0);
--     $('#db-hkd-count').text(s.hkd || 0);
-+     $('#db-hkd-sub').text(s.hkd || 0);
-- }
-+     $('#db-ca-nhan').text(s.caNha
-
-**Actionable Steps:**
-1. Modified 1 files
-2. identifier: Chart
-3. identifier: DataTable
-4. identifier: Date
-5. identifier: Email
-
-### Patched security issue Theo — prevents XSS injection attacks
--         // Phân quyền và hiển thị tiêu đề
-+         const trangThai = row['Trạng thái'] || 'Chưa hoàn thành';
--         if ((AppState.user && AppState.user.role === 'Admin') || isVerified) {
-+         const isVerified = (trangThai === 'Đã xác minh');
--             $('#btnSaveEdit').hide();
-+ 
--             $('#frmEditCustomer input').prop('readonly', true);
-+         // Theo yêu cầu mới, User tự
-
-**Actionable Steps:**
-1. Modified 1 files
-2. identifier: Theo
-3. identifier: User
-4. identifier: AppState
-5. identifier: Admin
-
-### Patched security issue AppState — prevents XSS injection attacks
--         const trangThai = row['Trạng thái'] || 'Chưa hoàn thành';
-+         $('#edit_ten_dang_nhap').val((row['Tên đăng nhập'] || '').toString().replace(/^'/, ''));
--         const isVerified = (trangThai === 'Đã xác minh');
-+         $('#edit_mat_khau').val(row['Mật khẩu'] || '');
--         // Phân quyền và hiển thị tiêu đề
-+         const trangThai = row['Trạng thái'] || 'Chưa hoàn thành';
--  
-
-**Actionable Steps:**
-1. Modified 1 files
-2. identifier: AppState
-3. identifier: Admin
-4. identifier: Chi
-5. i
++         mat_k
 
 ... [Truncated — see individual observations for full content]

@@ -1,7 +1,7 @@
 
 
 # Project Memory — ebanking
-> 416 notes | Score threshold: >40
+> 450 notes | Score threshold: >40
 
 ## Safety — Never Run Destructive Commands
 
@@ -20,33 +20,19 @@
 
 ## 📝 NOTE: 1 uncommitted file(s) in working tree.\n\n## Important Warnings
 
-- **⚠️ GOTCHA: Fixed null crash in DataTable — wraps unsafe operation in error boundary** — -         let html = '';
-+         // P1-FIX: Sắp xếp theo thứ hạng gi
-- **⚠️ GOTCHA: Added session cookies authentication — adds runtime type validation before use** — -  * NETLIFY HIGH-FIDELITY APP ENGINE (app.js)
-+  * MÃ NGUỒN FRONTEND 
-- **⚠️ GOTCHA: Patched security issue VERSION — prevents XSS injection attacks** — -     VERSION: "2.1.1-PATCHED",
-+     VERSION: "2.1.2-STABLE",
-- 
-+ //
+- **gotcha in implementation_plan.md.resolved** — - # Xử lý Lỗi Cấp Quyền Camera (Screen Overlay Detected) trên Android
 
-## Active: `netlify-app/js`
-
-- **⚠️ GOTCHA: Fixed null crash in DataTable — wraps unsafe operation in error boundary**
-- **Fixed null crash in Enter — offloads heavy computation off the main thread — confirmed 4x**
-- **Fixed null crash in AppState — offloads heavy computation off the main thread — confirmed 3x**
-- **Fixed null crash in AppState — offloads heavy computation off the main thread — confirmed 3x**
-- **Fixed null crash in CCCD — offloads heavy computation off the main thread — confirmed 7x**
 
 ## Project Standards
 
-- Fixed null crash in Enter — offloads heavy computation off the main thread — confirmed 4x
-- Fixed null crash in AppState — offloads heavy computation off the main thread — confirmed 3x
-- Fixed null crash in AppState — offloads heavy computation off the main thread — confirmed 3x
-- Fixed null crash in CCCD — offloads heavy computation off the main thread — confirmed 7x
-- Fixed null crash in Object — offloads heavy computation off the main thread — confirmed 4x
-- Fixed null crash in DataTable — prevents XSS injection attacks — confirmed 3x
-- Patched security issue Staff — prevents XSS injection attacks — confirmed 3x
-- Patched security issue User — prevents XSS injection attacks — confirmed 3x
+- Fixed null crash in Kinh — filters out falsy/null values explicitly — confirmed 3x
+- Replaced auth VIEW — adds runtime type validation before use — confirmed 3x
+- what-changed in index.html — confirmed 3x
+- Fixed null crash in COMPRESS — offloads heavy computation off the main thread — confirmed 3x
+- Fixed null crash in Canvas — confirmed 4x
+- Patched security issue Khai — prevents XSS injection attacks — confirmed 3x
+- Replaced auth TDND — confirmed 3x
+- decision in style.css — confirmed 3x
 
 ## Known Fixes
 
@@ -58,10 +44,10 @@
 
 ## Recent Decisions
 
-- decision in registration.js
+- Optimized Ebanking — hardens HTTP security headers
+- decision in walkthrough.md.resolved
 - Optimized Blueprint — hardens HTTP security headers
 - Optimized Vercel — offloads heavy computation off the main thread
-- decision in task.md
 
 ## Learned Patterns
 

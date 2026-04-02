@@ -201,6 +201,7 @@ function renderMyCustomersTable(data) {
                 <td class="fw-bold text-dark">${utils_escapeHTML(d['Tên khách hàng'])}</td>
                 <td class="text-secondary"><small>${utils_escapeHTML(d['Số TK'] || d['Số tài khoản'] || '')}</small></td>
                 <td>${statusDot} <span class="badge bg-light text-dark border">${utils_escapeHTML(d['Loại hình dịch vụ'])}</span></td>
+                <td><span class="badge ${d['Đối tượng'] === 'Thành viên' || d['doi_tuong'] === 'Thành viên' ? 'bg-primary-subtle text-primary border border-primary-subtle' : 'bg-secondary-subtle text-secondary border border-secondary-subtle'}">${utils_escapeHTML(d['Đối tượng'] || d['doi_tuong'] || 'Ngoài thành viên')}</span></td>
                 <td><small>${utils_escapeHTML(d['Số điện thoại'])}</small></td>
                 <td class="text-end">
                     <button class="btn btn-sm btn-outline-primary shadow-sm btn-detail" title="Xem chi tiết">
@@ -230,7 +231,7 @@ function renderMyCustomersTable(data) {
                     text: '<i class="bx bxs-file-export"></i> Xuất Excel', 
                     className: 'btn btn-sm btn-success shadow-sm',
                     exportOptions: {
-                        columns: [0, 1, 2, 3, 4],  // Bỏ cột 5 (nút Xem)
+                        columns: [0, 1, 2, 3, 4, 5],  // Bỏ cột 6 (nút Xem)
                         format: {
                             // Strip HTML — lấy text thuần cho mọi cột
                             body: function(data, rowIdx, colIdx, node) {
@@ -332,6 +333,9 @@ function openEditCustomerModal(id) {
 
         const status = row['Trạng thái'] || '';
         $('#edit_is_activated').prop('checked', status === 'Đã kích hoạt');
+        
+        const isMember = row['Đối tượng'] === 'Thành viên' || row['doi_tuong'] === 'Thành viên';
+        $('#edit_is_member').prop('checked', isMember);
 
         // P1-FIX: Tiêu đề modal đúng nghiệp vụ
         const statusBadge = (status === 'Đã kích hoạt')
@@ -434,7 +438,8 @@ function handleEditCustomer(e) {
         so_tk:     ($('#edit_so_tk').val().trim() ? '3800200' + $('#edit_so_tk').val().trim() : ''),
         ten_dang_nhap: $('#edit_ten_dang_nhap').val().trim(),
         mat_khau:  $('#edit_mat_khau').val().trim(),
-        is_activated: $('#edit_is_activated').is(':checked')
+        is_activated: $('#edit_is_activated').is(':checked'),
+        doi_tuong: $('#edit_is_member').is(':checked') ? 'Thành viên' : 'Ngoài thành viên'
     };
 
     runAPI('api_updatecustomer', payload, (res) => {

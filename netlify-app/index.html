@@ -177,6 +177,7 @@
                                         <th>HỌ TÊN</th>
                                         <th>SỐ TÀI KHOẢN</th>
                                         <th>LOẠI HÌNH</th>
+                                        <th>ĐỐI TƯỢNG</th>
                                         <th>SỐ ĐIỆN THOẠI</th>
                                         <th>CÁN BỘ</th>
                                         <th class="text-end">CHI TIẾT</th>
@@ -198,6 +199,10 @@
                     <div class="glass-card p-4">
                         <h6 class="fw-bold mb-3 text-secondary text-uppercase">Phân Bổ Nguồn Khách</h6>
                         <div class="chart-container-pie"><canvas id="chartLoaiHinh"></canvas></div>
+                    </div>
+                    <div class="glass-card p-4">
+                        <h6 class="fw-bold mb-3 text-secondary text-uppercase">Cơ Cấu Đối Tượng</h6>
+                        <div class="chart-container-pie"><canvas id="chartDoiTuong"></canvas></div>
                     </div>
                 </div>
             </div>
@@ -343,10 +348,14 @@
 
 
                     <div class="mt-4 pt-3 text-center border-top">
-                        <div class="mb-3 d-flex justify-content-center">
-                            <div class="form-check form-switch bg-light p-2 px-4 rounded-pill border shadow-sm">
+                        <div class="mb-3 d-flex justify-content-center gap-2 flex-wrap">
+                            <div class="form-check form-switch bg-light p-2 px-3 rounded-pill border shadow-sm">
+                                <input class="form-check-input ms-0 me-2" type="checkbox" id="is_member" style="width: 2.5em; height: 1.25em;">
+                                <label class="form-check-label fw-bold text-primary" for="is_member">LÀ THÀNH VIÊN</label>
+                            </div>
+                            <div class="form-check form-switch bg-light p-2 px-3 rounded-pill border shadow-sm">
                                 <input class="form-check-input ms-0 me-2" type="checkbox" id="is_activated" style="width: 2.5em; height: 1.25em;">
-                                <label class="form-check-label fw-bold text-success" for="is_activated">KÍCH HOẠT HỒ SƠ NGAY</label>
+                                <label class="form-check-label fw-bold text-success" for="is_activated">KÍCH HOẠT NGAY</label>
                             </div>
                         </div>
                         <button type="submit" class="btn btn-primary btn-lg px-5 shadow-sm d-flex align-items-center mx-auto gap-2" id="btnSubmitAccount">
@@ -427,7 +436,7 @@
             <div class="glass-card p-3 p-md-4">
                 <div class="table-responsive">
                     <table id="tblMyCustomers" class="table table-hover dt-responsive nowrap w-100 align-middle">
-                        <thead><tr><th>THỜI GIAN</th><th>HỌ TÊN</th><th>SỐ TÀI KHOẢN</th><th>LOẠI HÌNH</th><th>SỐ ĐIỆN THOẠI</th><th class="text-end">XEM</th></tr></thead>
+                        <thead><tr><th>THỜI GIAN</th><th>HỌ TÊN</th><th>SỐ TÀI KHOẢN</th><th>LOẠI HÌNH</th><th>ĐỐI TƯỢNG</th><th>SỐ ĐIỆN THOẠI</th><th class="text-end">XEM</th></tr></thead>
                         <tbody id="tbMyCustomersBody"></tbody>
                     </table>
                 </div>
@@ -540,8 +549,12 @@
                 <div class="modal-body bg-light">
                     <form id="frmEditCustomer" class="card p-3 border-0 shadow-sm">
                         <input type="hidden" id="edit_id">
-                        <div class="mb-3 d-flex justify-content-center">
-                            <div class="form-check form-switch bg-white p-2 px-4 rounded-pill border shadow-sm">
+                        <div class="mb-3 d-flex justify-content-center gap-2 flex-wrap">
+                            <div class="form-check form-switch bg-white p-2 px-3 rounded-pill border shadow-sm">
+                                <input class="form-check-input ms-0 me-2" type="checkbox" id="edit_is_member" style="width: 2.5em; height: 1.25em;">
+                                <label class="form-check-label fw-bold text-primary" for="edit_is_member">LÀ THÀNH VIÊN</label>
+                            </div>
+                            <div class="form-check form-switch bg-white p-2 px-3 rounded-pill border shadow-sm">
                                 <input class="form-check-input ms-0 me-2" type="checkbox" id="edit_is_activated" style="width: 2.5em; height: 1.25em;">
                                 <label class="form-check-label fw-bold text-success" for="edit_is_activated">KÍCH HOẠT HỒ SƠ</label>
                             </div>

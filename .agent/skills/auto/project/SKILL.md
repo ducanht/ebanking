@@ -1,6 +1,6 @@
 ---
 name: project
-description: "Project for ebanking. 19 gotchas, 50 conventions, 18 fixes."
+description: "Project for ebanking. 20 gotchas, 51 conventions, 23 fixes."
 domain: project
 triggers:
   - glob: "**/*"
@@ -10,7 +10,7 @@ enabled: true
 
 # Project
 
-Auto-compiled from **226 real patterns** in **ebanking**. This skill is auto-routed to agents when working on project files.
+Auto-compiled from **250 real patterns** in **ebanking**. This skill is auto-routed to agents when working on project files.
 
 ## ⚠️ Anti-Patterns & Gotchas
 
@@ -18,6 +18,7 @@ Auto-compiled from **226 real patterns** in **ebanking**. This skill is auto-rou
 
 | ❌ Don't | Details |
 |----------|----------|
+| gotcha in implementation_plan.md.resolved | - # Xử lý Lỗi Cấp Quyền Camera (Screen Overlay Detected) trên Android + # Nâng cấp Thuật toán Nhận d |
 | Agent: follow existing project patterns — don't in | Agent: follow existing project patterns — don't introduce a different style |
 | Agent: don't generate code with "any" type — defin | Agent: don't generate code with "any" type — define proper TypeScript types |
 | Agent: always handle loading/error states — don't  | Agent: always handle loading/error states — don't just render data |
@@ -39,6 +40,70 @@ Auto-compiled from **226 real patterns** in **ebanking**. This skill is auto-rou
 | Never force push to main, master, or production br | Never force push to main, master, or production branches |
 
 ## 🔧 Problem Playbooks
+
+### Fixed null crash in Kinh — filters out falsy/null values explicitly
+-     let loaiHinhCount = {"Cá nhân": 0, "Hộ kinh doanh": 0};
++     let loaiHinhCount = {"Cá nhân": caNhanCount, "Hộ kinh doanh": hkdCount};
+-     });
++     
+-     
++     // Tổng hợp đối tượng (Thành viên / Ngoài thành viên)
+-     // Tổng hợp đối tượng (Thành viên / Ngoài thành viên)
++     let doiTuongCount = {"Thành viên": 0, "Ngoài thành viên": 0};
+-     let doiTuongCount = {"Thành viên": 0, "Ng
+
+**Actionable Steps:**
+1. Modified 1 files
+2. identifier: Ngo
+3. identifier: Kinh
+4. identifier: Email
+5. identifier: Timeline
+
+### Fixed null crash in Update
+-     // Mọi hồ sơ mới mặc định là "Chưa kích hoạt", trừ khi người dùng tích chọn "Kích hoạt hồ sơ ngay"
++     const trangThai = formData.is_activated ? "Đã kích hoạt" : "Chưa kích hoạt";
+-     const trangThai = formData.is_activated ? "Đã kích hoạt" : "Chưa kích hoạt";
++     const doiTuong = formData.doi_tuong || "Ngoài thành viên";
+-       trangThai
++       trangThai,
+-     ];
++       doiTuong  
+
+**Actionable Steps:**
+1. Modified 1 files
+2. identifier: Ngo
+3. identifier: Update
+4. identifier: Batch
+5. identifier: SpreadsheetApp
+
+### problem-fix in task.md.resolved
+- # Nhiệm vụ: Xử lý Lỗi Tương thích Camera Android
++ # Cải Tuyến Nhận Diện Mép Giấy CCCD (CamScanner Clone)
+- - [x] Cập nhật tùy chọn `forceCapture` cho hàm `_openFilePicker` để hỗ trợ gọi trực tiếp Native Camera của di động.
++ - [ ] Cập nhật `js/camera.js` (hàm `processImageWithAI`).
+- - [x] Cập nhật hàm `openCamera(targetId)` thêm logic nhận diện di động `isMobile`.
++ - [ ] Thêm Dilation sau bướ
+
+**Actionable Steps:**
+1. Modified 1 files
+
+### problem-fix in task.md
+- - [ ] Cập nhật tùy chọn `forceCapture` cho hàm `_openFilePicker` để hỗ trợ gọi trực tiếp Native Camera của di động.
++ - [x] Cập nhật tùy chọn `forceCapture` cho hàm `_openFilePicker` để hỗ trợ gọi trực tiếp Native Camera của di động.
+- - [ ] Cập nhật hàm `openCamera(targetId)` thêm logic nhận diện di động `isMobile`.
++ - [x] Cập nhật hàm `openCamera(targetId)` thêm logic nhận diện di động `isMob
+
+**Actionable Steps:**
+1. Modified 1 files
+
+### problem-fix in task.md.resolved
+- - [ ] Cập nhật tùy chọn `forceCapture` cho hàm `_openFilePicker` để hỗ trợ gọi trực tiếp Native Camera của di động.
++ - [x] Cập nhật tùy chọn `forceCapture` cho hàm `_openFilePicker` để hỗ trợ gọi trực tiếp Native Camera của di động.
+- - [ ] Cập nhật hàm `openCamera(targetId)` thêm logic nhận diện di động `isMobile`.
++ - [x] Cập nhật hàm `openCamera(targetId)` thêm logic nhận diện di động `isMob
+
+**Actionable Steps:**
+1. Modified 1 files
 
 ### Patched security issue String — adds runtime type validation before use
 -   
@@ -209,87 +274,6 @@ Auto-compiled from **226 real patterns** in **ebanking**. This skill is auto-rou
 -     - [x] Update `renderAdminTable` to ensure `caseInsensitive` search is explicitly enabled and robust.
 +     - [ ] Harden `openEdi
 
-**Actionable Steps:**
-1. Modified 1 files
-
-### Patched security issue CCCD — adds runtime type validation before use
-- function checkDuplicateAccount(cccd, dkkd, sdt) {
-+ function checkDuplicateAccount(cccd, dkkd, sdt, loaiHinh) {
--     if (cccd && cccd !== "" && row["Số CCCD"] == cccd) return { isDup: true, msg: "Trùng Số CCCD/CMND với giao dịch trước đó." };
-+     // Chỉ báo trùng nếu CÙNG loại hình dịch vụ (Cá nhân vs Cá nhân, HKD vs HKD)
--     if (dkkd && dkkd !== "" && row["Số DKKD"] == dkkd) return { isDup
-
-**Actionable Steps:**
-1. Modified 1 files
-2. identifier: HKD
-3. identifier: CCCD
-4. identifier: CMND
-5. identifier: DKKD
-
-### Fixed null crash in Truy — hardens HTTP security headers
--     // 3. Thực thi hàm tương ứng hoặc báo lỗi
-+     // 3. Bảo vệ Truy cập (RBAC) - CHỈNH SỬA BIỂU MẪU BẰNG EMAIL
--     if (apiHandlers[rawAction]) {
-+     const protectedActions = {
--       result = apiHandlers[rawAction](data);
-+       "api_getadmindashboarddata": "Admin"
--     } else {
-+     };
--       result.message = "Action '" + (postData.action || 'empty') + "' không được hỗ trợ.";
-+ 
--   
-
-**Actionable Steps:**
-1. Modified 1 files
-2. identifier: Truy
-3. identifier: RBAC
-4. identifier: EMAIL
-5. identifier: Admin
-
-### Fixed null crash in Role — externalizes configuration for environment flexibi...
-- 
-+ /**
-+  * Tra cứu Role của Cán bộ dựa theo Email để xác thực tại Máy chủ
-+  */
-+ function getUserRoleByEmail(email) {
-+   if (!email) return null;
-+   const staffs = getSheetDataAsObjects(CONFIG.SHEET_STAFFS);
-+   const user = staffs.find(s => s['Email'] === email.toString().trim());
-+   return user ? user['Role'] : null;
-+ }
-+ 
-
-**Actionable Steps:**
-1. Modified 1 files
-2. identifier: Tra
-3. identifier: Role
-4. identifier: Email
-5. identifier: CONFIG
-
-### Patched security issue Task — prevents XSS injection attacks
-- # Task: Hardening Admin Dashboard & Submission Flow
-+ # Task: Implementing Security Hardening (XSS & Auth)
-- - [x] Implement Change Password Modal Fixes
-+ - [/] Planning Security Improvements
--     - [x] Define [openChangePasswordModal](file:///e:/Google%20Antigravity/HoKinhDoanh/netlify-app/app.js#1633-1640) in [app.js](file:///e:/Google%20Antigravity/HoKinhDoanh/netlify-app/app.js)
-+     - [x]
-
-**Actionable Steps:**
-1. Modified 1 files
-2. identifier: Task
-3. identifier: Implementing
-4. identifier: Security
-5. identifier: Hardening
-
-### Patched security issue CONFIG — adds runtime type validation before use
--   if (!value || value === "") return { isDup: false };
-+   if (typeof field === 'object' && field !== null) {
--   const data = getSheetDataAsObjects(CONFIG.SHEET_DATA);
-+     value = field.value;
--   let colName = "";
-+     field = field.field;
--   if (field === "cccd") colName = "Số CCCD";
-+   }
--   els
+**Actionable 
 
 ... [Truncated — see individual observations for full content]

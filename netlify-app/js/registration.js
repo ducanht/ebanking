@@ -123,6 +123,7 @@ async function handleRegistration(e) {
     const data = {
         email: AppState.user.email,
         loai_hinh: $('#loai_hinh').val(),
+        doi_tuong: $('#is_member').is(':checked') ? 'Thành viên' : 'Ngoài thành viên',
         ten_kh: getSafeVal('ten_kh'),
         cccd: getSafeVal('cccd'),
         dkkd: getSafeVal('dkkd'),

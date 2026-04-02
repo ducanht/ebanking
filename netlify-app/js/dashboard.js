@@ -42,6 +42,14 @@ async function initDashboard() {
                 s.activated = s.allData.filter(d => d['Trạng thái'] === 'Đã kích hoạt').length;
                 s.inactive  = s.total - s.activated;
             }
+            if (s && s.allData) {
+                s.doiTuongCount = { 'Thành viên': 0, 'Ngoài thành viên': 0 };
+                s.allData.forEach(d => {
+                    const dt = d['Đối tượng'] || d['doi_tuong'] || 'Ngoài thành viên';
+                    if (dt === 'Thành viên') s.doiTuongCount['Thành viên']++;
+                    else s.doiTuongCount['Ngoài thành viên']++;
+                });
+            }
             AppCache.set('adminDashboard', s);
             _renderAll(s);
         }
@@ -115,6 +123,23 @@ function renderAdminCharts(s) {
         },
         options: { responsive: true, maintainAspectRatio: false }
     });
+
+    if (charts.pieDoiTuong) charts.pieDoiTuong.destroy();
+    if (!document.getElementById('chartDoiTuong')) return;
+    const ctxDoiTuong = document.getElementById('chartDoiTuong').getContext('2d');
+    
+    const dtCount = s.doiTuongCount || { 'Thành viên': 0, 'Ngoài thành viên': 0 };
+    charts.pieDoiTuong = new Chart(ctxDoiTuong, {
+        type: 'doughnut',
+        data: {
+            labels: ['Thành viên', 'Ngoài thành viên'],
+            datasets: [{
+                data: [dtCount['Thành viên'] || 0, dtCount['Ngoài thành viên'] || 0],
+                backgroundColor: ['#0d6efd', '#64748b']
+            }]
+        },
+        options: { responsive: true, maintainAspectRatio: false }
+    });
 }
 
 function renderAdminTable(allData, allStaffs) {
@@ -139,6 +164,9 @@ function renderAdminTable(allData, allStaffs) {
         
         // Số TK: GAS trả về field 'Số TK', fallback sang 'Số tài khoản' nếu có
         const soTk = (d['Số TK'] || d['Số tài khoản'] || '').toString().replace(/^'/, '');
+        
+        const dtVal = d['Đối tượng'] || d['doi_tuong'] || 'Ngoài thành viên';
+        const isMemb = dtVal === 'Thành viên';
 
         return `
             <tr data-id="${rowId}" class="clickable-row cursor-pointer flex-center">
@@ -146,6 +174,7 @@ function renderAdminTable(allData, allStaffs) {
                 <td class="fw-bold text-dark">${utils_escapeHTML(d['Tên khách hàng'] || '')}</td>
                 <td class="text-secondary"><small>${utils_escapeHTML(soTk)}</small></td>
                 <td>${statusDot} <span class="badge bg-light text-dark border">${utils_escapeHTML(d['Loại hình dịch vụ'] || 'Cá nhân')}</span></td>
+                <td><span class="badge ${isMemb ? 'bg-primary-subtle text-primary border border-primary-subtle' : 'bg-secondary-subtle text-secondary border border-secondary-subtle'}">${utils_escapeHTML(dtVal)}</span></td>
                 <td><small>${utils_escapeHTML(d['Số điện thoại'] || '')}</small></td>
                 <td><small>${utils_escapeHTML(staffName)}</small></td>
                 <td class="text-end">
@@ -178,7 +207,7 @@ function renderAdminTable(allData, allStaffs) {
             text: '<i class="bx bxs-file-export"></i> Xuất Excel',
             className: 'btn btn-sm btn-success shadow-sm',
             exportOptions: {
-                columns: [0, 1, 2, 3, 4, 5],  // Bỏ cột 6 (nút Chi tiết)
+                columns: [0, 1, 2, 3, 4, 5, 6],  // Bỏ cột 7 (nút Chi tiết)
                 format: {
                     // Strip HTML — lấy text thuần cho mọi cột (kể cả statusDot + badge)
                     body: function(data, rowIdx, colIdx, node) {

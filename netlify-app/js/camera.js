@@ -61,30 +61,60 @@ function processImageWithAI(source) {
                 cv.cvtColor(src, dst, cv.COLOR_RGBA2GRAY);
                 cv.GaussianBlur(dst, dst, new cv.Size(5, 5), 0);
                 cv.Canny(dst, dst, 75, 200, 3, false);
+                
+                let M = cv.Mat.ones(5, 5, cv.CV_8U);
+                cv.dilate(dst, dst, M, new cv.Point(-1, -1), 1);
+                M.delete();
+
                 contours = new cv.MatVector();
                 hierarchy = new cv.Mat();
                 cv.findContours(dst, contours, hierarchy, cv.RETR_LIST, cv.CHAIN_APPROX_SIMPLE);
+                
                 let maxArea = 0;
+                let bestPoints = null;
+
                 for (let i = 0; i < contours.size(); ++i) {
                     const cnt = contours.get(i);
                     const area = cv.contourArea(cnt);
-                    if (area > maxArea) {
+                    if (area > (src.rows * src.cols * 0.05) && area > maxArea) {
                         const peri = cv.arcLength(cnt, true);
                         const approx = new cv.Mat();
-                        cv.approxPolyDP(cnt, approx, 0.02 * peri, true);
-                        if (approx.rows === 4) {
+                        cv.approxPolyDP(cnt, approx, 0.03 * peri, true);
+                        
+                        if (approx.rows === 4 && cv.isContourConvex(approx)) {
                             maxArea = area;
-                            if (maxContour) maxContour.delete();
-                            maxContour = approx;
-                        } else approx.delete();
+                            bestPoints = [];
+                            for (let j = 0; j < 4; j++) {
+                                bestPoints.push({ x: approx.data32S[j * 2] / src.cols, y: approx.data32S[j * 2 + 1] / src.rows });
+                            }
+                        } else {
+                            let pts = [];
+                            for (let k = 0; k < cnt.rows; k++) {
+                                pts.push({ x: cnt.data32S[k * 2], y: cnt.data32S[k * 2 + 1] });
+                            }
+                            if (pts.length >= 4) {
+                                const sum = pts.map(p => p.x + p.y);
+                                const diff = pts.map(p => p.x - p.y);
+                                let tl = pts[sum.indexOf(Math.min(...sum))];
+                                let br = pts[sum.indexOf(Math.max(...sum))];
+                                let tr = pts[diff.indexOf(Math.max(...diff))];
+                                let bl = pts[diff.indexOf(Math.min(...diff))];
+                                
+                                maxArea = area;
+                                bestPoints = [
+                                    { x: tl.x / src.cols, y: tl.y / src.rows },
+                                    { x: tr.x / src.cols, y: tr.y / src.rows },
+                                    { x: br.x / src.cols, y: br.y / src.rows },
+                                    { x: bl.x / src.cols, y: bl.y / src.rows }
+                                ];
+                            }
+                        }
+                        approx.delete();
                     }
                 }
-                if (maxContour && maxArea > (src.rows * src.cols * 0.1)) {
-                    const pArr = [];
-                    for (let j = 0; j < 4; j++) {
-                        pArr.push({ x: maxContour.data32S[j * 2] / src.cols, y: maxContour.data32S[j * 2 + 1] / src.rows });
-                    }
-                    quadPoints = sortPoints(pArr);
+                
+                if (bestPoints) {
+                    quadPoints = sortPoints(bestPoints);
                 } else {
                     quadPoints = [{x:0.1,y:0.1},{x:0.9,y:0.1},{x:0.9,y:0.9},{x:0.1,y:0.9}];
                 }
@@ -337,8 +367,10 @@ async function openCamera(targetId) {
     _cameraFacing = 'environment'; 
 
     const isSecure = location.protocol === 'https:' || location.hostname === 'localhost';
-    if (!isSecure || !navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        _openFilePicker(targetId);
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+    if (!isSecure || !navigator.mediaDevices || !navigator.mediaDevices.getUserMedia || isMobile) {
+        _openFilePicker(targetId, true);
         return;
     }
 
@@ -373,7 +405,7 @@ async function _startCameraStream() {
     } catch (err) {
         console.error('Camera error:', err);
         let msg = 'Không thể truy cập camera.';
-        if (err.name === 'NotAllowedError')  msg = 'Bạn đã từ chối quyền camera. Vui lòng cấp quyền từ cài đặt trình duyệt.';
+        if (err.name === 'NotAllowedError')  msg = 'Lỗi cấp quyền. Nếu máy Android, vui lòng tắt "Bong bóng chat" (Zalo/Messenger) đang hiển thị trên màn hình rồi thử lại.';
         if (err.name === 'NotFoundError')    msg = 'Thiết bị không có camera phù hợp.';
         if (err.name === 'NotReadableError') msg = 'Camera đang được ứng dụng khác sử dụng.';
         if (err.name === 'OverconstrainedError') {
@@ -441,11 +473,14 @@ function fallbackToGallery() {
     _openFilePicker(_cameraTargetId);
 }
 
-function _openFilePicker(targetId) {
+function _openFilePicker(targetId, forceCapture = false) {
     if (_galleryInput) { try { document.body.removeChild(_galleryInput); } catch(e) {} }
     _galleryInput = document.createElement('input');
     _galleryInput.type = 'file';
     _galleryInput.accept = 'image/*';
+    if (forceCapture) {
+        _galleryInput.capture = 'environment';
+    }
     _galleryInput.style.display = 'none';
     _galleryInput.onchange = async function() {
         const file = this.files && this.files[0];
