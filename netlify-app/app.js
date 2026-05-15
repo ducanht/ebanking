@@ -36,8 +36,12 @@ $(document).ready(() => {
 
     // 5. Cấp lại quyền loading off khi có phím bấm cứng (esc) xử lý bị treo form bootstrap
     window.addEventListener('keydown', function(event) {
-        if(event.key === 'Escape') {
-            $('.modal').modal('hide');
+        if (event.key === 'Escape') {
+            // Bootstrap 5: dùng API chuẩn thay vì jQuery plugin
+            document.querySelectorAll('.modal.show').forEach(function(modalEl) {
+                var bsModal = bootstrap.Modal.getInstance(modalEl);
+                if (bsModal) bsModal.hide();
+            });
         }
     });
 });
