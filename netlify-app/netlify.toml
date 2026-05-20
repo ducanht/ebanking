@@ -1,0 +1,149 @@
+# =================================================================
+# NETLIFY CONFIGURATION — Quỹ TDND Yên Thọ SPA
+# Phiên bản: 1.0.0
+# =================================================================
+# Hướng dẫn deploy:
+#   1. Đặt file này tại gốc thư mục netlify-app/
+#   2. Trỏ Netlify "Publish directory" về thư mục này
+#   3. Không cần Build command (static site thuần)
+# =================================================================
+
+# -----------------------------------------------------------------
+# [BUILD] — Cấu hình build (static site, không cần build command)
+# -----------------------------------------------------------------
+[build]
+  # Thư mục gốc chứa index.html
+  publish = "."
+
+  # Không có build command vì là static HTML thuần
+  # command = ""
+
+# -----------------------------------------------------------------
+# [REDIRECTS] — SPA Client-side Routing
+# Tất cả request đều trả về index.html (status 200, không phải 301/302)
+# Điều này giúp Vue/React Router hoặc custom JS routing hoạt động đúng
+# khi người dùng F5 hoặc truy cập trực tiếp một URL cụ thể
+# -----------------------------------------------------------------
+[[redirects]]
+  from   = "/*"
+  to     = "/index.html"
+  status = 200
+
+# -----------------------------------------------------------------
+# [HEADERS] — Security Headers cho toàn bộ ứng dụng
+# Áp dụng cho mọi response từ Netlify CDN
+# -----------------------------------------------------------------
+[[headers]]
+  for = "/*"
+
+  [headers.values]
+
+    # --- Chống Clickjacking ---
+    # DENY: Không cho phép nhúng trang trong bất kỳ <iframe> nào
+    X-Frame-Options = "DENY"
+
+    # --- Chống MIME Sniffing ---
+    # Trình duyệt phải tuân thủ đúng Content-Type được khai báo
+    X-Content-Type-Options = "nosniff"
+
+    # --- Referrer Policy ---
+    # Chỉ gửi origin khi cross-site, gửi đầy đủ URL khi same-origin
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+    # --- Permissions Policy ---
+    # Giới hạn các tính năng nhạy cảm, chỉ cho phép camera (OCR/chụp CCCD)
+    Permissions-Policy = "camera=(self), microphone=(), geolocation=(), payment=()"
+
+    # --- Content Security Policy (CSP) ---
+    # Kiểm soát nguồn gốc của từng loại tài nguyên được phép tải
+    #
+    # ⚠️ LƯU Ý: 'unsafe-inline' được bật cho script-src và style-src
+    # vì dự án dùng inline script/style trong index.html (Bootstrap, SweetAlert2...)
+    # Khi nào có thể, nên migrate sang nonce-based CSP để bảo mật tốt hơn.
+    #
+    # Giải thích từng directive:
+    #   default-src  — Mặc định chặn tất cả nếu không có directive riêng
+    #   script-src   — Cho phép JS từ 'self' + các CDN đã liệt kê
+    #   style-src    — Cho phép CSS từ 'self' + cdn.jsdelivr.net
+    #   font-src     — Cho phép font từ cdn.jsdelivr.net (Boxicons...)
+    #   img-src      — Cho phép ảnh từ mọi HTTPS + data URI (base64 preview ảnh CCCD)
+    #   connect-src  — Cho phép fetch/XHR đến GAS API và Google Drive
+    #   worker-src   — Cho phép blob: (OpenCV.js dùng Web Worker)
+    #   frame-src    — Chặn tất cả iframe
+    #   object-src   — Chặn plugin (Flash, Silverlight...)
+    Content-Security-Policy = """
+      default-src 'none';
+      script-src
+        'self'
+        'unsafe-inline'
+        cdn.jsdelivr.net
+        cdnjs.cloudflare.com
+        unpkg.com
+        code.jquery.com
+        cdn.datatables.net
+        docs.opencv.org
+        cdn.jsdelivr.net
+        ajax.googleapis.com;
+      style-src
+        'self'
+        'unsafe-inline'
+        cdn.jsdelivr.net
+        cdn.datatables.net;
+      font-src
+        'self'
+        cdn.jsdelivr.net
+        data:;
+      img-src
+        'self'
+        data:
+        https:
+        blob:;
+      connect-src
+        'self'
+        https://script.google.com
+        https://*.googleusercontent.com
+        https://*.googleapis.com
+        https://cdn.datatables.net;
+      worker-src
+        'self'
+        blob:;
+      frame-src
+        'none';
+      object-src
+        'none';
+      base-uri
+        'self';
+      form-action
+        'self';
+    """
+
+# -----------------------------------------------------------------
+# [HEADERS] — Cache Control cho Static Assets
+# Tăng hiệu năng tải trang bằng cách cache lâu dài các file tĩnh
+# -----------------------------------------------------------------
+
+# Cache logo và ảnh lâu dài (1 năm) — content không đổi
+[[headers]]
+  for = "/logo.png"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Cache CSS với revalidation (1 ngày) — có thể thay đổi khi update
+[[headers]]
+  for = "/*.css"
+  [headers.values]
+    Cache-Control = "public, max-age=86400, must-revalidate"
+
+# Cache JS với revalidation (1 ngày)
+[[headers]]
+  for = "/*.js"
+  [headers.values]
+    Cache-Control = "public, max-age=86400, must-revalidate"
+
+# KHÔNG cache index.html — luôn lấy bản mới nhất
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+    Pragma        = "no-cache"
+    Expires       = "0"

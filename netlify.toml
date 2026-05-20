@@ -1,8 +1,0 @@
-# Netlify configuration
-[build]
-  publish = "netlify-app"
-
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200

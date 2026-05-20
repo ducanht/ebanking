@@ -1,17 +1,11 @@
 /**
  * DASHBOARD & ADMIN LOGIC
+ * Phụ thuộc: utils.js phải load trước (chứa _parseStats, showLoading, hideLoading...)
  */
 let charts = {};
 
-function _parseStats(res) {
-    if (!res) return null;
-    let s = null;
-    if (res.statsStr) {
-        try { s = JSON.parse(res.statsStr); } catch(e) { console.error('Parse statsStr error', e); }
-    }
-    if (!s) s = res.stats || null;
-    return s;
-}
+// _parseStats() đã được chuyển sang utils.js để dùng chung với customer.js
+// Không định nghĩa lại ở đây để tránh lỗi phụ thuộc thứ tự load script
 
 async function initDashboard() {
     function _renderAll(s) {
@@ -44,10 +38,18 @@ async function initDashboard() {
             }
             if (s && s.allData) {
                 s.doiTuongCount = { 'Thành viên': 0, 'Ngoài thành viên': 0 };
+                s.cntQR  = 0;
+                s.cntLoa = 0;
                 s.allData.forEach(d => {
                     const dt = d['Đối tượng'] || d['doi_tuong'] || 'Ngoài thành viên';
                     if (dt === 'Thành viên') s.doiTuongCount['Thành viên']++;
                     else s.doiTuongCount['Ngoài thành viên']++;
+                    // Đếm QR và Loa — tên cột thực trong Sheet: 'Cung cấp Mã QR' và 'Cung cấp Loa'
+                    const trueVals = ['true', 'có', 'x', '1', 'yes', 'đã cấp'];
+                    const qrVal  = String(d['Cung cấp Mã QR'] || d['Có QR'] || d['co_qr'] || '').trim().toLowerCase();
+                    const loaVal = String(d['Cung cấp Loa']   || d['Có Loa'] || d['co_loa'] || '').trim().toLowerCase();
+                    if (trueVals.includes(qrVal)) s.cntQR++;
+                    if (trueVals.includes(loaVal)) s.cntLoa++;
                 });
             }
             AppCache.set('adminDashboard', s);
@@ -74,6 +76,11 @@ function renderAdminStats(s) {
     $('#db-hkd').text(hkd);         
     $('#db-thanhvien').text(thanhVien);
     $('#db-ngoaithanhvien').text(ngoaiTV);
+    // KPI Row 2: QR + Loa + Thành viên (bản sao)
+    $('#db-qr').text(s.cntQR || 0);
+    $('#db-loa').text(s.cntLoa || 0);
+    $('#db-thanhvien2').text(thanhVien);
+    $('#db-ngoaithanhvien2').text(ngoaiTV);
 
     // Cập nhật thanh tiến trình phân bổ
     const t = total || 1;
@@ -180,10 +187,25 @@ function renderAdminTable(allData, allStaffs) {
         const dtVal = d['Đối tượng'] || d['doi_tuong'] || 'Ngoài thành viên';
         const isMemb = dtVal === 'Thành viên';
 
+        // Badge QR và Loa — tên cột thực trong Sheet: 'Cung cấp Mã QR' và 'Cung cấp Loa'
+        const trueVals = ['true', 'có', 'x', '1', 'yes', 'đã cấp'];
+        const hasQR  = trueVals.includes(String(d['Cung cấp Mã QR'] || d['Có QR'] || d['co_qr'] || '').trim().toLowerCase());
+        const hasLoa = trueVals.includes(String(d['Cung cấp Loa']   || d['Có Loa'] || d['co_loa'] || '').trim().toLowerCase());
+        const qrBadge  = hasQR  ? `<span class="badge ms-1" style="background:rgba(16,185,129,0.12);color:#10b981;border:1px solid #10b981" title="Đã cấp QR"><i class="bx bx-qr-alt"></i></span>` : '';
+        const loaBadge = hasLoa ? `<span class="badge ms-1" style="background:rgba(139,92,246,0.12);color:#8b5cf6;border:1px solid #8b5cf6" title="Đã cấp Loa"><i class="bx bx-volume-full"></i></span>` : '';
+
+        // Tạo search string tổng hợp: tên KH + HKD + SĐT + CCCD + Số TK + tên cán bộ
+        const searchStr = utils_buildSearchIndex(Object.assign({}, d, {'Tên cán bộ': staffName}));
         return `
-            <tr data-id="${rowId}" class="clickable-row cursor-pointer flex-center">
+            <tr data-id="${rowId}" data-search="${searchStr}" class="clickable-row cursor-pointer flex-center">
                 <td><small class="text-muted">${utils_formatVN(d['Thời điểm nhập'], 'date')}</small></td>
-                <td class="fw-bold text-dark">${utils_escapeHTML(d['Tên khách hàng'] || '')}</td>
+                <td class="fw-bold text-dark">
+                    ${utils_escapeHTML(d['Tên khách hàng'] || '')}
+                    ${d['Loại hình dịch vụ'] === 'Hộ kinh doanh' && d['Tên hộ kinh doanh']
+                        ? `<br><small class="text-primary fw-semibold" title="Tên HKD"><i class="bx bx-store-alt"></i> ${utils_escapeHTML(d['Tên hộ kinh doanh'])}</small>`
+                        : ''}
+                    ${qrBadge}${loaBadge}
+                </td>
                 <td class="text-secondary"><small>${utils_escapeHTML(soTk)}</small></td>
                 <td>${statusDot} <span class="badge bg-light text-dark border">${utils_escapeHTML(d['Loại hình dịch vụ'] || 'Cá nhân')}</span></td>
                 <td><span class="badge ${isMemb ? 'bg-primary-subtle text-primary border border-primary-subtle' : 'bg-secondary-subtle text-secondary border border-secondary-subtle'}">${utils_escapeHTML(dtVal)}</span></td>
@@ -215,37 +237,38 @@ function renderAdminTable(allData, allStaffs) {
              "<'row'<'col-sm-12'tr>>" +
              "<'row mt-2'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
         buttons: [{
-            extend: 'excelHtml5',
             text: '<i class="bx bxs-file-export"></i> Xuất Excel',
             className: 'btn btn-sm btn-success shadow-sm',
-            exportOptions: {
-                columns: [0, 1, 2, 3, 4, 5, 6],  // Bỏ cột 7 (nút Chi tiết)
-                format: {
-                    // Strip HTML — lấy text thuần cho mọi cột (kể cả statusDot + badge)
-                    body: function(data, rowIdx, colIdx, node) {
-                        var tmp = document.createElement('div');
-                        tmp.innerHTML = data;
-                        var text = (tmp.textContent || tmp.innerText || '').trim();
-                        // Cột Loại Hình (idx 3): statusDot sẽ bỏ, chỉ lấy text badge
-                        return text;
-                    },
-                    header: function(data) {
-                        var tmp = document.createElement('div');
-                        tmp.innerHTML = data;
-                        return (tmp.textContent || tmp.innerText || data).trim();
-                    }
-                }
-            },
-            title: 'BaoCao_MoTK_YenTho_' + new Date().toISOString().slice(0,10)
+            action: function(e, dt, node, config) {
+                utils_exportFullExcel(dt, window._adminAllData, 'BaoCao_MoTK_YenTho_');
+            }
         }],
         language: { url: "https://cdn.datatables.net/plug-ins/1.13.6/i18n/vi.json" },
-        search: { caseInsensitive: true, smart: true },
+        // ✅ Smart search xử lý — tắt regex và smart của DT để không xung đột
+        search: { caseInsensitive: false, smart: false, regex: false },
         columnDefs: [
             { targets: [7], orderable: false, searchable: false }  
-        ]
+        ],
+        initComplete: function() {
+            // ✅ Bind search input sau khi DataTable render để trigger custom filter
+            const dtApi = this.api();
+            const $searchInput = $('#tblKH_wrapper input[type="search"]');
+            $searchInput.off('.DT'); // Gỡ bỏ event mặc định của DataTables để không bị đụng độ case-sensitive
+            $searchInput.on('keyup input', function() {
+                dtApi.settings()[0]._customSmartSearchQuery = this.value;
+                dtApi.draw();
+            });
+        }
     });
 
     window._dtAdmin = dtAdmin;
+
+    // ✅ Đăng ký Smart Search: không dấu, tìm tên + HKD + SĐT + CCCD/DKKD + STK + tên cán bộ
+    utils_registerSmartSearch(
+        'tblKH',
+        window._adminAllData,
+        d => String(d['ID'] || d['Mã GD'] || '').replace(/^'*/, '').trim()
+    );
 
     $.fn.dataTable.ext.search = $.fn.dataTable.ext.search.filter(fn => fn._tblKH !== true);
     const dateFilter = function(settings, data, dataIndex) {
@@ -262,8 +285,14 @@ function renderAdminTable(allData, allStaffs) {
     dateFilter._tblKH = true;
     $.fn.dataTable.ext.search.push(dateFilter);
 
+    // Filter: Cán bộ
     $('#filterStaffAdmin').off('change.tblKH').on('change.tblKH', function() {
         dtAdmin.column(6).search($(this).val()).draw();
+    });
+
+    // Filter: Đối tượng (Thành viên / Ngoài thành viên)
+    $('#filterDoiTuong').off('change.tblKH').on('change.tblKH', function() {
+        dtAdmin.column(4).search($(this).val()).draw();
     });
 
     $('#filterFromDate, #filterToDate').off('change.tblKH').on('change.tblKH', function() {

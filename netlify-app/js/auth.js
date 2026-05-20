@@ -10,8 +10,10 @@ function handleLogin(e) {
 
     runAPI('api_login', { email, password: hashedPwd }, (res) => {
         if (res.status === 'success') {
+            // v3.0 Sprint 1: Lưu token vào localStorage để gửi kèm mọi request sau
+            saveSession(res.token, res.user);
+            markSessionStart(); // Sprint 3: Đánh dấu thời điểm bắt đầu phiên để đồng bộ TTL 6h với Server
             AppState.user = res.user;
-            localStorage.setItem('HOKINHDOANH_SESSION', JSON.stringify(res.user));
             if (res.requirePasswordChange) {
                 const modalEl = document.getElementById('modalChangePassword');
                 if (modalEl) {
@@ -43,18 +45,23 @@ function handleLoginSuccess(silent) {
         if (typeof initDashboard === 'function') initDashboard();
     } else {
         $('#staffBottomNav').removeClass('d-none');
+        // Reset flag để form được init lại khi login mới
+        window._moTaiKhoanInited = false;
         showView('view-mo-tai-khoan');
-        if (typeof initMoTaiKhoanForm === 'function') initMoTaiKhoanForm();
+        if (typeof updateBottomNavActive === 'function') updateBottomNavActive('navOpenAccount');
+        if (typeof initMoTaiKhoanForm === 'function') {
+            initMoTaiKhoanForm();
+            window._moTaiKhoanInited = true;
+        }
     }
 }
 
 function logout() {
+    localStorage.removeItem('APP_SESSION_TOKEN');  // v3.0: Xóa token
     localStorage.clear();
     sessionStorage.clear();
     AppCache.clearAll();
     AppState.user = null;
-    
-    // Ép trình duyệt tải lại trang và bỏ qua cache bằng cách thêm tham số timestamp ngẫu nhiên
     window.location.href = window.location.origin + window.location.pathname + '?v=' + Date.now();
 }
 
